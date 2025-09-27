@@ -1,19 +1,29 @@
 
-import React from 'react';
-// Fix: Corrected the import path to be a relative module import.
+import React, { useState } from 'react';
 import Game from './components/Game';
+// Fix: Corrected the import name for level data from 'LEVELS' to 'LEVELS_DATA' to match the exported member in the module.
+import { LEVELS_DATA as initialLevels } from './components/level-data';
+import { Level } from './types';
 
 const App: React.FC = () => {
+  const [levels, setLevels] = useState<Level[]>(initialLevels);
+
   const handleQuit = () => {
-    // In a full app, this might return to a main menu.
-    // For now, we can show an alert or reset the component.
     alert("Thanks for playing!");
-    window.location.reload(); // Simple way to "restart"
+    window.location.reload(); 
+  };
+  
+  const handleAddLevel = (newLevel: Level) => {
+    setLevels(prevLevels => [...prevLevels, { ...newLevel, id: prevLevels.length + 1 }]);
   };
 
   return (
     <div className="w-screen h-screen bg-gray-800 flex items-center justify-center font-sans overflow-hidden">
-      <Game onQuit={handleQuit} />
+      <Game 
+        onQuit={handleQuit} 
+        levels={levels}
+        onAddLevel={handleAddLevel}
+      />
     </div>
   );
 };

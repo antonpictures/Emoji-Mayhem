@@ -1,10 +1,11 @@
 import React from 'react';
-import { LEVELS } from './level-data';
 import { Level } from '../types';
 
 interface LevelSelectScreenProps {
+  levels: Level[];
   onLevelSelect: (level: Level) => void;
   onQuit: () => void;
+  onStartEditor: () => void;
 }
 
 const HIGHSCORES = [
@@ -30,14 +31,14 @@ const HIGHSCORES = [
     { name: 'TheKing', emoji: '👑' },
 ];
 
-const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({ onLevelSelect, onQuit }) => {
+const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({ levels, onLevelSelect, onQuit, onStartEditor }) => {
   return (
     <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center z-30 p-4">
       <div className="text-center p-6 md:p-10 bg-gray-800 rounded-lg shadow-xl border-2 border-blue-500 max-w-4xl w-full">
         <h1 className="text-3xl md:text-5xl font-press-start text-yellow-400 mb-2 tracking-tighter">EMOJI MAYHEM</h1>
         <h2 className="text-xl md:text-2xl font-press-start text-blue-400 mb-8">SELECT LEVEL</h2>
         <div className="grid grid-cols-4 md:grid-cols-5 gap-4 md:gap-6 mb-8 max-h-[60vh] overflow-y-auto pr-2">
-          {LEVELS.map((level, index) => {
+          {levels.map((level, index) => {
             const highscore = HIGHSCORES[index % HIGHSCORES.length];
             return (
               <button
@@ -56,12 +57,20 @@ const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({ onLevelSelect, on
             );
           })}
         </div>
-         <button
-            onClick={onQuit}
-            className="px-8 py-3 font-press-start text-lg bg-gray-600 hover:bg-gray-500 text-white rounded-md transition-all duration-200"
-          >
-            QUIT
-          </button>
+         <div className="flex space-x-4 justify-center">
+            <button
+              onClick={onStartEditor}
+              className="px-8 py-3 font-press-start text-lg bg-green-600 hover:bg-green-500 text-white rounded-md transition-all duration-200"
+            >
+              LEVEL EDITOR
+            </button>
+            <button
+                onClick={onQuit}
+                className="px-8 py-3 font-press-start text-lg bg-gray-600 hover:bg-gray-500 text-white rounded-md transition-all duration-200"
+            >
+                QUIT
+            </button>
+         </div>
       </div>
     </div>
   );

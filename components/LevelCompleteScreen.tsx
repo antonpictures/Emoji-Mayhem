@@ -1,23 +1,33 @@
-
 import React from 'react';
 
 interface LevelCompleteScreenProps {
   score: number;
   onNext: () => void;
+  isTestingEditorLevel: boolean;
+  onReturnToEditor: () => void;
 }
 
-const LevelCompleteScreen: React.FC<LevelCompleteScreenProps> = ({ score, onNext }) => {
+const LevelCompleteScreen: React.FC<LevelCompleteScreenProps> = ({ score, onNext, isTestingEditorLevel, onReturnToEditor }) => {
   return (
     <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center z-30">
       <div className="text-center p-10 bg-gray-800 rounded-lg shadow-xl border-2 border-green-500">
         <h2 className="text-5xl font-press-start text-green-400 mb-4">LEVEL COMPLETE!</h2>
         <p className="text-2xl text-white mb-6">You scored <span className="font-bold text-yellow-400">{score}</span> points!</p>
-        <button
-          onClick={onNext}
-          className="px-8 py-3 font-press-start text-lg bg-green-600 hover:bg-green-500 text-white rounded-md transition-all duration-200 transform hover:scale-105"
-        >
-          CONTINUE
-        </button>
+        {isTestingEditorLevel ? (
+          <button
+            onClick={onReturnToEditor}
+            className="px-8 py-3 font-press-start text-lg bg-blue-600 hover:bg-blue-500 text-white rounded-md transition-all duration-200 transform hover:scale-105"
+          >
+            RETURN TO EDITOR
+          </button>
+        ) : (
+          <button
+            onClick={onNext}
+            className="px-8 py-3 font-press-start text-lg bg-green-600 hover:bg-green-500 text-white rounded-md transition-all duration-200 transform hover:scale-105"
+          >
+            CONTINUE
+          </button>
+        )}
       </div>
     </div>
   );

@@ -16,3 +16,6 @@ export const SLINGSHOT_POWER_MULTIPLIER = 0.2;
 export const MAX_SLINGSHOT_DRAG = 200;
 
 export const GRAVITY: Vec2 = { x: 0, y: 0.3 };
+
+export const ENEMY_COLLISION_DAMAGE = 0.5; // Damage per tick of contact
+export const ENEMY_KNOCKBACK_FACTOR = 0.5; // Impulse strength
