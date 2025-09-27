@@ -1,5 +1,6 @@
 import React from 'react';
 import { ENEMY_CONFIG } from './Game';
+import { soundManager } from './SoundManager';
 
 interface LevelEditorUIProps {
     onSelectTool: (tool: string | null) => void;
@@ -17,6 +18,16 @@ const LevelEditorUI: React.FC<LevelEditorUIProps> = ({ onSelectTool, selectedToo
         { id: 'breakable', label: '🧱' }
     ];
 
+    const handleToolClick = (toolId: string) => {
+        soundManager.playClick();
+        onSelectTool(toolId);
+    };
+
+    const handleActionClick = (action: () => void) => {
+        soundManager.playClick();
+        action();
+    };
+
     return (
         <div className="absolute top-0 left-0 h-full bg-gray-900/80 text-white p-4 z-40 flex flex-col space-y-4">
             <h3 className="font-press-start text-lg text-yellow-300">TOOLS</h3>
@@ -24,7 +35,7 @@ const LevelEditorUI: React.FC<LevelEditorUIProps> = ({ onSelectTool, selectedToo
                 {tools.map(tool => (
                     <button
                         key={tool.id}
-                        onClick={() => onSelectTool(tool.id)}
+                        onClick={() => handleToolClick(tool.id)}
                         className={`p-2 rounded text-2xl transition-colors ${selectedTool === tool.id ? 'bg-blue-500' : 'bg-gray-700 hover:bg-gray-600'}`}
                         title={tool.id}
                     >
@@ -36,13 +47,13 @@ const LevelEditorUI: React.FC<LevelEditorUIProps> = ({ onSelectTool, selectedToo
             <div className="flex-grow"></div>
 
             <div className="space-y-2">
-                 <button onClick={onTest} className="w-full p-2 bg-green-600 hover:bg-green-500 rounded font-press-start text-sm">
+                 <button onClick={() => handleActionClick(onTest)} className="w-full p-2 bg-green-600 hover:bg-green-500 rounded font-press-start text-sm">
                     TEST LEVEL
                 </button>
-                <button onClick={onSave} className="w-full p-2 bg-blue-600 hover:bg-blue-500 rounded font-press-start text-sm">
+                <button onClick={() => handleActionClick(onSave)} className="w-full p-2 bg-blue-600 hover:bg-blue-500 rounded font-press-start text-sm">
                     SAVE & EXIT
                 </button>
-                <button onClick={onExit} className="w-full p-2 bg-red-700 hover:bg-red-600 rounded font-press-start text-sm">
+                <button onClick={() => handleActionClick(onExit)} className="w-full p-2 bg-red-700 hover:bg-red-600 rounded font-press-start text-sm">
                     EXIT
                 </button>
             </div>

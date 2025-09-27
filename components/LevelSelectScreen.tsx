@@ -1,5 +1,6 @@
 import React from 'react';
 import { Level } from '../types';
+import { soundManager } from './SoundManager';
 
 interface LevelSelectScreenProps {
   levels: Level[];
@@ -32,6 +33,25 @@ const HIGHSCORES = [
 ];
 
 const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({ levels, onLevelSelect, onQuit, onStartEditor }) => {
+  
+  const handleLevelClick = (level: Level) => {
+    soundManager.initialize();
+    soundManager.playClick();
+    onLevelSelect(level);
+  };
+
+  const handleEditorClick = () => {
+    soundManager.initialize();
+    soundManager.playClick();
+    onStartEditor();
+  };
+
+  const handleQuitClick = () => {
+    soundManager.initialize();
+    soundManager.playClick();
+    onQuit();
+  };
+  
   return (
     <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center z-30 p-4">
       <div className="text-center p-6 md:p-10 bg-gray-800 rounded-lg shadow-xl border-2 border-blue-500 max-w-4xl w-full">
@@ -43,7 +63,7 @@ const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({ levels, onLevelSe
             return (
               <button
                 key={level.id}
-                onClick={() => onLevelSelect(level)}
+                onClick={() => handleLevelClick(level)}
                 className="p-2 font-press-start text-lg bg-blue-600 hover:bg-blue-500 text-white rounded-md transition-all duration-200 transform hover:scale-105 aspect-square flex flex-col justify-between items-center"
               >
                 <div className="flex-grow flex flex-col justify-center items-center">
@@ -59,13 +79,13 @@ const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({ levels, onLevelSe
         </div>
          <div className="flex space-x-4 justify-center">
             <button
-              onClick={onStartEditor}
+              onClick={handleEditorClick}
               className="px-8 py-3 font-press-start text-lg bg-green-600 hover:bg-green-500 text-white rounded-md transition-all duration-200"
             >
               LEVEL EDITOR
             </button>
             <button
-                onClick={onQuit}
+                onClick={handleQuitClick}
                 className="px-8 py-3 font-press-start text-lg bg-gray-600 hover:bg-gray-500 text-white rounded-md transition-all duration-200"
             >
                 QUIT

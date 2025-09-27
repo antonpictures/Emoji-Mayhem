@@ -19,6 +19,7 @@ import LevelSelectScreen from './LevelSelectScreen';
 import LevelCompleteScreen from './LevelCompleteScreen';
 import GameOverScreen from './GameOverScreen';
 import LevelEditorUI from './LevelEditorUI';
+import { soundManager } from './SoundManager';
 
 type GameState = 'level-select' | 'playing' | 'level-complete' | 'game-over' | 'level-editor';
 
@@ -119,7 +120,7 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onAddLevel }) => {
         return enemy;
     });
     setEnemies(newEnemies);
-    setBreakableBlocks(level.breakableBlocks?.map(b => ({...b, id: b.id || `bb-${Math.random()}`})) || []);
+    setBreakableBlocks(level.breakableBlocks?.map(b => ({...b, health: b.health || 100, id: b.id || `bb-${Math.random()}`})) || []);
     setProjectiles([]);
     setParticles([]);
     setScore(0);
@@ -128,6 +129,7 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onAddLevel }) => {
 
   const handleFire = useCallback((velocity: Vec2) => {
     if (remainingProjectiles <= 0) return;
+    soundManager.playFire();
     setRemainingProjectiles(prev => prev - 1);
     const newProjectile: Projectile = {
       id: `proj-${Date.now()}`,
@@ -139,29 +141,62 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onAddLevel }) => {
     setProjectiles(prev => [...prev, newProjectile]);
   }, [remainingProjectiles]);
 
-  const gameTick = useCallback(() => {
+    const gameTick = useCallback(() => {
     let scoreToAdd = 0;
     const newParticles: Particle[] = [];
-  
-    // 1. Update physics for existing entities
+    let localBreakableBlocks = [...breakableBlocks];
+
+    // 1. Update Projectiles
     let updatedProjectiles = projectiles.map(p => {
       let newVel = { x: p.velocity.x, y: p.velocity.y + GRAVITY.y };
       let newPos = { x: p.position.x + newVel.x, y: p.position.y + newVel.y };
       let bouncesLeft = p.bouncesLeft;
+      
+      const platforms = currentLevel?.platforms || editingLevel?.platforms || [];
 
+      // Ground collision
       if (newPos.y > GROUND_Y - p.radius && newVel.y > 0) {
         newPos.y = GROUND_Y - p.radius;
         newVel.y *= -PROJECTILE_BOUNCE_DAMPENING;
         bouncesLeft--;
         if (bouncesLeft > 0) {
           newParticles.push(...createParticleBurst(newPos, 5, '#ffffff'));
+          soundManager.playBounce();
         }
       }
+
+      // Platform collision
+      for (const platform of platforms) {
+          const closestX = Math.max(platform.position.x, Math.min(newPos.x, platform.position.x + platform.width));
+          const closestY = Math.max(platform.position.y, Math.min(newPos.y, platform.position.y + platform.height));
+          const dx = newPos.x - closestX;
+          const dy = newPos.y - closestY;
+
+          if (Math.hypot(dx, dy) < p.radius) {
+              soundManager.playBounce();
+              bouncesLeft--;
+              newParticles.push(...createParticleBurst({x: closestX, y: closestY}, 5, '#aaa'));
+
+              const overlapX = p.radius - Math.abs(dx);
+              const overlapY = p.radius - Math.abs(dy);
+
+              if (overlapY < overlapX) {
+                  newVel.y *= -PROJECTILE_BOUNCE_DAMPENING;
+                  newPos.y += newVel.y > 0 ? overlapY : -overlapY;
+              } else {
+                  newVel.x *= -PROJECTILE_BOUNCE_DAMPENING;
+                  newPos.x += newVel.x > 0 ? overlapX : -overlapX;
+              }
+              break;
+          }
+      }
+
       return { ...p, position: newPos, velocity: newVel, bouncesLeft };
     });
-  
+
+    // 2. Update Enemies
     let updatedEnemies = enemies.map(enemy => {
-        let newEnemy = {...enemy};
+        let newEnemy = {...enemy, velocity: {...enemy.velocity}, position: {...enemy.position}};
 
         if (newEnemy.type === 'flyer') {
             const phase = parseInt(newEnemy.id.replace(/\D/g,'')) % 100;
@@ -171,101 +206,167 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onAddLevel }) => {
             };
         } else if (newEnemy.type === 'sparky') {
             const phase = parseInt(newEnemy.id.replace(/\D/g,'')) % 100;
-            // Vertical oscillation
             newEnemy.position.y = newEnemy.basePosition!.y + Math.sin((Date.now() / 500) + phase) * 20;
-            // Horizontal zig-zag
             newEnemy.position.x += 2 * newEnemy.zigzagDirection!;
             if (newEnemy.position.x > newEnemy.basePosition!.x + 50 || newEnemy.position.x < newEnemy.basePosition!.x - 50) {
                 newEnemy.zigzagDirection! *= -1;
             }
         } else if (newEnemy.type === 'hopper') {
             if (newEnemy.jumpCooldown! <= 0 && newEnemy.position.y >= GROUND_Y - newEnemy.radius) {
-                newEnemy.velocity.y = -10; // Jump
+                newEnemy.velocity.y = -10;
                 newEnemy.velocity.x = (Math.random() - 0.5) * 8;
                 newEnemy.jumpCooldown = JUMP_COOLDOWN + Math.random() * 60;
             } else {
                 newEnemy.jumpCooldown! -= 1;
             }
         } else if (newEnemy.type === 'ghost') {
-            newEnemy.isSolid = Math.random() > 0.05; // Flicker in and out of solid state
+            newEnemy.isSolid = Math.random() > 0.05;
         }
         
-        // General physics for non-flyers/sparkies
         if (newEnemy.type !== 'flyer' && newEnemy.type !== 'sparky') {
             newEnemy.velocity.y += GRAVITY.y;
             newEnemy.position.x += newEnemy.velocity.x;
             newEnemy.position.y += newEnemy.velocity.y;
     
-            // Ground collision
             if (newEnemy.position.y > GROUND_Y - newEnemy.radius) {
                 newEnemy.position.y = GROUND_Y - newEnemy.radius;
                 newEnemy.velocity.y = 0;
-                newEnemy.velocity.x *= 0.8; // Friction
+                newEnemy.velocity.x *= 0.8;
             }
         }
         return newEnemy;
     });
 
-    let stillEnemies = [...updatedEnemies];
-    let destroyedEnemyIds = new Set<string>();
+    // 3. Enemy-enemy collisions
+    for (let i = 0; i < updatedEnemies.length; i++) {
+        for (let j = i + 1; j < updatedEnemies.length; j++) {
+            const enemyA = updatedEnemies[i];
+            const enemyB = updatedEnemies[j];
 
-    for (const proj of updatedProjectiles) {
-        if (proj.bouncesLeft <= 0) continue;
+            if (enemyA.type === 'flyer' || enemyA.type === 'sparky' || enemyB.type === 'flyer' || enemyB.type === 'sparky') continue;
 
-        for (const enemy of stillEnemies) {
-            if (destroyedEnemyIds.has(enemy.id) || (enemy.type === 'ghost' && !enemy.isSolid)) continue;
-
-            const dx = proj.position.x - enemy.position.x;
-            const dy = proj.position.y - enemy.position.y;
+            const dx = enemyB.position.x - enemyA.position.x;
+            const dy = enemyB.position.y - enemyA.position.y;
             const dist = Math.hypot(dx, dy);
+            const overlap = (enemyA.radius + enemyB.radius) - dist;
 
-            if (dist < proj.radius + enemy.radius) {
-                const damage = Math.max(10, Math.hypot(proj.velocity.x, proj.velocity.y) * 5);
-                enemy.health -= damage;
-                
-                newParticles.push(...createParticleBurst(proj.position, 20, enemy.color));
+            if (overlap > 0) {
+                enemyA.health -= ENEMY_COLLISION_DAMAGE;
+                enemyB.health -= ENEMY_COLLISION_DAMAGE;
+                soundManager.playCollision();
 
                 const angle = Math.atan2(dy, dx);
-                enemy.velocity.x += Math.cos(angle) * 10;
-                enemy.velocity.y += Math.sin(angle) * 10;
-                
-                proj.bouncesLeft = 0; 
+                const moveX = Math.cos(angle) * overlap / 2;
+                const moveY = Math.sin(angle) * overlap / 2;
 
-                if (enemy.health <= 0) {
-                    destroyedEnemyIds.add(enemy.id);
-                    scoreToAdd += enemy.points;
-                    newParticles.push(...createParticleBurst(enemy.position, 50, enemy.color));
-                }
-                break;
+                enemyA.position.x -= moveX;
+                enemyA.position.y -= moveY;
+                enemyB.position.x += moveX;
+                enemyB.position.y += moveY;
+
+                enemyA.velocity.x -= moveX * ENEMY_KNOCKBACK_FACTOR;
+                enemyA.velocity.y -= moveY * ENEMY_KNOCKBACK_FACTOR;
+                enemyB.velocity.x += moveX * ENEMY_KNOCKBACK_FACTOR;
+                enemyB.velocity.y += moveY * ENEMY_KNOCKBACK_FACTOR;
+                
+                newParticles.push(...createParticleBurst({x: enemyA.position.x + dx/2, y: enemyA.position.y + dy/2}, 2, '#ffffff'));
             }
         }
     }
 
-    stillEnemies = stillEnemies.filter(e => !destroyedEnemyIds.has(e.id));
+    // 4. Projectile collisions & cleanup
+    let destroyedEnemyIds = new Set<string>();
+    let destroyedBlockIds = new Set<string>();
+
+    updatedProjectiles = updatedProjectiles.filter(proj => {
+        if (proj.bouncesLeft <= 0) return false;
+
+        // Projectile-Enemy
+        for (const enemy of updatedEnemies) {
+            if (destroyedEnemyIds.has(enemy.id) || (enemy.type === 'ghost' && !enemy.isSolid)) continue;
+            const dx = proj.position.x - enemy.position.x;
+            const dy = proj.position.y - enemy.position.y;
+            if (Math.hypot(dx, dy) < proj.radius + enemy.radius) {
+                soundManager.playImpact();
+                enemy.health -= Math.max(10, Math.hypot(proj.velocity.x, proj.velocity.y) * 5);
+                newParticles.push(...createParticleBurst(proj.position, 20, enemy.color));
+                const angle = Math.atan2(dy, dx);
+                enemy.velocity.x += Math.cos(angle) * 5;
+                enemy.velocity.y += Math.sin(angle) * 5;
+                if (enemy.health <= 0) destroyedEnemyIds.add(enemy.id);
+                return false; // Projectile is destroyed on impact
+            }
+        }
+        
+        // Projectile-Block
+        for (const block of localBreakableBlocks) {
+            const closestX = Math.max(block.position.x, Math.min(proj.position.x, block.position.x + block.width));
+            const closestY = Math.max(block.position.y, Math.min(proj.position.y, block.position.y + block.height));
+            if (Math.hypot(proj.position.x - closestX, proj.position.y - closestY) < proj.radius) {
+                soundManager.playImpact();
+                block.health -= 100;
+                newParticles.push(...createParticleBurst({x: closestX, y: closestY}, 10, '#a16207'));
+                if (block.health <= 0) destroyedBlockIds.add(block.id);
+                return false; // Projectile is destroyed
+            }
+        }
+
+        return proj.position.x > -proj.radius && proj.position.x < WORLD_WIDTH + proj.radius;
+    });
     
-    const updatedParticles = particles
-        .map(p => ({ ...p, position: { x: p.position.x + p.velocity.x, y: p.position.y + p.velocity.y }, lifespan: p.lifespan - 1 }))
-        .filter(p => p.lifespan > 0);
+    // 5. Finalize destroyed entities
+    updatedEnemies.forEach(e => { if (e.health <= 0) destroyedEnemyIds.add(e.id); });
 
-    const finalProjectiles = updatedProjectiles.filter(p => p.bouncesLeft > 0 && p.position.x > -p.radius && p.position.x < WORLD_WIDTH + p.radius);
+    const stillEnemies = updatedEnemies.filter(e => !destroyedEnemyIds.has(e.id));
 
+    destroyedEnemyIds.forEach(id => {
+        const deadEnemy = enemies.find(e => e.id === id);
+        if (deadEnemy) {
+            scoreToAdd += deadEnemy.points;
+            newParticles.push(...createParticleBurst(deadEnemy.position, 50, deadEnemy.color));
+            soundManager.playDestroy();
+        }
+    });
+    
+    if (destroyedBlockIds.size > 0) {
+        localBreakableBlocks = localBreakableBlocks.filter(b => !destroyedBlockIds.has(b.id));
+        destroyedBlockIds.forEach(() => soundManager.playBlockBreak());
+    }
+
+    // 6. Update state
+    const updatedParticles = particles.map(p => ({ ...p, position: { x: p.position.x + p.velocity.x, y: p.position.y + p.velocity.y }, lifespan: p.lifespan - 1 })).filter(p => p.lifespan > 0);
+    
     setScore(s => s + scoreToAdd);
     setEnemies(stillEnemies);
-    setProjectiles(finalProjectiles);
+    setProjectiles(updatedProjectiles);
     setParticles([...updatedParticles, ...newParticles]);
+    setBreakableBlocks(localBreakableBlocks);
 
+    // 7. Check win/loss conditions
     if (stillEnemies.length === 0 && gameState === 'playing') {
+      soundManager.playLevelComplete();
       setGameState('level-complete');
-    } else if (remainingProjectiles <= 0 && finalProjectiles.length === 0 && stillEnemies.length > 0 && gameState === 'playing') {
+    } else if (remainingProjectiles <= 0 && updatedProjectiles.length === 0 && stillEnemies.length > 0 && gameState === 'playing') {
+      soundManager.playGameOver();
       setGameState('game-over');
     }
-  }, [projectiles, enemies, particles, breakableBlocks, remainingProjectiles, createParticleBurst, gameState]);
+  }, [projectiles, enemies, particles, breakableBlocks, remainingProjectiles, createParticleBurst, gameState, currentLevel, editingLevel]);
 
   useEffect(() => {
+    const handleInteraction = () => {
+        soundManager.initialize();
+        gameContainerRef.current?.removeEventListener('mousedown', handleInteraction);
+        gameContainerRef.current?.removeEventListener('touchstart', handleInteraction);
+    }
+    gameContainerRef.current?.addEventListener('mousedown', handleInteraction);
+    gameContainerRef.current?.addEventListener('touchstart', handleInteraction);
+    
     if (gameState === 'playing') {
       gameLoopRef.current = window.requestAnimationFrame(gameTick);
     }
     return () => {
+      gameContainerRef.current?.removeEventListener('mousedown', handleInteraction);
+      gameContainerRef.current?.removeEventListener('touchstart', handleInteraction);
       if (gameLoopRef.current) {
         window.cancelAnimationFrame(gameLoopRef.current);
       }
