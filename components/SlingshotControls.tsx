@@ -132,14 +132,16 @@ const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible
           <>
             <line x1={PLAYER_START_POS.x - 20} y1={PLAYER_START_POS.y-10} x2={projectilePosX} y2={projectilePosY} stroke="rgba(200, 150, 0, 0.8)" strokeWidth="4" />
             <line x1={PLAYER_START_POS.x + 20} y1={PLAYER_START_POS.y-10} x2={projectilePosX} y2={projectilePosY} stroke="rgba(200, 150, 0, 0.8)" strokeWidth="4" />
-            <foreignObject x={projectilePosX - PROJECTILE_RADIUS} y={projectilePosY - PROJECTILE_RADIUS} width={PROJECTILE_RADIUS * 2} height={PROJECTILE_RADIUS * 2}>
-                <div
-                    className="w-full h-full rounded-full bg-yellow-400 flex items-center justify-center text-black font-bold"
-                    style={{ fontSize: `${PROJECTILE_RADIUS * 0.6}px` }}
-                >
-                    $MPS
-                </div>
-            </foreignObject>
+            <text
+                x={projectilePosX}
+                y={projectilePosY}
+                fontSize={PROJECTILE_RADIUS * 2.5}
+                textAnchor="middle"
+                dominantBaseline="central"
+                style={{ userSelect: 'none', pointerEvents: 'none' }}
+            >
+                😡
+            </text>
           </>
       )
   }

@@ -10,6 +10,8 @@ export const PLAYER_RADIUS = 35;
 export const PLAYER_MAX_HEALTH = 100;
 
 export const PROJECTILE_RADIUS = 15;
+export const PROJECTILE_MAX_BOUNCES = 5;
+export const PROJECTILE_BOUNCE_DAMPENING = 0.7;
 export const SLINGSHOT_POWER_MULTIPLIER = 0.2;
 export const MAX_SLINGSHOT_DRAG = 200;
 

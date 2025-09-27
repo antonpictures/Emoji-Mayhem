@@ -4,7 +4,29 @@ export interface Vec2 {
   y: number;
 }
 
-export type EnemyType = 'grunt' | 'brute' | 'flyer';
+export type EnemyType = 'grunt' | 'brute' | 'flyer' | 'bomber' | 'ghost' | 'hopper' | 'tank' | 'sparky';
+
+export interface Platform {
+  id: string;
+  position: Vec2;
+  width: number;
+  height: number;
+}
+
+export interface BreakableBlock {
+  id: string;
+  position: Vec2;
+  width: number;
+  height: number;
+  health: number;
+}
+
+export interface EmojiStructure {
+    id: string;
+    position: Vec2;
+    emoji: string;
+    fontSize: number;
+}
 
 export interface Enemy {
   id: string;
@@ -15,6 +37,12 @@ export interface Enemy {
   type: EnemyType;
   points: number;
   color: string;
+  emoji: string;
+  basePosition?: Vec2; // For flyers' movement patterns
+  // New state properties for special enemies
+  isSolid?: boolean;
+  jumpCooldown?: number;
+  zigzagDirection?: number;
 }
 
 export interface Projectile {
@@ -22,6 +50,7 @@ export interface Projectile {
   position: Vec2;
   velocity: Vec2;
   radius: number;
+  bouncesLeft: number;
 }
 
 export interface Particle {
@@ -40,5 +69,12 @@ export interface Level {
   enemies: Array<{
     type: EnemyType;
     position: Vec2;
+    emoji?: string;
   }>;
+  platforms?: Platform[];
+  breakableBlocks?: BreakableBlock[];
+  emojiStructures?: EmojiStructure[];
+  theme?: {
+      sky: [string, string, string]; // [startColor, midColor, endColor]
+  }
 }

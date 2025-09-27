@@ -19,9 +19,9 @@ const HUD: React.FC<HUDProps> = ({ score, levelName, projectiles }) => {
       </div>
       <div className="font-press-start text-xl flex items-center">
         <span>PROJECTILES: </span>
-        <div className="flex ml-2">
+        <div className="flex items-center ml-2">
             {[...Array(projectiles)].map((_, i) => (
-                <div key={i} className="w-5 h-5 rounded-full bg-yellow-400 border-2 border-black -ml-1"></div>
+                <span key={i} className="text-2xl -ml-1" role="img" aria-label="projectile">😡</span>
             ))}
         </div>
       </div>

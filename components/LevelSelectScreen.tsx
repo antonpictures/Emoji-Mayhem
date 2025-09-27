@@ -34,7 +34,8 @@ const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({ onLevelSelect, on
   return (
     <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center z-30 p-4">
       <div className="text-center p-6 md:p-10 bg-gray-800 rounded-lg shadow-xl border-2 border-blue-500 max-w-4xl w-full">
-        <h2 className="text-3xl md:text-5xl font-press-start text-blue-400 mb-8">SELECT LEVEL</h2>
+        <h1 className="text-3xl md:text-5xl font-press-start text-yellow-400 mb-2 tracking-tighter">EMOJI MAYHEM</h1>
+        <h2 className="text-xl md:text-2xl font-press-start text-blue-400 mb-8">SELECT LEVEL</h2>
         <div className="grid grid-cols-4 md:grid-cols-5 gap-4 md:gap-6 mb-8 max-h-[60vh] overflow-y-auto pr-2">
           {LEVELS.map((level, index) => {
             const highscore = HIGHSCORES[index % HIGHSCORES.length];
