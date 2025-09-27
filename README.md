@@ -79,3 +79,53 @@ Here are universally available emojis Gemini can use for characters:
 - Weekly emoji tournaments
 
 The key is making it **visually appealing with chunky, satisfying destruction**, **easy to pick up but hard to put down**, and giving players **constant small rewards** to keep them coming back!
+---
+
+## Visual Enhancements
+1. Better Backgrounds & Environments
+
+Add animated gradient backgrounds that change per level
+Include parallax scrolling background elements (clouds, mountains, trees)
+Add environmental decorations that match each level's theme
+
+2. Enhanced Particle Effects
+
+More dynamic explosion particles with realistic physics
+Trail effects for projectiles
+Impact ripple effects when projectiles hit the ground
+Dust clouds and debris particles
+
+3. Improved Slingshot Visual
+
+Animated rubber band that stretches when aiming
+Better slingshot model with wood texture and realistic proportions
+Aiming trajectory visualization with dotted arc
+Loading animation when pulling back
+
+4. Better Entity Graphics
+
+Add shadow effects under all entities
+Implement wobble/bounce animations for enemies
+Scale and rotation effects during impacts
+Glowing outlines for special enemies
+
+5. UI/HUD Improvements
+
+Animated score counters with pop effects
+Progress bars with smooth animations
+Better typography with game-appropriate fonts
+Floating damage numbers and score popups
+
+6. Lighting & Atmosphere
+
+Dynamic lighting effects from explosions
+Ambient lighting that changes with level theme
+Glow effects around special elements
+Screen shake on big impacts
+
+7. Smooth Animations
+
+Easing functions for all movements
+Anticipation and follow-through in animations
+Smooth camera transitions between game states
+Fluid UI transitions

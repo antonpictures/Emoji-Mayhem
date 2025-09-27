@@ -1,134 +1,99 @@
-// Fix: Create level data file to provide structured data for game levels.
+// Fix: Added level data definitions.
 import { Level } from '../types';
+import { WORLD_WIDTH, GROUND_Y } from '../constants';
 
 export const LEVELS: Level[] = [
   {
     id: 1,
-    name: "Pig Pen",
-    backgroundColor: "bg-gradient-to-b from-green-400 to-green-600",
+    name: "The Beginning",
+    projectiles: 5,
     enemies: [
-      { radius: 30, score: 100, emoji: "🐷" },
-      { radius: 40, score: 150, emoji: "🐷" },
-      { radius: 35, score: 120, emoji: "👹" },
-      { radius: 25, score: 150, emoji: "🎯" },
+      { type: 'grunt', position: { x: WORLD_WIDTH - 200, y: GROUND_Y - 25 } },
     ],
   },
   {
     id: 2,
-    name: "Robot Ruckus",
-    backgroundColor: "bg-gradient-to-b from-gray-500 to-gray-700",
+    name: "Tower of Grunts",
+    projectiles: 6,
     enemies: [
-      { radius: 30, score: 100, emoji: "🤖" },
-      { radius: 45, score: 200, emoji: "👾" },
-      { radius: 35, score: 120, emoji: "🤖" },
-      { radius: 40, score: 150, emoji: "👹" },
-      { radius: 35, score: 130, emoji: "👻" },
+      { type: 'grunt', position: { x: WORLD_WIDTH - 200, y: GROUND_Y - 25 } },
+      { type: 'grunt', position: { x: WORLD_WIDTH - 200, y: GROUND_Y - 80 } },
     ],
   },
   {
     id: 3,
-    name: "Alien Invasion",
-    backgroundColor: "bg-gradient-to-b from-indigo-900 via-purple-900 to-black",
+    name: "The Brute",
+    projectiles: 4,
     enemies: [
-        { radius: 50, score: 250, emoji: "👹" },
-        { radius: 40, score: 150, emoji: "👾" },
-        { radius: 45, score: 200, emoji: "👾" },
-        { radius: 30, score: 100, emoji: "🤖" },
-        { radius: 35, score: 120, emoji: "🐷" },
-        { radius: 40, score: 160, emoji: "💀" },
+      { type: 'brute', position: { x: WORLD_WIDTH - 250, y: GROUND_Y - 40 } },
     ],
   },
-  {
+    {
     id: 4,
-    name: "Spooky Specters",
-    backgroundColor: "bg-gradient-to-b from-gray-900 via-purple-900 to-black",
+    name: "Flying Menace",
+    projectiles: 5,
     enemies: [
-      { radius: 35, score: 130, emoji: "👻" },
-      { radius: 40, score: 160, emoji: "💀" },
-      { radius: 35, score: 130, emoji: "👻" },
-      { radius: 45, score: 200, emoji: "👹" },
-      { radius: 30, score: 100, emoji: "🐷" },
-      { radius: 30, score: 110, emoji: "🤡" },
+      { type: 'flyer', position: { x: WORLD_WIDTH - 300, y: GROUND_Y - 200 } },
+      { type: 'grunt', position: { x: WORLD_WIDTH - 200, y: GROUND_Y - 25 } },
     ],
   },
   {
     id: 5,
-    name: "Circus of Chaos",
-    backgroundColor: "bg-gradient-to-b from-red-500 via-pink-500 to-purple-600",
+    name: "Fortress",
+    projectiles: 8,
     enemies: [
-      { radius: 30, score: 110, emoji: "🤡" },
-      { radius: 25, score: 150, emoji: "🎯" },
-      { radius: 30, score: 110, emoji: "🤡" },
-      { radius: 25, score: 150, emoji: "🎯" },
-      { radius: 40, score: 180, emoji: "👻" },
-      { radius: 50, score: 250, emoji: "👹" },
-      { radius: 45, score: 200, emoji: "👾" },
+      { type: 'grunt', position: { x: WORLD_WIDTH - 200, y: GROUND_Y - 25 } },
+      { type: 'grunt', position: { x: WORLD_WIDTH - 280, y: GROUND_Y - 25 } },
+      { type: 'brute', position: { x: WORLD_WIDTH - 240, y: GROUND_Y - 90 } },
     ],
   },
   {
     id: 6,
-    name: "Ghostly Gauntlet",
-    backgroundColor: "bg-gradient-to-b from-slate-800 to-slate-900",
+    name: "Air and Ground",
+    projectiles: 7,
     enemies: [
-      { radius: 35, score: 130, emoji: "👻" },
-      { radius: 35, score: 130, emoji: "👻" },
-      { radius: 40, score: 160, emoji: "💀" },
-      { radius: 40, score: 160, emoji: "💀" },
-      { radius: 35, score: 130, emoji: "👻" },
-      { radius: 35, score: 130, emoji: "👻" },
-    ],
+        { type: 'flyer', position: { x: WORLD_WIDTH - 400, y: GROUND_Y - 250 } },
+        { type: 'brute', position: { x: WORLD_WIDTH - 250, y: GROUND_Y - 40 } },
+    ]
   },
   {
-    id: 7,
-    name: "Target Practice",
-    backgroundColor: "bg-gradient-to-b from-sky-400 to-sky-600",
-    enemies: [
-      { radius: 25, score: 150, emoji: "🎯" },
-      { radius: 25, score: 150, emoji: "🎯" },
-      { radius: 25, score: 150, emoji: "🎯" },
-      { radius: 25, score: 150, emoji: "🎯" },
-      { radius: 25, score: 150, emoji: "🎯" },
-      { radius: 25, score: 150, emoji: "🎯" },
-      { radius: 40, score: 150, emoji: "🐷" },
-    ],
+      id: 7,
+      name: "The Swarm",
+      projectiles: 10,
+      enemies: [
+        { type: 'flyer', position: { x: WORLD_WIDTH - 200, y: GROUND_Y - 200 } },
+        { type: 'flyer', position: { x: WORLD_WIDTH - 300, y: GROUND_Y - 250 } },
+        { type: 'flyer', position: { x: WORLD_WIDTH - 400, y: GROUND_Y - 200 } },
+      ]
   },
   {
-    id: 8,
-    name: "Clown Town",
-    backgroundColor: "bg-gradient-to-b from-pink-400 to-purple-500",
-    enemies: [
-      { radius: 30, score: 110, emoji: "🤡" },
-      { radius: 30, score: 110, emoji: "🤡" },
-      { radius: 30, score: 110, emoji: "🤡" },
-      { radius: 50, score: 250, emoji: "👹" },
-      { radius: 50, score: 250, emoji: "👹" },
-    ],
+      id: 8,
+      name: "The Wall",
+      projectiles: 10,
+      enemies: [
+          { type: 'brute', position: { x: WORLD_WIDTH - 200, y: GROUND_Y - 40 } },
+          { type: 'brute', position: { x: WORLD_WIDTH - 320, y: GROUND_Y - 40 } },
+          { type: 'grunt', position: { x: WORLD_WIDTH - 260, y: GROUND_Y - 130 } },
+      ]
   },
   {
-    id: 9,
-    name: "Mechanic's Menace",
-    backgroundColor: "bg-gradient-to-b from-orange-400 to-red-600",
-    enemies: [
-      { radius: 30, score: 100, emoji: "🤖" },
-      { radius: 30, score: 100, emoji: "🤖" },
-      { radius: 40, score: 160, emoji: "💀" },
-      { radius: 45, score: 200, emoji: "👾" },
-      { radius: 45, score: 200, emoji: "👾" },
-      { radius: 40, score: 160, emoji: "💀" },
-    ],
+      id: 9,
+      name: "Precision Shot",
+      projectiles: 3,
+      enemies: [
+        { type: 'grunt', position: { x: WORLD_WIDTH - 500, y: GROUND_Y - 25 } },
+      ]
   },
   {
-    id: 10,
-    name: "Final Boss",
-    backgroundColor: "bg-gradient-to-b from-red-800 via-black to-black",
-    enemies: [
-      { radius: 60, score: 500, emoji: "👹" },
-      { radius: 30, score: 110, emoji: "🤡" },
-      { radius: 30, score: 110, emoji: "🤡" },
-      { radius: 35, score: 130, emoji: "👻" },
-      { radius: 35, score: 130, emoji: "👻" },
-      { radius: 25, score: 150, emoji: "🎯" },
-      { radius: 25, score: 150, emoji: "🎯" },
-    ],
-  },
+      id: 10,
+      name: "Final Stand",
+      projectiles: 12,
+      enemies: [
+          { type: 'brute', position: { x: WORLD_WIDTH - 200, y: GROUND_Y - 40 } },
+          { type: 'flyer', position: { x: WORLD_WIDTH - 300, y: GROUND_Y - 200 } },
+          { type: 'grunt', position: { x: WORLD_WIDTH - 400, y: GROUND_Y - 25 } },
+          { type: 'grunt', position: { x: WORLD_WIDTH - 400, y: GROUND_Y - 80 } },
+          { type: 'brute', position: { x: WORLD_WIDTH - 550, y: GROUND_Y - 40 } },
+      ]
+  }
 ];

@@ -1,50 +1,44 @@
-// Fix: Create types file to define data structures used throughout the application.
-export type GameState = 'level-select' | 'playing' | 'level-complete' | 'game-over';
-
-export type Character = 'zen' | 'spark';
-
+// Fix: Added type definitions used across the application.
 export interface Vec2 {
   x: number;
   y: number;
 }
 
-export interface Entity {
+export type EnemyType = 'grunt' | 'brute' | 'flyer';
+
+export interface Enemy {
   id: string;
-  type: 'enemy' | 'projectile';
+  position: Vec2;
+  velocity: Vec2;
+  health: number;
+  radius: number;
+  type: EnemyType;
+  points: number;
+  color: string;
+}
+
+export interface Projectile {
+  id: string;
   position: Vec2;
   velocity: Vec2;
   radius: number;
 }
 
-export interface Enemy extends Entity {
-  type: 'enemy';
-  emoji: string;
-  score: number;
-}
-
-export interface Projectile extends Entity {
-  type: 'projectile';
-}
-
 export interface Particle {
-  id: string;
-  position: Vec2;
-  velocity: Vec2;
-  life: number;
-  maxLife: number;
-  emoji: string;
-  size: number;
-}
-
-export interface EnemyConfig {
+    id: string;
+    position: Vec2;
+    velocity: Vec2;
     radius: number;
-    score: number;
-    emoji: string;
+    color: string;
+    lifespan: number;
 }
 
 export interface Level {
   id: number;
   name: string;
-  enemies: EnemyConfig[];
-  backgroundColor: string;
+  projectiles: number;
+  enemies: Array<{
+    type: EnemyType;
+    position: Vec2;
+  }>;
 }

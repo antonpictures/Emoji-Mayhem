@@ -1,8 +1,5 @@
 // Fix: Create constants file to centralize game configuration values.
 import { Vec2 } from './types';
-import { LEVELS as levelData } from './components/level-data';
-
-export const LEVELS = levelData;
 
 export const WORLD_WIDTH = 1280;
 export const WORLD_HEIGHT = 720;

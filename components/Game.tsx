@@ -1,24 +1,28 @@
-// Fix: Restored full file content to resolve parsing errors.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-import LevelSelectScreen from './LevelSelectScreen';
-import LevelCompleteScreen from './LevelCompleteScreen';
-import GameOverScreen from './GameOverScreen';
-import HUD from './HUD';
-import SlingshotControls from './SlingshotControls';
-
-import { GameState, Level, Entity, Enemy, Projectile, Vec2, Particle } from '../types';
+import { Vec2, Projectile, Enemy, Level, Particle } from '../types';
 import {
-  LEVELS,
   WORLD_WIDTH,
   WORLD_HEIGHT,
   GROUND_Y,
   PLAYER_START_POS,
-  PLAYER_RADIUS,
-  PLAYER_MAX_HEALTH,
   PROJECTILE_RADIUS,
   GRAVITY,
 } from '../constants';
+import { LEVELS } from './level-data';
+
+import SlingshotControls from './SlingshotControls';
+import HUD from './HUD';
+import LevelSelectScreen from './LevelSelectScreen';
+import LevelCompleteScreen from './LevelCompleteScreen';
+import GameOverScreen from './GameOverScreen';
+
+type GameState = 'level-select' | 'playing' | 'level-complete' | 'game-over';
+
+const ENEMY_CONFIG = {
+    grunt: { radius: 25, health: 50, color: 'rgb(239, 68, 68)', points: 100 },
+    brute: { radius: 40, health: 150, color: 'rgb(192, 38, 211)', points: 300 },
+    flyer: { radius: 20, health: 30, color: 'rgb(59, 130, 246)', points: 150 },
+};
 
 interface GameProps {
   onQuit: () => void;
@@ -27,285 +31,246 @@ interface GameProps {
 const Game: React.FC<GameProps> = ({ onQuit }) => {
   const [gameState, setGameState] = useState<GameState>('level-select');
   const [currentLevel, setCurrentLevel] = useState<Level | null>(null);
-  const [shots, setShots] = useState(0);
-  const [score, setScore] = useState(0);
-  const [playerHealth, setPlayerHealth] = useState(PLAYER_MAX_HEALTH);
-
-  const [entities, setEntities] = useState<Entity[]>([]);
-  const [projectile, setProjectile] = useState<Projectile | null>(null);
+  const [projectiles, setProjectiles] = useState<Projectile[]>([]);
+  const [enemies, setEnemies] = useState<Enemy[]>([]);
   const [particles, setParticles] = useState<Particle[]>([]);
+  const [remainingProjectiles, setRemainingProjectiles] = useState(0);
+  const [score, setScore] = useState(0);
 
   const gameLoopRef = useRef<number | null>(null);
-  const gameContainerRef = useRef<HTMLDivElement>(null);
-  
-  const createParticles = useCallback((position: Vec2, emoji: string, count: number = 10) => {
+
+  const createParticleBurst = (position: Vec2, count: number, color: string): Particle[] => {
     const newParticles: Particle[] = [];
     for (let i = 0; i < count; i++) {
-      newParticles.push({
-        id: `particle-${Date.now()}-${i}`,
-        position: { ...position },
-        velocity: {
-          x: (Math.random() - 0.5) * 8,
-          y: (Math.random() - 0.5) * 8 - 3
-        },
-        life: 50,
-        maxLife: 50,
-        emoji,
-        size: Math.random() * 15 + 5
-      });
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = Math.random() * 5 + 2;
+        newParticles.push({
+            id: `p-${Date.now()}-${i}-${Math.random()}`,
+            position: { ...position },
+            velocity: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed },
+            radius: Math.random() * 3 + 1,
+            color,
+            lifespan: 30 + Math.random() * 30 // frames
+        });
     }
-    setParticles(prev => [...prev, ...newParticles]);
-  }, []);
-
-  const spawnEnemies = useCallback((level: Level) => {
-    const newEnemies: Enemy[] = level.enemies.map((enemyConfig, index) => ({
-      ...enemyConfig,
-      id: `enemy-${Date.now()}-${index}`,
-      type: 'enemy',
-      position: { x: WORLD_WIDTH - 200 - (index * 150) * Math.random(), y: GROUND_Y - enemyConfig.radius - (Math.random() * 250) },
-      velocity: { x: (Math.random() - 0.5) * 4, y: (Math.random() - 0.5) * 4 },
-    }));
-    setEntities(newEnemies);
-  }, []);
-
-  const resetLevel = useCallback((level: Level) => {
-    setPlayerHealth(PLAYER_MAX_HEALTH);
-    setShots(0);
-    setProjectile(null);
-    setParticles([]);
-    setEntities([]);
-    spawnEnemies(level);
-  }, [spawnEnemies]);
-
-  const selectLevel = (level: Level) => {
-    setCurrentLevel(level);
-    setGameState('playing');
-    setScore(0);
-    resetLevel(level);
-  };
-
-  const handleRestart = () => {
-    setScore(0);
-    if(currentLevel) {
-      resetLevel(currentLevel);
-      setGameState('playing');
-    } else {
-      setGameState('level-select');
-    }
-  };
-
-  const handleNextLevel = () => {
-    const nextLevelId = currentLevel!.id + 1;
-    const nextLevel = LEVELS.find(l => l.id === nextLevelId);
-    if (nextLevel) {
-      setCurrentLevel(nextLevel);
-      resetLevel(nextLevel);
-      setGameState('playing');
-    } else {
-      alert("You've cleared all levels! Congratulations!");
-      setScore(0);
-      setGameState('level-select');
-    }
+    return newParticles;
   };
   
-  const fireProjectile = (velocity: Vec2) => {
-    if (projectile) return;
+  const loadLevel = useCallback((level: Level) => {
+    setCurrentLevel(level);
+    setRemainingProjectiles(level.projectiles);
+    const newEnemies = level.enemies.map((e, i) => {
+        const config = ENEMY_CONFIG[e.type];
+        return {
+            ...config,
+            id: `e-${level.id}-${i}`,
+            position: { ...e.position },
+            velocity: { x: 0, y: 0 },
+            type: e.type,
+        }
+    });
+    setEnemies(newEnemies);
+    setProjectiles([]);
+    setParticles([]);
+    setGameState('playing');
+  }, []);
 
-    setProjectile({
+  const handleFire = useCallback((velocity: Vec2) => {
+    if (remainingProjectiles <= 0) return;
+    setRemainingProjectiles(prev => prev - 1);
+    const newProjectile: Projectile = {
       id: `proj-${Date.now()}`,
-      type: 'projectile',
-      position: { ...PLAYER_START_POS, y: PLAYER_START_POS.y - PLAYER_RADIUS },
+      position: { ...PLAYER_START_POS },
       velocity,
       radius: PROJECTILE_RADIUS,
+    };
+    setProjectiles(prev => [...prev, newProjectile]);
+  }, [remainingProjectiles]);
+
+  const gameTick = useCallback(() => {
+    let scoreToAdd = 0;
+    const newParticles: Particle[] = [];
+  
+    // 1. Update physics for existing entities
+    const updatedProjectiles = projectiles.map(p => {
+      const newVel = { x: p.velocity.x, y: p.velocity.y + GRAVITY.y };
+      const newPos = { x: p.position.x + newVel.x, y: p.position.y + newVel.y };
+      return { ...p, position: newPos, velocity: newVel };
     });
-    setShots(s => s + 1);
-  };
+  
+    const updatedEnemies = enemies.map(enemy => {
+      if (enemy.type === 'flyer') {
+        const newVelY = Math.sin(Date.now() / 500) * 0.3;
+        const newPos = { ...enemy.position, y: enemy.position.y + newVelY };
+        return { ...enemy, position: newPos, velocity: { x: 0, y: newVelY } };
+      } else {
+        const newVel = { x: enemy.velocity.x, y: enemy.velocity.y + GRAVITY.y };
+        let newPos = { x: enemy.position.x + newVel.x, y: enemy.position.y + newVel.y };
+        if (newPos.y > GROUND_Y - enemy.radius) {
+          newPos.y = GROUND_Y - enemy.radius;
+          newVel.y = 0;
+        }
+        return { ...enemy, position: newPos, velocity: newVel };
+      }
+    });
+  
+    // 2. Collision detection and resolution
+    let remainingProjectilesAfterCollision = [];
+    let survivingEnemies = [...updatedEnemies];
+  
+    for (const projectile of updatedProjectiles) {
+      let hasCollided = false;
+      const nextSurvivingEnemies: Enemy[] = [];
+  
+      for (const enemy of survivingEnemies) {
+        const dx = projectile.position.x - enemy.position.x;
+        const dy = projectile.position.y - enemy.position.y;
+        const distance = Math.hypot(dx, dy);
+  
+        if (distance < projectile.radius + enemy.radius) {
+          hasCollided = true;
+          newParticles.push(...createParticleBurst(projectile.position, 20, '#ffc700'));
+          const damage = Math.hypot(projectile.velocity.x, projectile.velocity.y) * 5;
+          const remainingHealth = enemy.health - damage;
+  
+          if (remainingHealth <= 0) {
+            scoreToAdd += enemy.points;
+            newParticles.push(...createParticleBurst(enemy.position, 30, enemy.color));
+            // Enemy is destroyed, do not add to nextSurvivingEnemies
+          } else {
+            nextSurvivingEnemies.push({ ...enemy, health: remainingHealth });
+          }
+        } else {
+          nextSurvivingEnemies.push(enemy);
+        }
+      }
+      
+      survivingEnemies = nextSurvivingEnemies;
+      if (!hasCollided) {
+        remainingProjectilesAfterCollision.push(projectile);
+      }
+    }
+  
+    // Filter out-of-bounds projectiles
+    const finalProjectiles = remainingProjectilesAfterCollision.filter(p =>
+      p.position.y < GROUND_Y + p.radius * 2 &&
+      p.position.x > -p.radius &&
+      p.position.x < WORLD_WIDTH + p.radius
+    );
+  
+    // 3. Update particles
+    const updatedParticles = particles.map(p => ({
+      ...p,
+      position: { x: p.position.x + p.velocity.x, y: p.position.y + p.velocity.y },
+      lifespan: p.lifespan - 1,
+      radius: p.radius * 0.98
+    })).filter(p => p.lifespan > 0);
+  
+    // 4. Set all state updates
+    setProjectiles(finalProjectiles);
+    setEnemies(survivingEnemies);
+    setParticles([...updatedParticles, ...newParticles]);
+    if (scoreToAdd > 0) {
+      setScore(s => s + scoreToAdd);
+    }
+  
+    // 5. Check for win/loss conditions
+    if (survivingEnemies.length === 0) {
+      setScore(s => s + finalProjectiles.length * 50); // bonus points
+      setGameState('level-complete');
+    } else if (finalProjectiles.length === 0 && remainingProjectiles === 0) {
+      setGameState('game-over');
+    } else {
+      gameLoopRef.current = requestAnimationFrame(gameTick);
+    }
+  }, [projectiles, enemies, particles, remainingProjectiles]);
 
   useEffect(() => {
-    const loop = () => {
-      if (gameState !== 'playing') {
-        if(gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
-        return;
-      }
-
-      let newProjectile = projectile ? {...projectile} : null;
-      let scoreToAdd = 0;
-      
-      let updatedEntities = entities.map(e => {
-        if (e.type !== 'enemy') return e;
-        const enemy = e as Enemy;
-        let newPos = { x: enemy.position.x + enemy.velocity.x, y: enemy.position.y + enemy.velocity.y };
-        let newVel = { ...enemy.velocity };
-
-        if (newPos.x <= enemy.radius || newPos.x >= WORLD_WIDTH - enemy.radius) {
-          newVel.x *= -1;
-        }
-        if (newPos.y <= enemy.radius || newPos.y >= GROUND_Y - enemy.radius) {
-          newVel.y *= -1;
-        }
-
-        return { ...enemy, position: newPos, velocity: newVel };
-      });
-
-      if (newProjectile) {
-        newProjectile.velocity.y += GRAVITY.y;
-        newProjectile.position.x += newProjectile.velocity.x;
-        newProjectile.position.y += newProjectile.velocity.y;
-
-        const enemies = updatedEntities.filter(e => e.type === 'enemy') as Enemy[];
-        let hit = false;
-        for (const enemy of enemies) {
-          const dist = Math.hypot(newProjectile.position.x - enemy.position.x, newProjectile.position.y - enemy.position.y);
-          if (dist < newProjectile.radius + enemy.radius) {
-            updatedEntities = updatedEntities.filter(e => e.id !== enemy.id);
-            scoreToAdd += enemy.score || 100;
-            createParticles(enemy.position, enemy.emoji, 15);
-            hit = true;
-            break;
-          }
-        }
-        if (hit) newProjectile = null;
-
-        if (newProjectile && (newProjectile.position.y > WORLD_HEIGHT || newProjectile.position.x > WORLD_WIDTH || newProjectile.position.x < 0)) {
-          newProjectile = null;
-        }
-      }
-      
-      const updatedParticles = particles.map(p => ({
-        ...p,
-        position: {
-          x: p.position.x + p.velocity.x,
-          y: p.position.y + p.velocity.y
-        },
-        velocity: {
-          x: p.velocity.x * 0.98,
-          y: p.velocity.y + 0.2
-        },
-        life: p.life - 1
-      })).filter(p => p.life > 0);
-
-      setProjectile(newProjectile);
-      setEntities(updatedEntities);
-      setParticles(updatedParticles);
-
-      if (scoreToAdd > 0) {
-          setScore(s => s + scoreToAdd);
-      }
-
-      gameLoopRef.current = requestAnimationFrame(loop);
-    };
-
     if (gameState === 'playing') {
-      gameLoopRef.current = requestAnimationFrame(loop);
+      gameLoopRef.current = requestAnimationFrame(gameTick);
     }
-
     return () => {
       if (gameLoopRef.current) {
         cancelAnimationFrame(gameLoopRef.current);
       }
     };
-  }, [gameState, projectile, entities, particles, createParticles]);
+  }, [gameState, gameTick]);
 
-  useEffect(() => {
-    if (gameState === 'playing' && currentLevel && entities.filter(e => e.type === 'enemy').length === 0) {
-      setGameState('level-complete');
-    }
-  }, [entities, currentLevel, gameState]);
+  const handleRestart = () => {
+      setScore(0);
+      setGameState('level-select');
+  };
 
-  const renderGameWorld = () => {
-    if (!currentLevel) return null;
-
-    const allGameEntities = projectile ? [...entities, projectile] : entities;
-
-    return (
-      <div
-          ref={gameContainerRef}
-          className={`relative w-full h-full overflow-hidden cursor-crosshair ${currentLevel.backgroundColor}`}
-          style={{ width: `${WORLD_WIDTH}px`, height: `${WORLD_HEIGHT}px` }}
-      >
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/50 to-transparent" />
-
-          <div className="absolute bottom-0 left-0 w-full" style={{ height: `${WORLD_HEIGHT - GROUND_Y}px`, background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)' }} />
-          
-          <div 
-              className="absolute rounded-full bg-yellow-500/80 border-2 border-yellow-300 shadow-xl"
-              style={{
-                  left: PLAYER_START_POS.x - PLAYER_RADIUS,
-                  top: PLAYER_START_POS.y - PLAYER_RADIUS,
-                  width: PLAYER_RADIUS * 2,
-                  height: PLAYER_RADIUS * 2,
-              }}
-          />
-
-          {allGameEntities.map(entity => {
-            if (entity.type === 'enemy') {
-              const enemy = entity as Enemy;
-              return (
-                  <div 
-                      key={enemy.id} 
-                      className="absolute flex items-center justify-center" 
-                      style={{ 
-                          width: enemy.radius * 2,
-                          height: enemy.radius * 2,
-                          left: enemy.position.x,
-                          top: enemy.position.y,
-                          transform: `translate(-50%, -50%)`,
-                      }}
-                  >
-                      <span style={{fontSize: `${enemy.radius * 1.5}px`, lineHeight: 1, filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.5))'}}>
-                          {enemy.emoji}
-                      </span>
-                  </div>
-              );
-            }
-            if (entity.type === 'projectile') {
-              const proj = entity as Projectile;
-              return (
-                  <div key={proj.id} 
-                      className="absolute rounded-full bg-yellow-400 shadow-lg"
-                      style={{
-                          transform: `translate(${proj.position.x}px, ${proj.position.y}px) translate(-50%, -50%)`,
-                          width: proj.radius * 2,
-                          height: proj.radius * 2,
-                      }}
-                  />
-              );
-            }
-            return null;
-          })}
-
-          {particles.map(particle => (
-            <div
-              key={particle.id}
-              className="absolute pointer-events-none"
-              style={{
-                left: particle.position.x,
-                top: particle.position.y,
-                fontSize: `${particle.size}px`,
-                opacity: particle.life / particle.maxLife,
-                transform: `translate(-50%, -50%)`
-              }}
-            >
-              {particle.emoji}
-            </div>
-          ))}
-
-          <SlingshotControls onFire={fireProjectile} isVisible={!projectile} />
-          <HUD 
-              shots={shots}
-              score={score}
-              levelName={currentLevel.name}
-              playerHealth={playerHealth}
-              onQuit={onQuit}
-          />
-      </div>
-    );
+  const handleNextLevel = () => {
+      if (!currentLevel) return;
+      const nextLevelId = currentLevel.id + 1;
+      const nextLevel = LEVELS.find(l => l.id === nextLevelId);
+      if (nextLevel) {
+          loadLevel(nextLevel);
+      } else {
+          // No more levels, go back to select screen
+          setGameState('level-select');
+      }
+  };
+  
+  const renderEnemy = (enemy: Enemy) => {
+      const config = ENEMY_CONFIG[enemy.type];
+      return (
+          <g key={enemy.id} transform={`translate(${enemy.position.x}, ${enemy.position.y})`}>
+              <circle cx="0" cy="0" r={enemy.radius} fill={config.color} />
+              {/* Simple face */}
+              <circle cx={-enemy.radius * 0.3} cy={-enemy.radius * 0.2} r="2" fill="white" />
+              <circle cx={enemy.radius * 0.3} cy={-enemy.radius * 0.2} r="2" fill="white" />
+              <line x1={-enemy.radius * 0.4} y1={enemy.radius * 0.3} x2={enemy.radius * 0.4} y2={enemy.radius * 0.3} stroke="white" strokeWidth="2" />
+          </g>
+      );
   };
 
   return (
-    <div className="w-full h-full flex items-center justify-center bg-black">
-      {gameState === 'level-select' && <LevelSelectScreen levels={LEVELS} onSelect={selectLevel} />}
-      {gameState === 'playing' && renderGameWorld()}
+    <div className="relative w-full h-full bg-blue-900 overflow-hidden">
+      <svg
+        viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`}
+        className="absolute inset-0 w-full h-full"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        {/* Background */}
+        <defs>
+            <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style={{stopColor: 'rgb(2, 6, 23)', stopOpacity:1}} />
+                <stop offset="80%" style={{stopColor: 'rgb(17, 24, 39)', stopOpacity:1}} />
+                <stop offset="100%" style={{stopColor: 'rgb(30, 41, 59)', stopOpacity:1}} />
+            </linearGradient>
+        </defs>
+        <rect x="0" y="0" width={WORLD_WIDTH} height={WORLD_HEIGHT} fill="url(#skyGradient)" />
+
+
+        {/* Ground */}
+        <rect x="0" y={GROUND_Y} width={WORLD_WIDTH} height={WORLD_HEIGHT - GROUND_Y} fill="#228b22" />
+        
+        {/* Slingshot stand */}
+        <path d={`M ${PLAYER_START_POS.x - 20} ${GROUND_Y} L ${PLAYER_START_POS.x - 20} ${PLAYER_START_POS.y-10}`} stroke="saddlebrown" strokeWidth="10" />
+        <path d={`M ${PLAYER_START_POS.x + 20} ${GROUND_Y} L ${PLAYER_START_POS.x + 20} ${PLAYER_START_POS.y-10}`} stroke="saddlebrown" strokeWidth="10" />
+        
+        {/* Game Objects */}
+        {enemies.map(renderEnemy)}
+        {projectiles.map(p => (
+            <foreignObject key={p.id} x={p.position.x - p.radius} y={p.position.y - p.radius} width={p.radius * 2} height={p.radius * 2}>
+                <div className="w-full h-full rounded-full bg-yellow-400 flex items-center justify-center text-black font-bold" style={{ fontSize: `${p.radius * 0.6}px` }}>$MPS</div>
+            </foreignObject>
+        ))}
+        {particles.map(p => (
+            <circle key={p.id} cx={p.position.x} cy={p.position.y} r={p.radius} fill={p.color} opacity={p.lifespan / 60} />
+        ))}
+
+      </svg>
+      <SlingshotControls onFire={handleFire} isVisible={gameState === 'playing' && remainingProjectiles > 0} />
+      <HUD
+        score={score}
+        levelName={currentLevel?.name || '---'}
+        projectiles={remainingProjectiles}
+      />
+      
+      {gameState === 'level-select' && <LevelSelectScreen onLevelSelect={loadLevel} onQuit={onQuit} />}
       {gameState === 'level-complete' && <LevelCompleteScreen score={score} onNext={handleNextLevel} />}
       {gameState === 'game-over' && <GameOverScreen onRestart={handleRestart} onQuit={onQuit} />}
     </div>

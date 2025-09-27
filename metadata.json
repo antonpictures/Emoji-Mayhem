@@ -1,5 +1,5 @@
 {
-  "name": "Emoji Slingshot",
+  "name": "$MPS Slingshot",
   "description": "A physics-based slingshot game where you launch projectiles to defeat emoji enemies. Inspired by classic trajectory games, with a fun, modern emoji theme.",
   "version": "1.0.0",
   "requestFramePermissions": []
