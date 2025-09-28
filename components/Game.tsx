@@ -12,7 +12,8 @@ import {
   PROJECTILE_MAX_BOUNCES,
   PROJECTILE_BOUNCE_DAMPENING,
   ENEMY_COLLISION_DAMAGE,
-  ENEMY_KNOCKBACK_FACTOR
+  ENEMY_KNOCKBACK_FACTOR,
+  PLAYER_RADIUS
 } from '../constants';
 
 import SlingshotControls from './SlingshotControls';
@@ -92,6 +93,7 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
   const [score, setScore] = useState(0);
   const [shake, setShake] = useState({ intensity: 0, duration: 0 });
   const [parallaxOffset, setParallaxOffset] = useState<Vec2>({ x: 0, y: 0 });
+  const [isSlingshotDragging, setIsSlingshotDragging] = useState(false);
 
   // Editor State
   const [editingLevel, setEditingLevel] = useState<Level | null>(null);
@@ -291,7 +293,7 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
             newEnemy.position.x += 2 * newEnemy.zigzagDirection!;
             if (newEnemy.position.x > newEnemy.basePosition!.x + 50 || newEnemy.position.x < newEnemy.basePosition!.x - 50) newEnemy.zigzagDirection! *= -1;
         } else if (newEnemy.type === 'hopper') {
-            if (newEnemy.jumpCooldown! <= 0 && newEnemy.position.y >= GROUND_Y - newEnemy.radius) {
+            if (Number(newEnemy.jumpCooldown!) <= 0 && newEnemy.position.y >= GROUND_Y - newEnemy.radius) {
                 newEnemy.velocity.y = -10; newEnemy.velocity.x = (Math.random() - 0.5) * 8;
                 newEnemy.jumpCooldown = JUMP_COOLDOWN + Math.random() * 60;
             } else { newEnemy.jumpCooldown! -= 1; }
@@ -435,7 +437,8 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
     if (destroyedPlatformIds.size > 0) { localPlatforms = localPlatforms.filter(p => !destroyedPlatformIds.has(p.id)); destroyedPlatformIds.forEach(() => soundManager.playBlockBreak()); }
     if (destroyedBlockIds.size > 0) { localBreakableBlocks = localBreakableBlocks.filter(b => !destroyedBlockIds.has(b.id)); destroyedBlockIds.forEach(() => soundManager.playBlockBreak()); }
     
-    const remainingProjCount = Object.values(availableProjectiles).reduce((sum, count) => sum + count, 0);
+    // FIX: Explicitly cast 'count' to a number to prevent type errors with the reduce function.
+    const remainingProjCount = Object.values(availableProjectiles).reduce((sum, count) => sum + Number(count), 0);
 
     const updatedParticles = particles.map(p => ({ ...p, position: { x: p.position.x + p.velocity.x, y: p.position.y + p.velocity.y }, lifespan: p.lifespan - 1 })).filter(p => p.lifespan > 0);
     const updatedFloatingTexts = floatingTexts.map(t => ({ ...t, position: { x: t.position.x, y: t.position.y - 0.5 }, lifespan: t.lifespan - 1})).filter(t => t.lifespan > 0);
@@ -527,7 +530,9 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
 
   const getObjectBoundingBox = (obj: EditorObject) => {
     if (obj.objectType === 'enemy') {
-        const e = obj as unknown as Enemy;
+        // FIX: The object from the level editor is not a full 'Enemy' type.
+        // Casting to a more accurate, partial type prevents properties from being inferred as 'unknown'.
+        const e = obj as { position: Vec2; radius?: number; type: EnemyType; };
         const radius = e.radius || ENEMY_CONFIG[e.type].radius;
         return { x: e.position.x - radius, y: e.position.y - radius, width: radius * 2, height: radius * 2 };
     }
@@ -692,7 +697,8 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
       p: platforms, bb: breakableBlocks, e: enemies, es: []
   };
   const entitiesToRender = gameState === 'level-editor' ? editorEntities : playingEntities;
-  const totalProjectiles = Object.values(availableProjectiles).reduce((sum, count) => sum + count, 0);
+  // FIX: Explicitly cast 'count' to a number to prevent type errors with the reduce function.
+  const totalProjectiles = Object.values(availableProjectiles).reduce((sum, count) => sum + Number(count), 0);
 
   return (
     <div ref={gameContainerRef} className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden select-none">
@@ -705,8 +711,30 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
             {renderSky()}
             <rect x="0" y={GROUND_Y} width={WORLD_WIDTH} height={WORLD_HEIGHT - GROUND_Y} fill="#4a3b2b" />
             <rect x="0" y={GROUND_Y} width={WORLD_WIDTH} height="20" fill="#6a563f" />
-            <path d={`M ${PLAYER_START_POS.x - 30} ${GROUND_Y} L ${PLAYER_START_POS.x - 10} ${PLAYER_START_POS.y} L ${PLAYER_START_POS.x - 30} ${PLAYER_START_POS.y} Z`} fill="#8B4513" />
-            <path d={`M ${PLAYER_START_POS.x + 10} ${PLAYER_START_POS.y} L ${PLAYER_START_POS.x + 30} ${GROUND_Y} L ${PLAYER_START_POS.x + 30} ${PLAYER_START_POS.y} Z`} fill="#8B4513" />
+            
+            {(gameState === 'playing') && (
+              <text
+                x={PLAYER_START_POS.x}
+                y={PLAYER_START_POS.y}
+                fontSize={PLAYER_RADIUS * 2}
+                textAnchor="middle"
+                dominantBaseline="central"
+              >
+                😡
+              </text>
+            )}
+
+            {(gameState === 'playing' && !isSlingshotDragging && totalProjectiles > 0) && (
+              <text
+                x={PLAYER_START_POS.x}
+                y={PLAYER_START_POS.y}
+                fontSize={PROJECTILE_RADIUS * 2.5}
+                textAnchor="middle"
+                dominantBaseline="central"
+              >
+                {TYPE_EMOJI_MAP[selectedProjectile]}
+              </text>
+            )}
             
             {entitiesToRender.p?.map(p => <rect key={p.id} x={p.position.x} y={p.position.y} width={p.width} height={p.height} fill="#6b7280" stroke="#4b5563" strokeWidth="2" />)}
             {entitiesToRender.bb?.map(b => <rect key={b.id} x={b.position.x} y={b.position.y} width={b.width} height={b.height} fill="#a16207" stroke="#451a03" strokeWidth="2" />)}
@@ -723,7 +751,7 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
         {(gameState === 'playing' && currentLevel) && (
             <>
                 <HUD score={score} levelName={currentLevel.name} projectiles={totalProjectiles} onBackToMenu={() => setGameState('level-select')} />
-                <SlingshotControls onFire={handleFire} onDrag={setParallaxOffset} isVisible={totalProjectiles > 0} selectedProjectileType={selectedProjectile} />
+                <SlingshotControls onFire={handleFire} onDrag={setParallaxOffset} isVisible={totalProjectiles > 0} selectedProjectileType={selectedProjectile} onDragStateChange={setIsSlingshotDragging} />
                 <ProjectileSelector availableProjectiles={availableProjectiles} selectedType={selectedProjectile} onSelectType={setSelectedProjectile} />
             </>
         )}

@@ -67,7 +67,8 @@ const ProjectileSelector: React.FC<ProjectileSelectorProps> = ({ availableProjec
                 <button
                     key={type}
                     onClick={() => handleSelect(type as PokemonType)}
-                    disabled={count <= 0}
+                    // FIX: Explicitly cast count to a number to prevent type errors in the comparison.
+                    disabled={Number(count) <= 0}
                     className={`relative w-16 h-16 rounded-md border-2 transition-all duration-200 transform hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed ${
                         TYPE_COLOR_MAP[type as PokemonType]
                     } ${

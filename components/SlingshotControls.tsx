@@ -8,9 +8,10 @@ interface SlingshotControlsProps {
   isVisible: boolean;
   onDrag: (offset: Vec2) => void;
   selectedProjectileType: PokemonType;
+  onDragStateChange: (isDragging: boolean) => void;
 }
 
-const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible, onDrag, selectedProjectileType }) => {
+const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible, onDrag, selectedProjectileType, onDragStateChange }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<Vec2 | null>(null);
   const [dragEnd, setDragEnd] = useState<Vec2 | null>(null);
@@ -61,6 +62,7 @@ const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible
     e.preventDefault();
     onDrag({ x: 0, y: 0 });
     setIsDragging(true);
+    onDragStateChange(true);
     const pos = getSVGPosFromEvent(e);
     setDragStart(pos);
     setDragEnd(pos);
@@ -78,9 +80,10 @@ const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible
 
     onDrag({ x: 0, y: 0 });
     setIsDragging(false);
+    onDragStateChange(false);
     setDragStart(null);
     setDragEnd(null);
-  }, [isDragging, dragStart, dragEnd, onFire, onDrag]);
+  }, [isDragging, dragStart, dragEnd, onFire, onDrag, onDragStateChange]);
   
   const handleDragMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!isDragging || !dragStart) return;
@@ -142,13 +145,21 @@ const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible
       if (!isDragging || !dragStart || !dragEnd) return null;
       const projectilePosX = PLAYER_START_POS.x - (dragEnd.x - dragStart.x);
       const projectilePosY = PLAYER_START_POS.y - (dragEnd.y - dragStart.y);
+
+      const powerDx = dragEnd.x - dragStart.x;
+      const powerDy = dragEnd.y - dragStart.y;
+      const powerDist = Math.hypot(powerDx, powerDy);
+      const powerLevel = Math.round((powerDist / MAX_SLINGSHOT_DRAG) * 100);
       
       return (
           <>
-            <line x1={PLAYER_START_POS.x - 20} y1={PLAYER_START_POS.y-10} x2={projectilePosX} y2={projectilePosY} stroke="rgba(74, 59, 43, 0.8)" strokeWidth="6" />
-            <line x1={PLAYER_START_POS.x + 20} y1={PLAYER_START_POS.y-10} x2={projectilePosX} y2={projectilePosY} stroke="rgba(74, 59, 43, 0.8)" strokeWidth="6" />
+            <line x1={PLAYER_START_POS.x - 30} y1={PLAYER_START_POS.y} x2={projectilePosX} y2={projectilePosY} stroke="rgba(74, 59, 43, 0.8)" strokeWidth="6" />
+            <line x1={PLAYER_START_POS.x + 30} y1={PLAYER_START_POS.y} x2={projectilePosX} y2={projectilePosY} stroke="rgba(74, 59, 43, 0.8)" strokeWidth="6" />
             <text x={projectilePosX} y={projectilePosY} fontSize={PROJECTILE_RADIUS * 2.5} textAnchor="middle" dominantBaseline="central" style={{ userSelect: 'none', pointerEvents: 'none' }}>
                 {TYPE_EMOJI_MAP[selectedProjectileType]}
+            </text>
+            <text x={projectilePosX} y={projectilePosY - 35} fill="white" fontSize="24" fontWeight="bold" textAnchor="middle" style={{ pointerEvents: 'none', textShadow: '1px 1px 2px black' }}>
+                {`POWER: ${powerLevel}`}
             </text>
           </>
       )
