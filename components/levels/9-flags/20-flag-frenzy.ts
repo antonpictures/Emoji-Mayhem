@@ -12,13 +12,12 @@ export const level20: Level = {
       { type: 'flyer', emoji: '🇯🇵', position: { x: 400, y: 150 } },
       { type: 'flyer', emoji: '🇩🇪', position: { x: 900, y: 150 } },
     ],
-    platforms: [
-      { id: 'l20p1', position: { x: 200, y: 550 }, width: 150, height: 20 },
-      { id: 'l20p2', position: { x: 1000, y: 550 }, width: 150, height: 20 },
-      { id: 'l20p3', position: { x: 500, y: 450 }, width: 300, height: 20 },
-    ],
+    platforms: [],
     breakableBlocks: [
         { id: 'l20b1', position: { x: 500, y: 350 }, health: 100, width: 300, height: 20 },
+        { id: 'l20p1', position: { x: 200, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l20p2', position: { x: 1000, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l20p3', position: { x: 500, y: 450 }, width: 300, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l20s1', position: { x: 150, y: 600 }, emoji: '🏁', fontSize: 100 },

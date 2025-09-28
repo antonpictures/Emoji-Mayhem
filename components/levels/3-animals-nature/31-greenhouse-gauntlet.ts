@@ -20,20 +20,14 @@ export const level31: Level = {
         { type: 'grunt', emoji: '🌻', position: { x: 950, y: 525 } },
         { type: 'grunt', emoji: '🌷', position: { x: 1000, y: 425 } },
     ],
-    platforms: [
-        // Left platforms
-        { id: 'l31p1', position: { x: 150, y: 550 }, width: 150, height: 20 },
-        { id: 'l31p2', position: { x: 250, y: 450 }, width: 100, height: 20 },
-
-        // Right platforms
-        { id: 'l31p3', position: { x: 900, y: 550 }, width: 150, height: 20 },
-        { id: 'l31p4', position: { x: 950, y: 450 }, width: 100, height: 20 },
-
-        // Center platform
-        { id: 'l31p5', position: { x: 590, y: 350 }, width: 100, height: 20 },
-    ],
+    platforms: [],
     breakableBlocks: [
         { id: 'l31b1', position: { x: 900, y: 620 }, health: 100, width: 80, height: 30 },
+        { id: 'l31p1', position: { x: 150, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l31p2', position: { x: 250, y: 450 }, width: 100, height: 20, health: 100 },
+        { id: 'l31p3', position: { x: 900, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l31p4', position: { x: 950, y: 450 }, width: 100, height: 20, health: 100 },
+        { id: 'l31p5', position: { x: 590, y: 350 }, width: 100, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l31s1', position: { x: 150, y: 300 }, emoji: '🌳', fontSize: 200 },

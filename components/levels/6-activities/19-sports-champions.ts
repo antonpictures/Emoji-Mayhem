@@ -16,14 +16,15 @@ export const level19: Level = {
         { type: 'grunt', emoji: '⚾', position: { x: 980, y: 325 } },
         { type: 'grunt', emoji: '⚽', position: { x: 640, y: 525 } },
     ],
-    platforms: [
-        { id: 'l19p1', position: { x: 150, y: 550 }, width: 150, height: 20 },
-        { id: 'l19p2', position: { x: 350, y: 450 }, width: 150, height: 20 },
-        { id: 'l19p3', position: { x: 250, y: 350 }, width: 150, height: 20 },
-        { id: 'l19p4', position: { x: 980, y: 550 }, width: 150, height: 20 },
-        { id: 'l19p5', position: { x: 780, y: 450 }, width: 150, height: 20 },
-        { id: 'l19p6', position: { x: 880, y: 350 }, width: 150, height: 20 },
-        { id: 'l19p7', position: { x: 560, y: 250 }, width: 160, height: 20 },
+    platforms: [],
+    breakableBlocks: [
+        { id: 'l19p1', position: { x: 150, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l19p2', position: { x: 350, y: 450 }, width: 150, height: 20, health: 100 },
+        { id: 'l19p3', position: { x: 250, y: 350 }, width: 150, height: 20, health: 100 },
+        { id: 'l19p4', position: { x: 980, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l19p5', position: { x: 780, y: 450 }, width: 150, height: 20, health: 100 },
+        { id: 'l19p6', position: { x: 880, y: 350 }, width: 150, height: 20, health: 100 },
+        { id: 'l19p7', position: { x: 560, y: 250 }, width: 160, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l19s1', position: { x: 150, y: 600 }, emoji: '🥅', fontSize: 150 },

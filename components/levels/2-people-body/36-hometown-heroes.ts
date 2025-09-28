@@ -11,13 +11,12 @@ export const level36: Level = {
         { type: 'hopper', emoji: '🧑‍🍳', position: { x: 800, y: 425 } },
         { type: 'sparky', emoji: '🧑‍🔧', position: { x: 640, y: 250 } },
     ],
-    platforms: [
-        { id: 'l36p1', position: { x: 200, y: 550 }, width: 150, height: 20 },
-        { id: 'l36p2', position: { x: 250, y: 350 }, width: 150, height: 20 },
-        { id: 'l36p3', position: { x: 750, y: 450 }, width: 150, height: 20 },
-    ],
+    platforms: [],
     breakableBlocks: [
         { id: 'l36b1', position: { x: 950, y: 500 }, health: 100, width: 150, height: 110 },
+        { id: 'l36p1', position: { x: 200, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l36p2', position: { x: 250, y: 350 }, width: 150, height: 20, health: 100 },
+        { id: 'l36p3', position: { x: 750, y: 450 }, width: 150, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l36s1', position: { x: 400, y: 500 }, emoji: '🏥', fontSize: 250 },

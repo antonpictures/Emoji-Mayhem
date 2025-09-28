@@ -13,12 +13,11 @@ export const level37: Level = {
         { type: 'brute', emoji: '🕷️', position: { x: 1050, y: 510 } },
         { type: 'tank', emoji: '🦂', position: { x: 950, y: 600 } },
     ],
-    platforms: [
-        { id: 'l37p1', position: { x: 100, y: 550 }, width: 250, height: 20 },
-        { id: 'l37p2', position: { x: 900, y: 550 }, width: 200, height: 20 },
-    ],
+    platforms: [],
     breakableBlocks: [
         { id: 'l37b1', position: { x: 600, y: 620 }, health: 100, width: 80, height: 30 },
+        { id: 'l37p1', position: { x: 100, y: 550 }, width: 250, height: 20, health: 100 },
+        { id: 'l37p2', position: { x: 900, y: 550 }, width: 200, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l37s1', position: { x: 640, y: 450 }, emoji: '🍄', fontSize: 250 },

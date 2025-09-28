@@ -25,19 +25,13 @@ export const level26: Level = {
         { type: 'grunt', emoji: '🎄', position: { x: 150, y: 425 } },
         { type: 'flyer', emoji: '❄️', position: { x: 200, y: 150 } },
     ],
-    platforms: [
-        // Spring platforms
-        { id: 'l26p1', position: { x: 100, y: 550 }, width: 250, height: 20 },
-        
-        // Summer platforms
-        { id: 'l26p2', position: { x: 900, y: 550 }, width: 250, height: 20 },
-
-        // Autumn platforms
-        { id: 'l26p3', position: { x: 950, y: 350 }, width: 200, height: 20 },
-
-        // Winter platforms
-        { id: 'l26p4', position: { x: 100, y: 450 }, width: 100, height: 20 },
-        { id: 'l26p5', position: { x: 200, y: 350 }, width: 150, height: 20 },
+    platforms: [],
+    breakableBlocks: [
+        { id: 'l26p1', position: { x: 100, y: 550 }, width: 250, height: 20, health: 100 },
+        { id: 'l26p2', position: { x: 900, y: 550 }, width: 250, height: 20, health: 100 },
+        { id: 'l26p3', position: { x: 950, y: 350 }, width: 200, height: 20, health: 100 },
+        { id: 'l26p4', position: { x: 100, y: 450 }, width: 100, height: 20, health: 100 },
+        { id: 'l26p5', position: { x: 200, y: 350 }, width: 150, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l26s1', position: { x: 640, y: 400 }, emoji: '🌎', fontSize: 150 },

@@ -13,13 +13,12 @@ export const level32: Level = {
         { type: 'hopper', emoji: '👽', position: { x: 950, y: 425 } },
         { type: 'tank', emoji: '😎', position: { x: 1050, y: 600 } }, // For Terminator
     ],
-    platforms: [
-        { id: 'l32p1', position: { x: 200, y: 550 }, width: 150, height: 20 },
-        { id: 'l32p2', position: { x: 900, y: 450 }, width: 150, height: 20 },
-        { id: 'l32p3', position: { x: 1000, y: 300 }, width: 100, height: 20 },
-    ],
+    platforms: [],
     breakableBlocks: [
         { id: 'l32b1', position: { x: 1000, y: 500 }, health: 100, width: 150, height: 100 },
+        { id: 'l32p1', position: { x: 200, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l32p2', position: { x: 900, y: 450 }, width: 150, height: 20, health: 100 },
+        { id: 'l32p3', position: { x: 1000, y: 300 }, width: 100, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l32s1', position: { x: 640, y: 450 }, emoji: '🎬', fontSize: 250 },

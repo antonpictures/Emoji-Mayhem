@@ -22,15 +22,13 @@ export const level22: Level = {
         // Top shelf
         { type: 'flyer', emoji: '📄', position: { x: 640, y: 150 } },
     ],
-    platforms: [
-        // Left
-        { id: 'l22p1', position: { x: 150, y: 550 }, width: 200, height: 20 },
-        { id: 'l22p2', position: { x: 150, y: 450 }, width: 200, height: 20 },
-        // Right
-        { id: 'l22p3', position: { x: 950, y: 550 }, width: 200, height: 20 },
-        { id: 'l22p4', position: { x: 950, y: 450 }, width: 200, height: 20 },
-         // Center
-        { id: 'l22p5', position: { x: 540, y: 350 }, width: 200, height: 20 },
+    platforms: [],
+    breakableBlocks: [
+        { id: 'l22p1', position: { x: 150, y: 550 }, width: 200, height: 20, health: 100 },
+        { id: 'l22p2', position: { x: 150, y: 450 }, width: 200, height: 20, health: 100 },
+        { id: 'l22p3', position: { x: 950, y: 550 }, width: 200, height: 20, health: 100 },
+        { id: 'l22p4', position: { x: 950, y: 450 }, width: 200, height: 20, health: 100 },
+        { id: 'l22p5', position: { x: 540, y: 350 }, width: 200, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l22s1', position: { x: 640, y: 550 }, emoji: '📚', fontSize: 250 },

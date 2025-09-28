@@ -12,13 +12,12 @@ export const level33: Level = {
         { type: 'tank', emoji: '🤖', position: { x: 1050, y: 300 } },
         { type: 'flyer', emoji: '🧙', position: { x: 640, y: 150 } },
     ],
-    platforms: [
-        { id: 'l33p1', position: { x: 150, y: 550 }, width: 200, height: 20 },
-        { id: 'l33p2', position: { x: 900, y: 550 }, width: 150, height: 20 },
-        { id: 'l33p3', position: { x: 1000, y: 350 }, width: 150, height: 20 },
-    ],
+    platforms: [],
     breakableBlocks: [
         { id: 'l33b1', position: { x: 500, y: 620 }, health: 100, width: 300, height: 30 },
+        { id: 'l33p1', position: { x: 150, y: 550 }, width: 200, height: 20, health: 100 },
+        { id: 'l33p2', position: { x: 900, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l33p3', position: { x: 1000, y: 350 }, width: 150, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l33s1', position: { x: 640, y: 400 }, emoji: '📺', fontSize: 300 },

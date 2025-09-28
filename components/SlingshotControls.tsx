@@ -1,158 +1,161 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Vec2 } from '../types';
+import { PokemonType, Vec2 } from '../types';
 import { PLAYER_START_POS, SLINGSHOT_POWER_MULTIPLIER, MAX_SLINGSHOT_DRAG, PROJECTILE_RADIUS, WORLD_WIDTH, WORLD_HEIGHT } from '../constants';
+import { TYPE_EMOJI_MAP } from './ProjectileSelector';
 
 interface SlingshotControlsProps {
   onFire: (velocity: Vec2) => void;
   isVisible: boolean;
+  onDrag: (offset: Vec2) => void;
+  selectedProjectileType: PokemonType;
 }
 
-const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible }) => {
+const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible, onDrag, selectedProjectileType }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<Vec2 | null>(null);
   const [dragEnd, setDragEnd] = useState<Vec2 | null>(null);
   const controlsRef = useRef<HTMLDivElement>(null);
 
-  const getSVGMousePos = useCallback((e: MouseEvent | React.MouseEvent): Vec2 => {
+  const getEventCoords = (e: React.MouseEvent | MouseEvent | React.TouchEvent | TouchEvent): Vec2 | null => {
+      // Fix: Add explicit type assertions to work around a TypeScript type narrowing issue with the 'in' operator on a complex event union type.
+      if ('touches' in e) {
+          const touchEvent = e as { touches: TouchList };
+          if (touchEvent.touches.length > 0) return { x: touchEvent.touches[0].clientX, y: touchEvent.touches[0].clientY };
+      } else if ('changedTouches' in e) { // For touchend
+          const touchEvent = e as { changedTouches: TouchList };
+          if (touchEvent.changedTouches.length > 0) return { x: touchEvent.changedTouches[0].clientX, y: touchEvent.changedTouches[0].clientY };
+      } else if ('clientX' in e) {
+          const mouseEvent = e as { clientX: number, clientY: number };
+          return { x: mouseEvent.clientX, y: mouseEvent.clientY };
+      }
+      return null;
+  };
+
+  const getSVGPosFromEvent = useCallback((e: React.MouseEvent | MouseEvent | React.TouchEvent | TouchEvent): Vec2 => {
     const rect = controlsRef.current!.getBoundingClientRect();
+    const eventCoords = getEventCoords(e);
+    if (!eventCoords) return { x: 0, y: 0 };
+
     const svgAspectRatio = WORLD_WIDTH / WORLD_HEIGHT;
     const rectAspectRatio = rect.width / rect.height;
     
-    let scale: number;
-    let offsetX: number;
-    let offsetY: number;
+    let scale: number, offsetX: number, offsetY: number;
     
     if (svgAspectRatio > rectAspectRatio) {
-      // SVG is wider, constrained by width, letterboxed top/bottom
       scale = rect.width / WORLD_WIDTH;
       offsetX = 0;
       offsetY = (rect.height - (WORLD_HEIGHT * scale)) / 2;
     } else {
-      // SVG is taller or same ratio, constrained by height, letterboxed left/right
       scale = rect.height / WORLD_HEIGHT;
       offsetX = (rect.width - (WORLD_WIDTH * scale)) / 2;
       offsetY = 0;
     }
     
-    const svgX = (e.clientX - rect.left - offsetX) / scale;
-    const svgY = (e.clientY - rect.top - offsetY) / scale;
+    const svgX = (eventCoords.x - rect.left - offsetX) / scale;
+    const svgY = (eventCoords.y - rect.top - offsetY) / scale;
     return { x: svgX, y: svgY };
   }, []);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isVisible) return;
     e.preventDefault();
+    onDrag({ x: 0, y: 0 });
     setIsDragging(true);
-    const pos = getSVGMousePos(e);
+    const pos = getSVGPosFromEvent(e);
     setDragStart(pos);
     setDragEnd(pos);
   };
 
-  const handleMouseUp = useCallback(() => {
+  const handleDragEnd = useCallback(() => {
     if (!isDragging || !dragStart || !dragEnd) return;
     
-    // Fire based on projectile position, not absolute drag
-    const projectilePosX = PLAYER_START_POS.x - (dragStart.x - dragEnd.x);
-    const projectilePosY = PLAYER_START_POS.y - (dragStart.y - dragEnd.y);
-
-    const dx = PLAYER_START_POS.x - projectilePosX;
-    const dy = PLAYER_START_POS.y - projectilePosY;
+    const dx = dragStart.x - dragEnd.x;
+    const dy = dragStart.y - dragEnd.y;
     
-    const dist = Math.hypot(dx, dy);
-    if (dist > 10) { // Minimum drag to fire
-        onFire({
-            x: dx * SLINGSHOT_POWER_MULTIPLIER,
-            y: dy * SLINGSHOT_POWER_MULTIPLIER,
-        });
+    if (Math.hypot(dx, dy) > 10) { // Minimum drag to fire
+        onFire({ x: dx * SLINGSHOT_POWER_MULTIPLIER, y: dy * SLINGSHOT_POWER_MULTIPLIER });
     }
 
+    onDrag({ x: 0, y: 0 });
     setIsDragging(false);
     setDragStart(null);
     setDragEnd(null);
-  }, [isDragging, dragStart, dragEnd, onFire]);
+  }, [isDragging, dragStart, dragEnd, onFire, onDrag]);
   
-  const handleMouseMove = useCallback((e: MouseEvent) => {
+  const handleDragMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!isDragging || !dragStart) return;
-    const currentPos = getSVGMousePos(e);
+    e.preventDefault();
+    const currentPos = getSVGPosFromEvent(e);
     
     const dx = currentPos.x - dragStart.x;
     const dy = currentPos.y - dragStart.y;
     let dist = Math.hypot(dx, dy);
+    let finalDragEnd = currentPos;
     
     if (dist > MAX_SLINGSHOT_DRAG) {
         const angle = Math.atan2(dy, dx);
-        setDragEnd({
+        finalDragEnd = {
             x: dragStart.x + Math.cos(angle) * MAX_SLINGSHOT_DRAG,
             y: dragStart.y + Math.sin(angle) * MAX_SLINGSHOT_DRAG
-        });
-    } else {
-        setDragEnd(currentPos);
+        };
     }
-  }, [isDragging, dragStart, getSVGMousePos]);
+    setDragEnd(finalDragEnd);
+    onDrag({ x: -(finalDragEnd.x - dragStart.x), y: -(finalDragEnd.y - dragStart.y) });
+
+  }, [isDragging, dragStart, getSVGPosFromEvent, onDrag]);
 
   useEffect(() => {
+    const moveHandler = (e: MouseEvent) => handleDragMove(e);
+    const endHandler = () => handleDragEnd();
     if (isDragging) {
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('mousemove', moveHandler);
+        window.addEventListener('mouseup', endHandler);
     }
-
     return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
+        window.removeEventListener('mousemove', moveHandler);
+        window.removeEventListener('mouseup', endHandler);
     };
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [isDragging, handleDragMove, handleDragEnd]);
+  
+  useEffect(() => {
+    const moveHandler = (e: TouchEvent) => handleDragMove(e);
+    const endHandler = () => handleDragEnd();
+    if (isDragging) {
+      window.addEventListener('touchmove', moveHandler, { passive: false });
+      window.addEventListener('touchend', endHandler);
+      window.addEventListener('touchcancel', endHandler);
+    }
+    return () => {
+      window.removeEventListener('touchmove', moveHandler);
+      window.removeEventListener('touchend', endHandler);
+      window.removeEventListener('touchcancel', endHandler);
+    };
+  }, [isDragging, handleDragMove, handleDragEnd]);
+
 
   const renderTrajectory = () => {
     if (!isDragging || !dragStart || !dragEnd) return null;
-    
-    const projectilePosX = PLAYER_START_POS.x - (dragStart.x - dragEnd.x);
-    const projectilePosY = PLAYER_START_POS.y - (dragStart.y - dragEnd.y);
-    const dx = PLAYER_START_POS.x - projectilePosX;
-    const dy = PLAYER_START_POS.y - projectilePosY;
-
-    return (
-        <line 
-            x1={PLAYER_START_POS.x}
-            y1={PLAYER_START_POS.y}
-            x2={PLAYER_START_POS.x + dx}
-            y2={PLAYER_START_POS.y + dy}
-            stroke="rgba(255, 255, 255, 0.5)"
-            strokeWidth="3"
-            strokeDasharray="5, 5"
-        />
-    );
+    return (<line x1={PLAYER_START_POS.x} y1={PLAYER_START_POS.y} x2={PLAYER_START_POS.x + (dragStart.x - dragEnd.x)} y2={PLAYER_START_POS.y + (dragStart.y - dragEnd.y)} stroke="rgba(255, 255, 255, 0.5)" strokeWidth="3" strokeDasharray="5, 5" />);
   }
   
   const renderRubberBand = () => {
       if (!isDragging || !dragStart || !dragEnd) return null;
-      const projectilePosX = PLAYER_START_POS.x - (dragStart.x - dragEnd.x);
-      const projectilePosY = PLAYER_START_POS.y - (dragStart.y - dragEnd.y);
+      const projectilePosX = PLAYER_START_POS.x - (dragEnd.x - dragStart.x);
+      const projectilePosY = PLAYER_START_POS.y - (dragEnd.y - dragStart.y);
       
       return (
           <>
-            <line x1={PLAYER_START_POS.x - 20} y1={PLAYER_START_POS.y-10} x2={projectilePosX} y2={projectilePosY} stroke="rgba(200, 150, 0, 0.8)" strokeWidth="4" />
-            <line x1={PLAYER_START_POS.x + 20} y1={PLAYER_START_POS.y-10} x2={projectilePosX} y2={projectilePosY} stroke="rgba(200, 150, 0, 0.8)" strokeWidth="4" />
-            <text
-                x={projectilePosX}
-                y={projectilePosY}
-                fontSize={PROJECTILE_RADIUS * 2.5}
-                textAnchor="middle"
-                dominantBaseline="central"
-                style={{ userSelect: 'none', pointerEvents: 'none' }}
-            >
-                😡
+            <line x1={PLAYER_START_POS.x - 20} y1={PLAYER_START_POS.y-10} x2={projectilePosX} y2={projectilePosY} stroke="rgba(74, 59, 43, 0.8)" strokeWidth="6" />
+            <line x1={PLAYER_START_POS.x + 20} y1={PLAYER_START_POS.y-10} x2={projectilePosX} y2={projectilePosY} stroke="rgba(74, 59, 43, 0.8)" strokeWidth="6" />
+            <text x={projectilePosX} y={projectilePosY} fontSize={PROJECTILE_RADIUS * 2.5} textAnchor="middle" dominantBaseline="central" style={{ userSelect: 'none', pointerEvents: 'none' }}>
+                {TYPE_EMOJI_MAP[selectedProjectileType]}
             </text>
           </>
       )
   }
 
   return (
-    <div 
-        ref={controlsRef}
-        className="absolute inset-0 z-10"
-        onMouseDown={handleMouseDown}
-        style={{ touchAction: 'none' }}
-    >
+    <div ref={controlsRef} className="absolute inset-0 z-10" onMouseDown={handleDragStart} onTouchStart={handleDragStart} style={{ touchAction: 'none' }}>
         <svg viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`} className="absolute inset-0 w-full h-full pointer-events-none">
             {isVisible && renderTrajectory()}
             {isVisible && renderRubberBand()}

@@ -14,11 +14,12 @@ export const level18: Level = {
       { type: 'brute', emoji: '🖨️', position: { x: 1100, y: 500 } },
       { type: 'grunt', emoji: '💽', position: { x: 900, y: 425 } },
     ],
-    platforms: [
-      { id: 'l18p1', position: { x: 150, y: 550 }, width: 200, height: 20 },
-      { id: 'l18p2', position: { x: 450, y: 450 }, width: 200, height: 20 },
-      { id: 'l18p3', position: { x: 1050, y: 550 }, width: 150, height: 20 },
-      { id: 'l18p4', position: { x: 850, y: 450 }, width: 150, height: 20 },
+    platforms: [],
+    breakableBlocks: [
+        { id: 'l18p1', position: { x: 150, y: 550 }, width: 200, height: 20, health: 100 },
+        { id: 'l18p2', position: { x: 450, y: 450 }, width: 200, height: 20, health: 100 },
+        { id: 'l18p3', position: { x: 1050, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l18p4', position: { x: 850, y: 450 }, width: 150, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l18s1', position: { x: 300, y: 300 }, emoji: '💻', fontSize: 200 },

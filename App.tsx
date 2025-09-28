@@ -1,20 +1,49 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Game from './components/Game';
-// Fix: Corrected the import name for level data from 'LEVELS' to 'LEVELS_DATA' to match the exported member in the module.
 import { LEVELS_DATA as initialLevels } from './components/level-data';
 import { Level } from './types';
 
 const App: React.FC = () => {
-  const [levels, setLevels] = useState<Level[]>(initialLevels);
+  const [levels, setLevels] = useState<Level[]>(() => {
+    const savedLevels = localStorage.getItem('emojiMayhem_customLevels');
+    const customLevels = savedLevels ? JSON.parse(savedLevels) : [];
+    return [...initialLevels, ...customLevels];
+  });
 
   const handleQuit = () => {
     alert("Thanks for playing!");
     window.location.reload(); 
   };
   
-  const handleAddLevel = (newLevel: Level) => {
-    setLevels(prevLevels => [...prevLevels, { ...newLevel, id: prevLevels.length + 1 }]);
+  const saveCustomLevelsToStorage = (customLevels: Level[]) => {
+      localStorage.setItem('emojiMayhem_customLevels', JSON.stringify(customLevels));
+  };
+
+  const handleSaveLevel = (levelToSave: Level) => {
+    setLevels(prevLevels => {
+        const customLevels = prevLevels.filter(l => l.isCustom);
+        const existingIndex = customLevels.findIndex(l => l.id === levelToSave.id);
+        let newCustomLevels;
+
+        if (existingIndex > -1) {
+            newCustomLevels = [...customLevels];
+            newCustomLevels[existingIndex] = levelToSave;
+        } else {
+            newCustomLevels = [...customLevels, levelToSave];
+        }
+        
+        saveCustomLevelsToStorage(newCustomLevels);
+        return [...initialLevels, ...newCustomLevels];
+    });
+  };
+  
+  const handleDeleteLevel = (levelId: number) => {
+      setLevels(prevLevels => {
+          const newLevels = prevLevels.filter(l => l.id !== levelId);
+          const newCustomLevels = newLevels.filter(l => l.isCustom);
+          saveCustomLevelsToStorage(newCustomLevels);
+          return newLevels;
+      });
   };
 
   return (
@@ -22,7 +51,8 @@ const App: React.FC = () => {
       <Game 
         onQuit={handleQuit} 
         levels={levels}
-        onAddLevel={handleAddLevel}
+        onSaveLevel={handleSaveLevel}
+        onDeleteLevel={handleDeleteLevel}
       />
     </div>
   );

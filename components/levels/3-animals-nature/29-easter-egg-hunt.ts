@@ -20,18 +20,16 @@ export const level29: Level = {
         // A tougher "golden egg"
         { type: 'brute', emoji: '🌟', position: { x: 640, y: 310 } },
     ],
-    platforms: [
-        // Grassy knolls
-        { id: 'l29p1', position: { x: 100, y: 550 }, width: 150, height: 20 },
-        { id: 'l29p2', position: { x: 250, y: 450 }, width: 150, height: 20 },
-        { id: 'l29p3', position: { x: 900, y: 550 }, width: 150, height: 20 },
-        { id: 'l29p4', position: { x: 1050, y: 450 }, width: 150, height: 20 },
-        { id: 'l29p5', position: { x: 590, y: 350 }, width: 100, height: 20 },
-    ],
+    platforms: [],
     breakableBlocks: [
         // "Bushes" hiding eggs
         { id: 'l29b1', position: { x: 420, y: 595 }, health: 100, width: 80, height: 55 },
         { id: 'l29b2', position: { x: 770, y: 595 }, health: 100, width: 80, height: 55 },
+        { id: 'l29p1', position: { x: 100, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l29p2', position: { x: 250, y: 450 }, width: 150, height: 20, health: 100 },
+        { id: 'l29p3', position: { x: 900, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l29p4', position: { x: 1050, y: 450 }, width: 150, height: 20, health: 100 },
+        { id: 'l29p5', position: { x: 590, y: 350 }, width: 100, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l29s1', position: { x: 640, y: 500 }, emoji: '⛪', fontSize: 250 },

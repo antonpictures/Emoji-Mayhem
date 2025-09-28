@@ -19,18 +19,16 @@ export const level30: Level = {
         { type: 'grunt', emoji: '⭐', position: { x: 300, y: 425 } },
         { type: 'grunt', emoji: '⭐', position: { x: 980, y: 425 } },
     ],
-    platforms: [
-        // Launch complex
-        { id: 'l30p1', position: { x: 590, y: 550 }, width: 100, height: 20 },
-        { id: 'l30p2', position: { x: 150, y: 550 }, width: 100, height: 20 },
-        { id: 'l30p3', position: { x: 1030, y: 550 }, width: 100, height: 20 },
-        { id: 'l30p4', position: { x: 250, y: 450 }, width: 100, height: 20 },
-        { id: 'l30p5', position: { x: 930, y: 450 }, width: 100, height: 20 },
-    ],
+    platforms: [],
     breakableBlocks: [
         // Asteroids
         { id: 'l30b1', position: { x: 500, y: 400 }, health: 100, width: 50, height: 50 },
         { id: 'l30b2', position: { x: 730, y: 400 }, health: 100, width: 50, height: 50 },
+        { id: 'l30p1', position: { x: 590, y: 550 }, width: 100, height: 20, health: 100 },
+        { id: 'l30p2', position: { x: 150, y: 550 }, width: 100, height: 20, health: 100 },
+        { id: 'l30p3', position: { x: 1030, y: 550 }, width: 100, height: 20, health: 100 },
+        { id: 'l30p4', position: { x: 250, y: 450 }, width: 100, height: 20, health: 100 },
+        { id: 'l30p5', position: { x: 930, y: 450 }, width: 100, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l30s1', position: { x: 150, y: 200 }, emoji: '🪐', fontSize: 200 },

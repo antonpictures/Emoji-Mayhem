@@ -15,15 +15,7 @@ export const level13: Level = {
         { type: 'sparky', emoji: '🧭', position: {x: 500, y: 300} },
         { type: 'grunt', emoji: '🗺️', position: {x: 1100, y: 525} },
     ],
-    platforms: [
-        // Original platform
-        {id: 'l13p1', position: {x: 900, y: 450}, width: 100, height: 20},
-        
-        // New platforms
-        {id: 'l13p2', position: {x: 450, y: 350}, width: 100, height: 20}, // For compass
-        {id: 'l13p3', position: {x: 1050, y: 550}, width: 100, height: 20}, // For map
-        {id: 'l13p4', position: {x: 350, y: 500}, width: 100, height: 20},
-    ],
+    platforms: [],
     emojiStructures: [
         // Original structure
         {id: 'l13s1', position: {x: 200, y: 550}, emoji: '🏝️', fontSize: 200},
@@ -38,7 +30,12 @@ export const level13: Level = {
     ],
     breakableBlocks: [
         // Original block
-        {id: 'l13b1', position: {x: 750, y: 550}, width: 100, height: 60, health: 150}
+        {id: 'l13b1', position: {x: 750, y: 550}, width: 100, height: 60, health: 150},
+        // Converted platforms
+        {id: 'l13p1', position: {x: 900, y: 450}, width: 100, height: 20, health: 100},
+        {id: 'l13p2', position: {x: 450, y: 350}, width: 100, height: 20, health: 100}, // For compass
+        {id: 'l13p3', position: {x: 1050, y: 550}, width: 100, height: 20, health: 100}, // For map
+        {id: 'l13p4', position: {x: 350, y: 500}, width: 100, height: 20, health: 100},
     ],
     theme: {
         sky: ['#89c2d9', '#61a5c2', '#468faf']

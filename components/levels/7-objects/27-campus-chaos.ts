@@ -19,18 +19,13 @@ export const level27: Level = {
         { type: 'tank', emoji: '🌏', position: { x: 640, y: 400 } }, // Geography
         { type: 'sparky', emoji: '🌠', position: { x: 500, y: 150 } }, // Physics
     ],
-    platforms: [
-        // "Building" structure
-        // Left side
-        { id: 'l27p1', position: { x: 250, y: 550 }, width: 200, height: 20 },
-        // Right side
-        { id: 'l27p2', position: { x: 900, y: 550 }, width: 200, height: 20 },
-        { id: 'l27p3', position: { x: 1050, y: 350 }, width: 100, height: 20 },
-        // Center
-        { id: 'l27p4', position: { x: 540, y: 450 }, width: 200, height: 20 },
-    ],
+    platforms: [],
     breakableBlocks: [
         { id: 'l27b1', position: { x: 900, y: 480 }, health: 100, width: 200, height: 30 },
+        { id: 'l27p1', position: { x: 250, y: 550 }, width: 200, height: 20, health: 100 },
+        { id: 'l27p2', position: { x: 900, y: 550 }, width: 200, height: 20, health: 100 },
+        { id: 'l27p3', position: { x: 1050, y: 350 }, width: 100, height: 20, health: 100 },
+        { id: 'l27p4', position: { x: 540, y: 450 }, width: 200, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l27s1', position: { x: 640, y: 250 }, emoji: '🎓', fontSize: 250 },

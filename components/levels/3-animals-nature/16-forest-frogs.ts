@@ -16,14 +16,15 @@ export const level16: Level = {
       { type: 'grunt', position: { x: 780, y: 225 }, emoji: '🍂' },
       { type: 'flyer', position: { x: 640, y: 100 }, emoji: '🍃' },
     ],
-    platforms: [
-      { id: 'l16p1', position: { x: 150, y: 550 }, width: 150, height: 20 },
-      { id: 'l16p2', position: { x: 950, y: 550 }, width: 150, height: 20 },
-      { id: 'l16p3', position: { x: 350, y: 450 }, width: 100, height: 20 },
-      { id: 'l16p4', position: { x: 750, y: 450 }, width: 100, height: 20 },
-      { id: 'l16p5', position: { x: 590, y: 330 }, width: 100, height: 20 },
-      { id: 'l16p6', position: { x: 50, y: 350 }, width: 100, height: 20 },
-      { id: 'l16p7', position: { x: 1130, y: 350 }, width: 100, height: 20 },
+    platforms: [],
+    breakableBlocks: [
+        { id: 'l16p1', position: { x: 150, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l16p2', position: { x: 950, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l16p3', position: { x: 350, y: 450 }, width: 100, height: 20, health: 100 },
+        { id: 'l16p4', position: { x: 750, y: 450 }, width: 100, height: 20, health: 100 },
+        { id: 'l16p5', position: { x: 590, y: 330 }, width: 100, height: 20, health: 100 },
+        { id: 'l16p6', position: { x: 50, y: 350 }, width: 100, height: 20, health: 100 },
+        { id: 'l16p7', position: { x: 1130, y: 350 }, width: 100, height: 20, health: 100 },
     ],
     emojiStructures: [
       { id: 'l16s1', position: { x: 100, y: 550 }, emoji: '🌳', fontSize: 200 },

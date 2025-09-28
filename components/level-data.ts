@@ -20,6 +20,8 @@ import { level37 } from './levels/3-animals-nature/37-bugs-life';
 import { level3 } from './levels/4-food-drink/3-food-fight-frenzy';
 import { level8 } from './levels/4-food-drink/8-candy-crush';
 import { level11 } from './levels/4-food-drink/11-fruit-ninja';
+import { level43 } from './levels/4-food-drink/43-kitchen-calamity';
+import { level46 } from './levels/4-food-drink/46-thanksgiving-feast';
 
 // Chapter 5: Travel & Places
 import { level1 } from './levels/5-travel-places/1-moon-bounce-mania';
@@ -28,6 +30,7 @@ import { level4 } from './levels/5-travel-places/4-ocean-chaos';
 import { level5 } from './levels/5-travel-places/5-space-madness';
 import { level28 } from './levels/5-travel-places/28-world-tour';
 import { level30 } from './levels/5-travel-places/30-cosmic-celebration';
+import { level42 } from './levels/5-travel-places/42-our-town';
 
 
 // Chapter 6: Activities
@@ -37,6 +40,12 @@ import { level19 } from './levels/6-activities/19-sports-champions';
 import { level33 } from './levels/6-activities/33-cartoon-capers';
 import { level34 } from './levels/6-activities/34-bikini-bottom-blast';
 import { level35 } from './levels/6-activities/35-frozen-fortress';
+import { level38 } from './levels/6-activities/38-santas-workshop-chaos';
+import { level40 } from './levels/6-activities/40-leprechaun-gold-rush';
+import { level41 } from './levels/6-activities/41-birthday-bash';
+import { level44 } from './levels/6-activities/44-arcade-anarchy';
+import { level45 } from './levels/6-activities/45-arts-and-crafts-corner';
+import { level47 } from './levels/6-activities/47-flirty-fiesta';
 
 
 // Chapter 7: Objects
@@ -49,6 +58,7 @@ import { level24 } from './levels/7-objects/24-science-lab';
 import { level25 } from './levels/7-objects/25-medical-mission';
 import { level27 } from './levels/7-objects/27-campus-chaos';
 import { level32 } from './levels/7-objects/32-hollywood-hijinks';
+import { level39 } from './levels/7-objects/39-fashion-frenzy';
 
 
 // Chapter 9: Flags
@@ -92,6 +102,16 @@ const allLevels: Level[] = [
   level35,
   level36,
   level37,
+  level38,
+  level39,
+  level40,
+  level41,
+  level42,
+  level43,
+  level44,
+  level45,
+  level46,
+  level47,
 ];
 
 // Sort by ID to ensure correct order for level select screen and "next level" logic

@@ -20,17 +20,13 @@ export const level28: Level = {
         // Air
         { type: 'flyer', emoji: '✈️', position: { x: 640, y: 150 } },
     ],
-    platforms: [
-        // Left city platforms
-        { id: 'l28p1', position: { x: 250, y: 550 }, width: 100, height: 20 },
-        { id: 'l28p2', position: { x: 200, y: 450 }, width: 100, height: 20 },
-        
-        // Right nature platforms
-        { id: 'l28p3', position: { x: 900, y: 550 }, width: 250, height: 20 },
-        { id: 'l28p4', position: { x: 1050, y: 450 }, width: 100, height: 20 },
-    ],
+    platforms: [],
     breakableBlocks: [
         { id: 'l28b1', position: { x: 900, y: 480 }, health: 100, width: 100, height: 70 },
+        { id: 'l28p1', position: { x: 250, y: 550 }, width: 100, height: 20, health: 100 },
+        { id: 'l28p2', position: { x: 200, y: 450 }, width: 100, height: 20, health: 100 },
+        { id: 'l28p3', position: { x: 900, y: 550 }, width: 250, height: 20, health: 100 },
+        { id: 'l28p4', position: { x: 1050, y: 450 }, width: 100, height: 20, health: 100 },
     ],
     emojiStructures: [
         { id: 'l28s1', position: { x: 640, y: 400 }, emoji: '🗺️', fontSize: 250 },

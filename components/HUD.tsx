@@ -1,29 +1,38 @@
-
 import React from 'react';
+import { soundManager } from './SoundManager';
 
 interface HUDProps {
   score: number;
   levelName: string;
   projectiles: number;
+  onBackToMenu: () => void;
 }
 
-const HUD: React.FC<HUDProps> = ({ score, levelName, projectiles }) => {
+const HUD: React.FC<HUDProps> = ({ score, levelName, projectiles, onBackToMenu }) => {
+  const handleBackClick = () => {
+    soundManager.initialize();
+    soundManager.playClick();
+    onBackToMenu();
+  };
+
   return (
-    <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center text-white z-20 pointer-events-none">
+    <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start text-white z-20 pointer-events-none">
       <div className="font-press-start text-xl">
         <span>SCORE: </span>
         <span className="text-yellow-400">{score.toString().padStart(6, '0')}</span>
       </div>
-      <div className="font-press-start text-xl">
-        <span>{levelName}</span>
+      <div className="text-center">
+        <div className="font-press-start text-xl mb-2">{levelName}</div>
+        <button
+          onClick={handleBackClick}
+          className="px-4 py-2 font-press-start text-xs bg-red-600 hover:bg-red-500 text-white rounded-md transition-all duration-200 pointer-events-auto shadow-lg border-2 border-red-800"
+        >
+            CHANGE LEVEL
+        </button>
       </div>
       <div className="font-press-start text-xl flex items-center">
-        <span>PROJECTILES: </span>
-        <div className="flex items-center ml-2">
-            {[...Array(projectiles)].map((_, i) => (
-                <span key={i} className="text-2xl -ml-1" role="img" aria-label="projectile">😡</span>
-            ))}
-        </div>
+        <span>LEFT: </span>
+        <span className="text-yellow-300 ml-2">{projectiles}</span>
       </div>
     </div>
   );
