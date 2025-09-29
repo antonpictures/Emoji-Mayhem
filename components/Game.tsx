@@ -24,6 +24,7 @@ import ProjectileSelector, { TYPE_EMOJI_MAP, TYPE_COLOR_MAP } from './Projectile
 import { soundManager } from './SoundManager';
 import { POKEMON_DATA } from './pokemon-data';
 import { TYPE_CHART } from './pokemon-type-chart';
+import { GoogleGenAI, Type } from '@google/genai';
 
 type GameState = 'level-select' | 'playing' | 'level-complete' | 'game-over' | 'level-editor';
 type EditorObjectType = 'enemy' | 'platform' | 'breakableBlock' | 'emojiStructure';
@@ -78,13 +79,14 @@ const createNewLevel = (): Level => ({
 interface GameProps {
   onQuit: () => void;
   levels: Level[];
+  communityLevels: Level[];
   onSaveLevel: (level: Level) => void;
   onDeleteLevel: (levelId: number) => void;
 }
 // Fix: Initialize available projectiles with all Pokemon types to satisfy the 'AvailableProjectiles' record type.
 const initialAvailableProjectiles: AvailableProjectiles = Object.fromEntries(Object.values(PokemonType).map(t => [t, 0])) as AvailableProjectiles;
 
-const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel }) => {
+const Game: React.FC<GameProps> = ({ onQuit, levels, communityLevels, onSaveLevel, onDeleteLevel }) => {
   const [gameState, setGameState] = useState<GameState>('level-select');
   const [currentLevel, setCurrentLevel] = useState<Level | null>(null);
   const [projectiles, setProjectiles] = useState<Projectile[]>([]);
@@ -120,6 +122,7 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
   const [panStart, setPanStart] = useState<Vec2>({ x: 0, y: 0 });
   const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null);
   const [dragInfo, setDragInfo] = useState<DragInfo | null>(null);
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
   
   const gameContainerRef = useRef<HTMLDivElement>(null);
   
@@ -517,6 +520,170 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
     setHistoryIndex(newHistory.length - 1);
   }, [history, historyIndex]);
 
+  const handleAiLevelGeneration = async (prompt: string) => {
+    if (!editingLevel) return;
+
+    setIsAiGenerating(true);
+    try {
+        const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
+
+        const vec2Schema = {
+            type: Type.OBJECT,
+            properties: {
+                x: { type: Type.NUMBER, description: "The x-coordinate." },
+                y: { type: Type.NUMBER, description: "The y-coordinate." }
+            },
+            required: ['x', 'y']
+        };
+        const movementSchema = {
+            type: Type.OBJECT,
+            properties: {
+                type: { type: Type.STRING, enum: ['horizontal-loop'], description: "The type of movement." },
+                speed: { type: Type.NUMBER, description: "Movement speed. Negative for left, positive for right." },
+                startX: { type: Type.NUMBER, description: "The x-coordinate where the loop restarts." },
+                endX: { type: Type.NUMBER, description: "The x-coordinate where the platform turns around." }
+            },
+            required: ['type', 'speed', 'startX', 'endX']
+        };
+
+        const levelSchema = {
+            type: Type.OBJECT,
+            properties: {
+                id: { type: Type.NUMBER, description: "The unique ID of the level." },
+                name: { type: Type.STRING, description: "The name of the level." },
+                projectiles: { type: Type.NUMBER, description: "Number of projectiles available." },
+                enemies: {
+                    type: Type.ARRAY,
+                    description: "A list of enemy objects.",
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            id: { type: Type.STRING, description: "Optional unique ID." },
+                            type: { type: Type.STRING, enum: Object.keys(ENEMY_CONFIG), description: "The type of enemy." },
+                            position: { ...vec2Schema, description: "The enemy's starting position." },
+                            emoji: { type: Type.STRING, description: "Optional emoji override." },
+                            radius: { type: Type.NUMBER, description: "Optional radius override." }
+                        },
+                        required: ['type', 'position']
+                    }
+                },
+                platforms: {
+                    type: Type.ARRAY,
+                    description: "A list of platform objects. These are solid and can be destroyed.",
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            id: { type: Type.STRING },
+                            position: { ...vec2Schema, description: "The platform's top-left corner position." },
+                            width: { type: Type.NUMBER },
+                            height: { type: Type.NUMBER },
+                            health: { type: Type.NUMBER, description: "Health of the platform." },
+                            movement: { ...movementSchema, description: "Optional movement pattern." }
+                        },
+                        required: ['id', 'position', 'width', 'height']
+                    }
+                },
+                breakableBlocks: {
+                    type: Type.ARRAY,
+                    description: "A list of breakable block objects.",
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            id: { type: Type.STRING },
+                            position: { ...vec2Schema, description: "The block's top-left corner position." },
+                            width: { type: Type.NUMBER },
+                            height: { type: Type.NUMBER },
+                            health: { type: Type.NUMBER }
+                        },
+                        required: ['id', 'position', 'width', 'height', 'health']
+                    }
+                },
+                emojiStructures: {
+                    type: Type.ARRAY,
+                    description: "A list of decorative, non-collidable emoji objects.",
+                    items: {
+                        type: Type.OBJECT,
+                        properties: {
+                            id: { type: Type.STRING },
+                            position: vec2Schema,
+                            emoji: { type: Type.STRING },
+                            fontSize: { type: Type.NUMBER },
+                            health: { type: Type.NUMBER, description: "Optional health, not used in game." }
+                        },
+                        required: ['id', 'position', 'emoji', 'fontSize']
+                    }
+                },
+                theme: {
+                    type: Type.OBJECT,
+                    description: "The visual theme of the level.",
+                    properties: {
+                        sky: {
+                            type: Type.ARRAY,
+                            items: { type: Type.STRING, description: "A hex color code." },
+                            minItems: 3,
+                            maxItems: 3,
+                            description: "Array of three hex color codes for a sky gradient."
+                        }
+                    },
+                    required: ['sky']
+                },
+                isCustom: { type: Type.BOOLEAN, description: "True if this is a user-created level." }
+            },
+            required: ['id', 'name', 'projectiles']
+        };
+
+        const systemPrompt = `You are an expert level designer for a 2D physics-based slingshot game called 'Emoji Mayhem'. The world dimensions are ${WORLD_WIDTH}x${WORLD_HEIGHT}. The ground is at y=${GROUND_Y}. (0,0) is the top-left corner.
+        
+Here are the available enemy types: ${JSON.stringify(Object.keys(ENEMY_CONFIG))}.
+
+You will be given the current level design as a JSON object and a user request. Modify the level design based on the request and return the complete, updated JSON object for the entire level.
+- Do not add properties that are not in the schema.
+- Ensure all object positions are within the world boundaries (x: 0-${WORLD_WIDTH}, y: 0-${WORLD_HEIGHT}).
+- Make sure objects are not placed below the ground (y=${GROUND_Y}). Platforms and blocks should be on or above the ground. Enemies should be placed on platforms or the ground, not inside them.
+- Be creative and make the level fun and playable.
+- Maintain the existing 'id' for objects when modifying them. Assign new unique IDs for new objects.
+- Return ONLY the raw JSON object, without any surrounding text or markdown.
+`;
+
+        const fullPrompt = `Current Level JSON:
+${JSON.stringify(editingLevel, null, 2)}
+
+User Request:
+"${prompt}"
+
+Now, provide the complete, modified level JSON object.`;
+
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: fullPrompt,
+            config: {
+                systemInstruction: systemPrompt,
+                responseMimeType: "application/json",
+                responseSchema: levelSchema,
+            },
+        });
+
+        const newLevelData = JSON.parse(response.text);
+
+        const validatedLevel: Level = {
+            ...newLevelData,
+            id: editingLevel.id,
+            isCustom: editingLevel.isCustom,
+        };
+        
+        setEditingLevel(validatedLevel);
+        recordHistory(validatedLevel);
+        alert("AI has redesigned the level!");
+
+    } catch (error) {
+        console.error("AI level generation failed:", error);
+        alert("Sorry, the AI couldn't redesign the level. Please try a different prompt.");
+    } finally {
+        setIsAiGenerating(false);
+    }
+  };
+
+
   useEffect(() => {
     if (gameState === 'level-editor' && editingLevel) {
         setEnemies([]); // Clear game enemies
@@ -833,12 +1000,14 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
   // FIX: Explicitly cast 'count' to a number to prevent type errors with the reduce function.
   const totalProjectiles = Object.values(availableProjectiles).reduce((sum, count) => sum + Number(count), 0);
 
+  const canEditCurrentLevel = !isTestingEditorLevel && !currentLevel?.isCommunity;
+
   return (
     <div ref={gameContainerRef} className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden select-none">
-        {gameState === 'level-select' && (<LevelSelectScreen levels={levels} onLevelSelect={loadLevelForPlay} onQuit={onQuit} onStartEditor={() => loadLevelForEditor(createNewLevel())} onEditLevel={loadLevelForEditor} onDeleteLevel={onDeleteLevel}/>)}
+        {gameState === 'level-select' && (<LevelSelectScreen levels={levels} communityLevels={communityLevels} onLevelSelect={loadLevelForPlay} onQuit={onQuit} onStartEditor={() => loadLevelForEditor(createNewLevel())} onEditLevel={loadLevelForEditor} onDeleteLevel={onDeleteLevel}/>)}
         {gameState === 'level-complete' && <LevelCompleteScreen score={score} onNext={handleNextLevel} isTestingEditorLevel={isTestingEditorLevel} onReturnToEditor={handleReturnToEditor} />}
-        {gameState === 'game-over' && <GameOverScreen onRestart={handleRestartLevel} onQuit={onQuit} isTestingEditorLevel={isTestingEditorLevel} onReturnToEditor={handleReturnToEditor} />}
-        {gameState === 'level-editor' && (<LevelEditorUI onSelectTool={setEditorTool} selectedTool={editorTool} onTest={() => { setIsTestingEditorLevel(true); loadLevelForPlay(editingLevel!); }} onSave={handleSaveAndExitEditor} onExit={() => setGameState('level-select')} onUndo={handleUndo} onRedo={handleRedo} canUndo={historyIndex > 0} canRedo={historyIndex < history.length - 1} onZoomIn={() => handleZoom('in')} onZoomOut={() => handleZoom('out')} onResetView={handleResetView}/>)}
+        {gameState === 'game-over' && <GameOverScreen onRestart={handleRestartLevel} onBackToMenu={() => setGameState('level-select')} isTestingEditorLevel={isTestingEditorLevel} onReturnToEditor={handleReturnToEditor} />}
+        {gameState === 'level-editor' && (<LevelEditorUI onSelectTool={setEditorTool} selectedTool={editorTool} onTest={() => { setIsTestingEditorLevel(true); loadLevelForPlay(editingLevel!); }} onSave={handleSaveAndExitEditor} onExit={() => setGameState('level-select')} onUndo={handleUndo} onRedo={handleRedo} canUndo={historyIndex > 0} canRedo={historyIndex < history.length - 1} onZoomIn={() => handleZoom('in')} onZoomOut={() => handleZoom('out')} onResetView={handleResetView} onAiGenerate={handleAiLevelGeneration} isAiGenerating={isAiGenerating} />)}
         
         {renderStatsCard()}
       
@@ -856,18 +1025,6 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
                 dominantBaseline="central"
               >
                 😡
-              </text>
-            )}
-
-            {(gameState === 'playing' && !isSlingshotDragging && totalProjectiles > 0) && (
-              <text
-                x={PLAYER_START_POS.x}
-                y={PLAYER_START_POS.y}
-                fontSize={PROJECTILE_RADIUS * 2.5}
-                textAnchor="middle"
-                dominantBaseline="central"
-              >
-                {TYPE_EMOJI_MAP[selectedProjectile]}
               </text>
             )}
             
@@ -904,7 +1061,7 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
 
         {(gameState === 'playing' && currentLevel) && (
             <>
-                <HUD score={score} levelName={currentLevel.name} projectiles={totalProjectiles} onBackToMenu={() => setGameState('level-select')} />
+                <HUD score={score} levelName={currentLevel.name} projectiles={totalProjectiles} onBackToMenu={() => setGameState('level-select')} onEditLevel={() => currentLevel && loadLevelForEditor(currentLevel)} canEdit={canEditCurrentLevel} />
                 <SlingshotControls onFire={handleFire} onDrag={setParallaxOffset} isVisible={totalProjectiles > 0} selectedProjectileType={selectedProjectile} onDragStateChange={setIsSlingshotDragging} />
                 <ProjectileSelector availableProjectiles={availableProjectiles} selectedType={selectedProjectile} onSelectType={setSelectedProjectile} />
             </>

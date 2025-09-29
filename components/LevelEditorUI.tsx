@@ -16,15 +16,19 @@ interface LevelEditorUIProps {
     onZoomIn: () => void;
     onZoomOut: () => void;
     onResetView: () => void;
+    onAiGenerate: (prompt: string) => void;
+    isAiGenerating: boolean;
 }
 
 const LevelEditorUI: React.FC<LevelEditorUIProps> = ({ 
     onSelectTool, selectedTool, onTest, onSave, onExit,
     onUndo, onRedo, canUndo, canRedo,
-    onZoomIn, onZoomOut, onResetView
+    onZoomIn, onZoomOut, onResetView,
+    onAiGenerate, isAiGenerating
 }) => {
     
     const [openCategory, setOpenCategory] = useState<string | null>('Enemies');
+    const [aiPrompt, setAiPrompt] = useState('');
 
     const handleToolClick = (toolId: string) => {
         soundManager.playClick();
@@ -79,6 +83,25 @@ const LevelEditorUI: React.FC<LevelEditorUIProps> = ({
                     </div>
                     <button onClick={() => handleActionClick(onResetView)} className="w-full mt-1 p-2 bg-gray-700 hover:bg-gray-600 rounded font-bold text-xs">RESET</button>
                 </div>
+            </div>
+
+            {/* AI Assistant */}
+            <div className="flex-shrink-0">
+                <h3 className="font-bold text-sm text-yellow-300 mb-1">AI ASSISTANT</h3>
+                <textarea 
+                    className="w-full h-24 p-1 bg-gray-800 border border-gray-600 rounded text-xs"
+                    placeholder="e.g., 'Make this level harder by adding two brutes and a tower.'"
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    disabled={isAiGenerating}
+                />
+                <button 
+                    onClick={() => handleActionClick(() => onAiGenerate(aiPrompt))} 
+                    className="w-full mt-1 p-2 bg-purple-600 hover:bg-purple-500 rounded font-bold text-xs disabled:opacity-50 disabled:cursor-wait"
+                    disabled={isAiGenerating || !aiPrompt.trim()}
+                >
+                    {isAiGenerating ? 'GENERATING...' : 'GENERATE'}
+                </button>
             </div>
 
             {/* Tools Accordion */}

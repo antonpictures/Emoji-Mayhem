@@ -109,4 +109,9 @@ export interface Level {
       sky: [string, string, string]; // [startColor, midColor, endColor]
   }
   isCustom?: boolean;
+  // Community properties
+  creator?: string;
+  plays?: number;
+  likes?: number;
+  isCommunity?: boolean;
 }

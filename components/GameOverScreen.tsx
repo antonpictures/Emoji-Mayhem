@@ -3,12 +3,12 @@ import { soundManager } from './SoundManager';
 
 interface GameOverScreenProps {
   onRestart: () => void;
-  onQuit: () => void;
+  onBackToMenu: () => void;
   isTestingEditorLevel: boolean;
   onReturnToEditor: () => void;
 }
 
-const GameOverScreen: React.FC<GameOverScreenProps> = ({ onRestart, onQuit, isTestingEditorLevel, onReturnToEditor }) => {
+const GameOverScreen: React.FC<GameOverScreenProps> = ({ onRestart, onBackToMenu, isTestingEditorLevel, onReturnToEditor }) => {
   
   const handlePrimaryClick = () => {
     soundManager.playClick();
@@ -19,9 +19,9 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({ onRestart, onQuit, isTe
     }
   };
 
-  const handleQuitClick = () => {
+  const handleBackToMenuClick = () => {
     soundManager.playClick();
-    onQuit();
+    onBackToMenu();
   };
 
   return (
@@ -37,10 +37,10 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({ onRestart, onQuit, isTe
             {isTestingEditorLevel ? 'RETURN TO EDITOR' : 'RESTART'}
           </button>
           <button
-            onClick={handleQuitClick}
+            onClick={handleBackToMenuClick}
             className="px-8 py-3 font-bold text-lg bg-gray-600 hover:bg-gray-500 text-white rounded-md transition-all duration-200"
           >
-            QUIT
+            MAIN MENU
           </button>
         </div>
       </div>

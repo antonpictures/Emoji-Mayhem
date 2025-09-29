@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Game from './components/Game';
 import { LEVELS_DATA as initialLevels } from './components/level-data';
+import { COMMUNITY_LEVELS_DATA as communityLevels } from './components/community-levels-data';
 import { Level } from './types';
 
 const App: React.FC = () => {
@@ -51,6 +52,7 @@ const App: React.FC = () => {
       <Game 
         onQuit={handleQuit} 
         levels={levels}
+        communityLevels={communityLevels}
         onSaveLevel={handleSaveLevel}
         onDeleteLevel={handleDeleteLevel}
       />

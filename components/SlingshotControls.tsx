@@ -11,6 +11,9 @@ interface SlingshotControlsProps {
   onDragStateChange: (isDragging: boolean) => void;
 }
 
+// Gives the slingshot an initial "power 13" look to show it's ready.
+const INITIAL_PULL_DISTANCE = MAX_SLINGSHOT_DRAG * 0.13;
+
 const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible, onDrag, selectedProjectileType, onDragStateChange }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<Vec2 | null>(null);
@@ -138,17 +141,21 @@ const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible
 
   const renderTrajectory = () => {
     if (!isDragging || !dragStart || !dragEnd) return null;
-    return (<line x1={PLAYER_START_POS.x} y1={PLAYER_START_POS.y} x2={PLAYER_START_POS.x + (dragStart.x - dragEnd.x)} y2={PLAYER_START_POS.y + (dragStart.y - dragEnd.y)} stroke="rgba(255, 255, 255, 0.5)" strokeWidth="3" strokeDasharray="5, 5" />);
+    const launchVectorX = dragStart.x - dragEnd.x;
+    const launchVectorY = dragStart.y - dragEnd.y;
+    return (<line x1={PLAYER_START_POS.x} y1={PLAYER_START_POS.y} x2={PLAYER_START_POS.x + launchVectorX} y2={PLAYER_START_POS.y + launchVectorY} stroke="rgba(255, 255, 255, 0.5)" strokeWidth="3" strokeDasharray="5, 5" />);
   }
   
-  const renderRubberBand = () => {
+  const renderDraggingSlingshot = () => {
       if (!isDragging || !dragStart || !dragEnd) return null;
-      const projectilePosX = PLAYER_START_POS.x - (dragEnd.x - dragStart.x);
-      const projectilePosY = PLAYER_START_POS.y - (dragEnd.y - dragStart.y);
+      
+      const dragDx = dragEnd.x - dragStart.x;
+      const dragDy = dragEnd.y - dragStart.y;
+      
+      const projectilePosX = PLAYER_START_POS.x + dragDx;
+      const projectilePosY = PLAYER_START_POS.y + dragDy;
 
-      const powerDx = dragEnd.x - dragStart.x;
-      const powerDy = dragEnd.y - dragStart.y;
-      const powerDist = Math.hypot(powerDx, powerDy);
+      const powerDist = Math.hypot(dragDx, dragDy);
       const powerLevel = Math.round((powerDist / MAX_SLINGSHOT_DRAG) * 100);
       
       return (
@@ -165,11 +172,27 @@ const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible
       )
   }
 
+  const renderIdleSlingshot = () => {
+    const projectilePosX = PLAYER_START_POS.x;
+    const projectilePosY = PLAYER_START_POS.y + INITIAL_PULL_DISTANCE;
+
+    return (
+        <>
+            <line x1={PLAYER_START_POS.x - 30} y1={PLAYER_START_POS.y} x2={projectilePosX} y2={projectilePosY} stroke="rgba(74, 59, 43, 0.8)" strokeWidth="6" />
+            <line x1={PLAYER_START_POS.x + 30} y1={PLAYER_START_POS.y} x2={projectilePosX} y2={projectilePosY} stroke="rgba(74, 59, 43, 0.8)" strokeWidth="6" />
+            <text x={projectilePosX} y={projectilePosY} fontSize={PROJECTILE_RADIUS * 2.5} textAnchor="middle" dominantBaseline="central" style={{ userSelect: 'none', pointerEvents: 'none' }}>
+                {TYPE_EMOJI_MAP[selectedProjectileType]}
+            </text>
+        </>
+    );
+  };
+
   return (
     <div ref={controlsRef} className="absolute inset-0 z-10" onMouseDown={handleDragStart} onTouchStart={handleDragStart} style={{ touchAction: 'none' }}>
         <svg viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`} className="absolute inset-0 w-full h-full pointer-events-none">
-            {isVisible && renderTrajectory()}
-            {isVisible && renderRubberBand()}
+            {isVisible && isDragging && renderTrajectory()}
+            {isVisible && isDragging && renderDraggingSlingshot()}
+            {isVisible && !isDragging && renderIdleSlingshot()}
         </svg>
     </div>
   );

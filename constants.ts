@@ -5,7 +5,7 @@ export const WORLD_WIDTH = 1280;
 export const WORLD_HEIGHT = 720;
 export const GROUND_Y = 650;
 
-export const PLAYER_START_POS: Vec2 = { x: WORLD_WIDTH / 2, y: GROUND_Y - 50 };
+export const PLAYER_START_POS: Vec2 = { x: WORLD_WIDTH / 2, y: GROUND_Y - 80 };
 export const PLAYER_RADIUS = 35;
 export const PLAYER_MAX_HEALTH = 100;
 
