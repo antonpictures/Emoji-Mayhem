@@ -20,6 +20,12 @@ export interface Platform {
   width: number;
   height: number;
   health?: number;
+  movement?: {
+    type: 'horizontal-loop';
+    speed: number;
+    startX: number;
+    endX: number;
+  };
 }
 
 export interface BreakableBlock {

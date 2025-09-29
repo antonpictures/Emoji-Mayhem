@@ -89,6 +89,7 @@ export const POKEMON_DATA: Record<string, { name: string; types: PokemonType[] }
     '👮': { name: "Arcanine", types: [PokemonType.Fire] },
     '🥊': { name: "Hitmonchan", types: [PokemonType.Fighting] },
     '🥋': { name: "Sawk", types: [PokemonType.Fighting] },
+    '🤠': { name: "Cacturne", types: [PokemonType.Grass, PokemonType.Dark] },
 
     // Catch-all for others
     '👹': { name: "Incineroar", types: [PokemonType.Fire, PokemonType.Dark] },

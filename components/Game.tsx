@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Vec2, Projectile, Enemy, Level, Particle, Platform, BreakableBlock, EnemyType, EmojiStructure, PokemonType, FloatingText } from '../types';
 import {
@@ -279,8 +275,41 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
     let scoreToAdd = 0;
     const newParticles: Particle[] = [];
     const newFloatingTexts: FloatingText[] = [];
-    let localPlatforms = [...platforms];
-    let localBreakableBlocks = [...breakableBlocks];
+    
+    // Fix: Change to 'let' to allow reassignment after filtering for destroyed platforms.
+    let nextPlatforms = platforms.map(p => {
+        if (p.movement?.type === 'horizontal-loop') {
+            const newPos = { ...p.position };
+            newPos.x += p.movement.speed;
+            if ((p.movement.speed < 0 && newPos.x < p.movement.endX) || (p.movement.speed > 0 && newPos.x > p.movement.endX)) {
+                newPos.x = p.movement.startX;
+            }
+            return { ...p, position: newPos };
+        }
+        return p;
+    });
+    
+    let nextBreakableBlocks = breakableBlocks.map(block => {
+        let newBlock = { ...block, position: { ...block.position } };
+        let platformSpeed = 0;
+
+        for (const p of nextPlatforms) {
+            const blockBottom = newBlock.position.y + newBlock.height;
+            const blockCenterX = newBlock.position.x + newBlock.width / 2;
+            const isWithinX = blockCenterX > p.position.x && blockCenterX < p.position.x + p.width;
+            
+            if (isWithinX && Math.abs(blockBottom - p.position.y) < 5) {
+                if ('movement' in p && p.movement) {
+                    const oldPlatform = platforms.find(op => op.id === p.id);
+                    if (oldPlatform) {
+                        platformSpeed = p.position.x - oldPlatform.position.x;
+                    }
+                }
+            }
+        }
+        newBlock.position.x += platformSpeed;
+        return newBlock;
+    });
     
     let updatedProjectiles = projectiles.map(p => {
       let newVel = { x: p.velocity.x, y: p.velocity.y + GRAVITY.y };
@@ -318,18 +347,27 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
         
         if (newEnemy.type !== 'flyer' && newEnemy.type !== 'sparky') {
             newEnemy.velocity.y += GRAVITY.y;
-            newEnemy.position.x += newEnemy.velocity.x;
-            newEnemy.position.y += newEnemy.velocity.y;
-            const allSupports = [...platforms, ...breakableBlocks];
+            let platformSpeed = 0;
+            
+            const allSupports = [...nextPlatforms, ...nextBreakableBlocks];
             for (const p of allSupports) {
                 const enemyBottom = newEnemy.position.y + newEnemy.radius;
-                const wasAbove = (enemy.position.y + enemy.radius) <= p.position.y + 1;
+                const wasAbove = (enemy.position.y + enemy.radius) <= p.position.y + 5;
                 const isWithinX = (newEnemy.position.x + newEnemy.radius > p.position.x) && (newEnemy.position.x - newEnemy.radius < p.position.x + p.width);
-                if (newEnemy.velocity.y >= 0 && wasAbove && isWithinX && enemyBottom >= p.position.y) {
+                if (newEnemy.velocity.y >= 0 && wasAbove && isWithinX && enemyBottom >= p.position.y && enemyBottom < p.position.y + p.height + 10) {
                     newEnemy.position.y = p.position.y - newEnemy.radius;
                     newEnemy.velocity.y = 0; newEnemy.velocity.x *= 0.8;
+                    if ('movement' in p && p.movement) {
+                        const oldPlatform = platforms.find(op => op.id === p.id);
+                        if(oldPlatform) {
+                            platformSpeed = p.position.x - oldPlatform.position.x;
+                        }
+                    }
                 }
             }
+            newEnemy.position.x += newEnemy.velocity.x + platformSpeed;
+            newEnemy.position.y += newEnemy.velocity.y;
+
             if (newEnemy.position.y > GROUND_Y - newEnemy.radius) {
                 newEnemy.position.y = GROUND_Y - newEnemy.radius;
                 newEnemy.velocity.y = 0; newEnemy.velocity.x *= 0.8;
@@ -383,7 +421,7 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
                 return false;
             }
         }
-        for (const block of localBreakableBlocks) {
+        for (const block of nextBreakableBlocks) {
             const closestX = Math.max(block.position.x, Math.min(proj.position.x, block.position.x + block.width));
             const closestY = Math.max(block.position.y, Math.min(proj.position.y, block.position.y + block.height));
             if (Math.hypot(proj.position.x - closestX, proj.position.y - closestY) < proj.radius) {
@@ -392,7 +430,7 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
                 if (block.health <= 0) destroyedBlockIds.add(block.id); return false;
             }
         }
-        for (const plat of localPlatforms) {
+        for (const plat of nextPlatforms) {
             const closestX = Math.max(plat.position.x, Math.min(proj.position.x, plat.position.x + plat.width));
             const closestY = Math.max(plat.position.y, Math.min(proj.position.y, plat.position.y + plat.height));
             if (Math.hypot(proj.position.x - closestX, proj.position.y - closestY) < proj.radius) {
@@ -443,16 +481,16 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
                     }
                 };
                 updatedEnemies.forEach(other => !processedDestruction.has(other.id) && !destructionQueue.has(other.id) && applyBlastDamage(other, 'enemy'));
-                localBreakableBlocks.forEach(block => !destroyedBlockIds.has(block.id) && applyBlastDamage(block, 'block'));
-                localPlatforms.forEach(plat => !destroyedPlatformIds.has(plat.id) && applyBlastDamage({ ...plat, health: plat.health, radius: 0 }, 'platform'));
+                nextBreakableBlocks.forEach(block => !destroyedBlockIds.has(block.id) && applyBlastDamage(block, 'block'));
+                nextPlatforms.forEach(plat => !destroyedPlatformIds.has(plat.id) && applyBlastDamage({ ...plat, health: plat.health, radius: 0 }, 'platform'));
             }
         }
     }
 
     const stillEnemies = updatedEnemies.filter(e => !processedDestruction.has(e.id));
     
-    if (destroyedPlatformIds.size > 0) { localPlatforms = localPlatforms.filter(p => !destroyedPlatformIds.has(p.id)); destroyedPlatformIds.forEach(() => soundManager.playBlockBreak()); }
-    if (destroyedBlockIds.size > 0) { localBreakableBlocks = localBreakableBlocks.filter(b => !destroyedBlockIds.has(b.id)); destroyedBlockIds.forEach(() => soundManager.playBlockBreak()); }
+    if (destroyedPlatformIds.size > 0) { nextPlatforms = nextPlatforms.filter(p => !destroyedPlatformIds.has(p.id)); destroyedPlatformIds.forEach(() => soundManager.playBlockBreak()); }
+    if (destroyedBlockIds.size > 0) { nextBreakableBlocks = nextBreakableBlocks.filter(b => !destroyedBlockIds.has(b.id)); destroyedBlockIds.forEach(() => soundManager.playBlockBreak()); }
     
     // FIX: Explicitly cast 'count' to a number to prevent type errors with the reduce function.
     const remainingProjCount = Object.values(availableProjectiles).reduce((sum, count) => sum + Number(count), 0);
@@ -465,8 +503,8 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
     setProjectiles(updatedProjectiles);
     setParticles([...updatedParticles, ...newParticles]);
     setFloatingTexts([...updatedFloatingTexts, ...newFloatingTexts]);
-    setPlatforms(localPlatforms);
-    setBreakableBlocks(localBreakableBlocks);
+    setPlatforms(nextPlatforms);
+    setBreakableBlocks(nextBreakableBlocks);
 
     if (stillEnemies.length === 0 && gameState === 'playing') { soundManager.playLevelComplete(); setGameState('level-complete'); } 
     else if (remainingProjCount <= 0 && updatedProjectiles.length === 0 && stillEnemies.length > 0 && gameState === 'playing') { soundManager.playGameOver(); setGameState('game-over'); }

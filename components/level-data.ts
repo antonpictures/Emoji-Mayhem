@@ -31,6 +31,7 @@ import { level5 } from './levels/5-travel-places/5-space-madness';
 import { level28 } from './levels/5-travel-places/28-world-tour';
 import { level30 } from './levels/5-travel-places/30-cosmic-celebration';
 import { level42 } from './levels/5-travel-places/42-our-town';
+import { level48 } from './levels/5-travel-places/48-train-robbery';
 
 
 // Chapter 6: Activities
@@ -112,6 +113,7 @@ const allLevels: Level[] = [
   level45,
   level46,
   level47,
+  level48,
 ];
 
 // Sort by ID to ensure correct order for level select screen and "next level" logic
