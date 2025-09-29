@@ -1,5 +1,7 @@
 
 
+
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Vec2, Projectile, Enemy, Level, Particle, Platform, BreakableBlock, EnemyType, EmojiStructure, PokemonType, FloatingText } from '../types';
 import {
@@ -22,7 +24,7 @@ import LevelSelectScreen from './LevelSelectScreen';
 import LevelCompleteScreen from './LevelCompleteScreen';
 import GameOverScreen from './GameOverScreen';
 import LevelEditorUI from './LevelEditorUI';
-import ProjectileSelector, { TYPE_EMOJI_MAP } from './ProjectileSelector';
+import ProjectileSelector, { TYPE_EMOJI_MAP, TYPE_COLOR_MAP } from './ProjectileSelector';
 import { soundManager } from './SoundManager';
 import { POKEMON_DATA } from './pokemon-data';
 import { TYPE_CHART } from './pokemon-type-chart';
@@ -47,6 +49,17 @@ export const ENEMY_CONFIG: Record<EnemyType, Omit<Enemy, 'id' | 'position' | 've
     hopper: { radius: 25, health: 80, color: '#22c55e', points: 175, emoji: '🐸', type: 'hopper' },
     tank: { radius: 50, health: 500, color: '#6b7280', points: 500, emoji: '🛡️', type: 'tank' },
     sparky: { radius: 20, health: 100, color: '#facc15', points: 225, emoji: '⚡', type: 'sparky' },
+};
+
+const ENEMY_DESCRIPTIONS: Record<EnemyType, string> = {
+    grunt: 'A standard, reliable foe.',
+    brute: 'Tough and heavy, difficult to move.',
+    flyer: 'Hovers in the air, tricky to hit.',
+    bomber: 'Explodes upon defeat, causing area damage.',
+    ghost: 'Periodically becomes intangible and cannot be hit.',
+    hopper: 'Jumps around unpredictably, making it hard to target.',
+    tank: 'Extremely durable with very high health.',
+    sparky: 'Moves in an erratic zigzag pattern, avoiding projectiles.'
 };
 
 const JUMP_COOLDOWN = 120; // frames
@@ -94,6 +107,10 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
   const [shake, setShake] = useState({ intensity: 0, duration: 0 });
   const [parallaxOffset, setParallaxOffset] = useState<Vec2>({ x: 0, y: 0 });
   const [isSlingshotDragging, setIsSlingshotDragging] = useState(false);
+
+  // Hover Card State
+  const [hoveredEnemy, setHoveredEnemy] = useState<Enemy | null>(null);
+  const [cardPosition, setCardPosition] = useState<Vec2 | null>(null);
 
   // Editor State
   const [editingLevel, setEditingLevel] = useState<Level | null>(null);
@@ -465,7 +482,8 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
   useEffect(() => {
     if (gameState === 'level-editor' && editingLevel) {
         setEnemies([]); // Clear game enemies
-        setPlatforms(editingLevel.platforms || []);
+        // Fix: Map over platforms to ensure each has a 'health' property, satisfying the state's more specific type.
+        setPlatforms((editingLevel.platforms || []).map(p => ({ ...p, health: p.health || 200 })));
         setBreakableBlocks(editingLevel.breakableBlocks || []);
         setEmojiStructures(editingLevel.emojiStructures || []);
     }
@@ -474,7 +492,26 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
   const getEditorObjects = useCallback((): EditorObject[] => {
     if (!editingLevel) return [];
     const allObjects: EditorObject[] = [];
-    editingLevel.enemies?.forEach(e => allObjects.push({ ...e, objectType: 'enemy' }));
+    // Fix: Inflate partial enemy data from the level file into full Enemy objects to satisfy the EditorObject type.
+    editingLevel.enemies?.forEach(e => {
+        const config = ENEMY_CONFIG[e.type];
+        const pokemonInfo = POKEMON_DATA[e.emoji || config.emoji] || { name: 'Unknown', types: [PokemonType.Normal]};
+        const enemy: Enemy = {
+            ...config,
+            id: e.id || `e-editor-${Math.random()}`,
+            position: { ...e.position },
+            velocity: { x: 0, y: 0 },
+            type: e.type,
+            emoji: e.emoji || config.emoji,
+            radius: e.radius || config.radius,
+            pokemonTypes: pokemonInfo.types,
+        };
+        if (e.type === 'flyer' || e.type === 'sparky') enemy.basePosition = { ...e.position };
+        if (e.type === 'ghost') enemy.isSolid = true;
+        if (e.type === 'hopper') enemy.jumpCooldown = Math.random() * JUMP_COOLDOWN;
+        if (e.type === 'sparky') enemy.zigzagDirection = 1;
+        allObjects.push({ ...enemy, objectType: 'enemy' });
+    });
     editingLevel.platforms?.forEach(p => allObjects.push({ ...p, objectType: 'platform' }));
     editingLevel.breakableBlocks?.forEach(b => allObjects.push({ ...b, objectType: 'breakableBlock' }));
     editingLevel.emojiStructures?.forEach(s => allObjects.push({ ...s, objectType: 'emojiStructure' }));
@@ -667,6 +704,64 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
     return () => { window.removeEventListener('mousedown', handlePanStart); window.removeEventListener('mousemove', handlePanMove); window.removeEventListener('mouseup', handlePanEnd); };
   }, [gameState, isPanning, panStart, zoom]);
 
+  const handleEnemyHover = (enemy: Enemy, e: React.MouseEvent) => {
+    if (gameState === 'playing') {
+      const rect = gameContainerRef.current?.getBoundingClientRect();
+      if(rect) {
+        setHoveredEnemy(enemy);
+        setCardPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+      }
+    }
+  };
+
+  const handleEnemyLeave = () => {
+    setHoveredEnemy(null);
+  };
+
+  const renderStatsCard = () => {
+    if (!hoveredEnemy || !cardPosition) return null;
+
+    const pokemonInfo = POKEMON_DATA[hoveredEnemy.emoji] || { name: 'Unknown', types: [PokemonType.Normal] };
+    const maxHealth = ENEMY_CONFIG[hoveredEnemy.type].health;
+
+    return (
+        <div 
+            className="w-64 rounded-xl shadow-2xl bg-gray-900 bg-opacity-80 backdrop-blur-sm border border-gray-600 p-4 text-white font-sans overflow-hidden transition-all duration-200"
+            style={{ position: 'absolute', top: cardPosition.y + 20, left: cardPosition.x + 20, zIndex: 50, pointerEvents: 'none' }}
+        >
+            <div className="flex items-center space-x-4 mb-3">
+                <span className="text-5xl">{hoveredEnemy.emoji}</span>
+                <div>
+                    <h3 className="font-black text-xl tracking-tighter">{pokemonInfo.name}</h3>
+                    <div className="flex space-x-1.5 mt-1">
+                        {hoveredEnemy.pokemonTypes.map(type => (
+                            <span 
+                                key={type} 
+                                className={`px-2 py-0.5 rounded-full text-xs font-bold text-white shadow-md ${TYPE_COLOR_MAP[type].split(' ')[0]}`}
+                            >
+                                {type.toUpperCase()}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                <div>
+                    <div className="text-gray-400 text-xs font-bold uppercase">Health</div>
+                    <div className="font-bold text-lg">{Math.max(0, Math.round(hoveredEnemy.health))} / {maxHealth}</div>
+                </div>
+                <div>
+                    <div className="text-gray-400 text-xs font-bold uppercase">Points</div>
+                    <div className="font-bold text-lg">{hoveredEnemy.points}</div>
+                </div>
+            </div>
+            <div className="mt-3 pt-3 border-t border-gray-700">
+                <p className="text-xs text-gray-300 italic">{ENEMY_DESCRIPTIONS[hoveredEnemy.type]}</p>
+            </div>
+        </div>
+    );
+  };
+
   const renderSky = () => {
     const theme = currentLevel?.theme || editingLevel?.theme;
     if (!theme) return <rect width={WORLD_WIDTH} height={WORLD_HEIGHT} fill="#333" />;
@@ -706,6 +801,8 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
         {gameState === 'level-complete' && <LevelCompleteScreen score={score} onNext={handleNextLevel} isTestingEditorLevel={isTestingEditorLevel} onReturnToEditor={handleReturnToEditor} />}
         {gameState === 'game-over' && <GameOverScreen onRestart={handleRestartLevel} onQuit={onQuit} isTestingEditorLevel={isTestingEditorLevel} onReturnToEditor={handleReturnToEditor} />}
         {gameState === 'level-editor' && (<LevelEditorUI onSelectTool={setEditorTool} selectedTool={editorTool} onTest={() => { setIsTestingEditorLevel(true); loadLevelForPlay(editingLevel!); }} onSave={handleSaveAndExitEditor} onExit={() => setGameState('level-select')} onUndo={handleUndo} onRedo={handleRedo} canUndo={historyIndex > 0} canRedo={historyIndex < history.length - 1} onZoomIn={() => handleZoom('in')} onZoomOut={() => handleZoom('out')} onResetView={handleResetView}/>)}
+        
+        {renderStatsCard()}
       
         <svg viewBox={`${viewOffset.x} ${viewOffset.y} ${WORLD_WIDTH / zoom} ${WORLD_HEIGHT / zoom}`} className="h-full w-auto" style={{ maxHeight: '100vh', maxWidth: '100vw', transform: shakeTransform, cursor: gameState === 'level-editor' ? 'default' : 'auto' }} onMouseDown={handleEditorMouseDown} onMouseMove={handleEditorMouseMove} onMouseUp={handleEditorMouseUp} onContextMenu={handleEditorContextMenu}>
             {renderSky()}
@@ -739,8 +836,27 @@ const Game: React.FC<GameProps> = ({ onQuit, levels, onSaveLevel, onDeleteLevel 
             {entitiesToRender.p?.map(p => <rect key={p.id} x={p.position.x} y={p.position.y} width={p.width} height={p.height} fill="#6b7280" stroke="#4b5563" strokeWidth="2" />)}
             {entitiesToRender.bb?.map(b => <rect key={b.id} x={b.position.x} y={b.position.y} width={b.width} height={b.height} fill="#a16207" stroke="#451a03" strokeWidth="2" />)}
             {entitiesToRender.es?.map(s => <text key={s.id} x={s.position.x} y={s.position.y} fontSize={s.fontSize} textAnchor="middle" dominantBaseline="central">{s.emoji}</text>)}
-            {entitiesToRender.e.map(enemy => <text key={enemy.id} x={enemy.position.x} y={enemy.position.y} fontSize={enemy.radius * 2} textAnchor="middle" dominantBaseline="central" style={{ opacity: (enemy.type === 'ghost' && !enemy.isSolid) ? 0.5 : 1, transition: 'opacity 0.1s' }}>{enemy.emoji}</text>)}
             
+            {entitiesToRender.e.map(enemy => {
+                const maxHealth = ENEMY_CONFIG[enemy.type].health;
+                const healthPercentage = Math.max(0, enemy.health) / maxHealth;
+                const barWidth = enemy.radius * 1.5;
+                const barHeight = 8;
+                const healthColor = healthPercentage > 0.5 ? '#4ade80' : healthPercentage > 0.2 ? '#facc15' : '#ef4444';
+
+                return (
+                  <g key={enemy.id} onMouseEnter={(e) => handleEnemyHover(enemy, e)} onMouseLeave={handleEnemyLeave}>
+                      <text x={enemy.position.x} y={enemy.position.y} fontSize={enemy.radius * 2} textAnchor="middle" dominantBaseline="central" style={{ opacity: (enemy.type === 'ghost' && !enemy.isSolid) ? 0.5 : 1, transition: 'opacity 0.1s' }}>{enemy.emoji}</text>
+                      {gameState === 'playing' && (
+                        <g transform={`translate(${enemy.position.x - barWidth / 2}, ${enemy.position.y + enemy.radius + 5})`}>
+                            <rect width={barWidth} height={barHeight} fill="#3f3f46" rx="4" ry="4" stroke="#18181b" strokeWidth="1" />
+                            <rect width={barWidth * healthPercentage} height={barHeight} fill={healthColor} rx="4" ry="4" style={{ transition: 'width 0.2s ease' }} />
+                        </g>
+                      )}
+                  </g>
+                );
+            })}
+
             {projectiles.map(p => <text key={p.id} x={p.position.x} y={p.position.y} fontSize={p.radius * 2.5} textAnchor="middle" dominantBaseline="central">{TYPE_EMOJI_MAP[p.projectileType]}</text>)}
             {particles.map(p => <circle key={p.id} cx={p.position.x} cy={p.position.y} r={p.radius} fill={p.color} />)}
             {floatingTexts.map(t => <text key={t.id} x={t.position.x} y={t.position.y} fill={t.color} fontSize="24" fontWeight="bold" textAnchor="middle" style={{ opacity: t.lifespan / 60, pointerEvents: 'none', textShadow: '1px 1px 2px black' }}>{t.text}</text>)}

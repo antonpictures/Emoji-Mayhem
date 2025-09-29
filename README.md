@@ -1,4 +1,4 @@
-#  Emoji Wars - Game Design Document
+# Angry Words / Emoji Wars - Game Design Document
 
 This document outlines the core concepts, gameplay mechanics, and future ideas for the game.
 

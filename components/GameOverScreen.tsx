@@ -25,20 +25,20 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({ onRestart, onQuit, isTe
   };
 
   return (
-    <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center z-30">
+    <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center z-30 font-sans">
       <div className="text-center p-10 bg-gray-800 rounded-lg shadow-xl border-2 border-red-500">
-        <h2 className="text-5xl font-press-start text-red-500 mb-4">GAME OVER</h2>
-        <p className="text-xl text-white mb-6">Negativity prevails... for now. Try again!</p>
+        <h2 className="text-5xl font-black tracking-tighter text-red-500 mb-4">GAME OVER</h2>
+        <p className="text-xl text-white mb-6">The emojis have won... for now. Try again!</p>
         <div className="flex space-x-4">
           <button
             onClick={handlePrimaryClick}
-            className="px-8 py-3 font-press-start text-lg bg-blue-600 hover:bg-blue-500 text-white rounded-md transition-all duration-200 transform hover:scale-105"
+            className="px-8 py-3 font-bold text-lg bg-blue-600 hover:bg-blue-500 text-white rounded-md transition-all duration-200 transform hover:scale-105"
           >
             {isTestingEditorLevel ? 'RETURN TO EDITOR' : 'RESTART'}
           </button>
           <button
             onClick={handleQuitClick}
-            className="px-8 py-3 font-press-start text-lg bg-gray-600 hover:bg-gray-500 text-white rounded-md transition-all duration-200"
+            className="px-8 py-3 font-bold text-lg bg-gray-600 hover:bg-gray-500 text-white rounded-md transition-all duration-200"
           >
             QUIT
           </button>

@@ -8,7 +8,7 @@ interface ProjectileSelectorProps {
     onSelectType: (type: PokemonType) => void;
 }
 
-const TYPE_EMOJI_MAP: Record<PokemonType, string> = {
+export const TYPE_EMOJI_MAP: Record<PokemonType, string> = {
     [PokemonType.Fire]: '🔥',
     [PokemonType.Water]: '💧',
     [PokemonType.Grass]: '🍃',
@@ -30,7 +30,7 @@ const TYPE_EMOJI_MAP: Record<PokemonType, string> = {
     [PokemonType.Fairy]: '✨',
 };
 
-const TYPE_COLOR_MAP: Record<PokemonType, string> = {
+export const TYPE_COLOR_MAP: Record<PokemonType, string> = {
     [PokemonType.Fire]: 'bg-red-600 border-red-800 hover:bg-red-500',
     [PokemonType.Water]: 'bg-blue-600 border-blue-800 hover:bg-blue-500',
     [PokemonType.Grass]: 'bg-green-600 border-green-800 hover:bg-green-500',
@@ -63,27 +63,29 @@ const ProjectileSelector: React.FC<ProjectileSelectorProps> = ({ availableProjec
 
     return (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-gray-900/50 p-2 rounded-lg z-20 flex space-x-2">
-            {Object.entries(availableProjectiles).map(([type, count]) => (
-                <button
-                    key={type}
-                    onClick={() => handleSelect(type as PokemonType)}
-                    // FIX: Explicitly cast count to a number to prevent type errors in the comparison.
-                    disabled={Number(count) <= 0}
-                    className={`relative w-16 h-16 rounded-md border-2 transition-all duration-200 transform hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed ${
-                        TYPE_COLOR_MAP[type as PokemonType]
-                    } ${
-                        selectedType === type ? 'scale-110 ring-4 ring-yellow-400' : ''
-                    }`}
-                >
-                    <span className="text-3xl">{TYPE_EMOJI_MAP[type as PokemonType]}</span>
-                    <span className="absolute -bottom-1 -right-1 bg-gray-800 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm border-2 border-white">
-                        {count}
-                    </span>
-                </button>
-            ))}
+            {Object.entries(availableProjectiles).map(([type, count]) => {
+                if (count <= 0) return null; // Don't render buttons for 0 projectiles
+                return (
+                    <button
+                        key={type}
+                        onClick={() => handleSelect(type as PokemonType)}
+                        // FIX: Explicitly cast count to a number to prevent type errors in the comparison.
+                        disabled={Number(count) <= 0}
+                        className={`relative w-16 h-16 rounded-md border-2 transition-all duration-200 transform hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed ${
+                            TYPE_COLOR_MAP[type as PokemonType]
+                        } ${
+                            selectedType === type ? 'scale-110 ring-4 ring-yellow-400' : ''
+                        }`}
+                    >
+                        <span className="text-3xl">{TYPE_EMOJI_MAP[type as PokemonType]}</span>
+                        <span className="absolute -bottom-1 -right-1 bg-gray-800 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm border-2 border-white">
+                            {count}
+                        </span>
+                    </button>
+                )
+            })}
         </div>
     );
 };
 
 export default ProjectileSelector;
-export { TYPE_EMOJI_MAP };
