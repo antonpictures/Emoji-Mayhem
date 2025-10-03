@@ -33,7 +33,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
 }) => {
   const {
     status,
-    score,
+    mpsEarned,
     entities,
     availableProjectiles,
     selectedProjectileType,
@@ -124,7 +124,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
           onEntityLeave={handleEntityLeave}
         />
         <HUD
-          score={score}
+          mps={mpsEarned}
           levelName={level.name}
           projectiles={totalProjectilesLeft}
           onBackToMenu={onBackToMenu}
@@ -161,7 +161,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
         )}
         {status === 'won' && (
           <LevelCompleteScreen
-            score={score}
+            mpsEarned={mpsEarned}
             onNext={onLevelComplete}
             isTestingEditorLevel={isPlaytesting}
             onReturnToEditor={() => onEditLevel(level)}

@@ -10,6 +10,7 @@ interface LevelEditorUIProps {
     onTest: () => void;
     onSave: () => void;
     onExit: () => void;
+    onExport: () => void;
     onUndo: () => void;
     onRedo: () => void;
     canUndo: boolean;
@@ -22,7 +23,7 @@ interface LevelEditorUIProps {
 }
 
 const LevelEditorUI: React.FC<LevelEditorUIProps> = ({ 
-    onSelectTool, selectedTool, onTest, onSave, onExit,
+    onSelectTool, selectedTool, onTest, onSave, onExit, onExport,
     onUndo, onRedo, canUndo, canRedo,
     onZoomIn, onZoomOut, onResetView,
     onAiGenerate, isAiGenerating
@@ -41,8 +42,7 @@ const LevelEditorUI: React.FC<LevelEditorUIProps> = ({
         action();
     };
     
-    // Fix: Add type assertion to resolve property access error on 'config'.
-    const enemyTools = Object.entries(ENEMY_CONFIG).map(([key, config]) => ({ id: key, label: (config as any).emoji }));
+    const enemyTools = Object.entries(ENEMY_CONFIG).map(([key, config]) => ({ id: key, label: config.emoji || '❓' }));
     const blockTools = [
         { id: 'platform', label: '🟫' },
         { id: 'breakable', label: '🧱' }
@@ -65,6 +65,7 @@ const LevelEditorUI: React.FC<LevelEditorUIProps> = ({
             <div className="flex-shrink-0">
                 <button onClick={() => handleActionClick(onTest)} className="w-full mb-1 p-2 bg-green-600 hover:bg-green-500 rounded font-bold text-xs">TEST</button>
                 <button onClick={() => handleActionClick(onSave)} className="w-full p-2 bg-blue-600 hover:bg-blue-500 rounded font-bold text-xs">SAVE & EXIT</button>
+                <button onClick={() => handleActionClick(onExport)} className="w-full mt-1 p-2 bg-yellow-600 hover:bg-yellow-500 text-black rounded font-bold text-xs">SAVE TO FILE</button>
                 <button onClick={() => handleActionClick(onExit)} className="w-full mt-1 p-2 bg-red-700 hover:bg-red-600 rounded font-bold text-xs">EXIT</button>
             </div>
             

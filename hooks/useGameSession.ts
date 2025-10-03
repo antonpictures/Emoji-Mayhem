@@ -46,7 +46,7 @@ type Entities = {
 
 export const useGameSession = (level: Level) => {
   const [status, setStatus] = useState<GameStatus>('loading');
-  const [score, setScore] = useState(0);
+  const [mpsEarned, setMpsEarned] = useState(0);
   const [entities, setEntities] = useState<Entities>({
     projectiles: [],
     enemies: [],
@@ -95,7 +95,7 @@ export const useGameSession = (level: Level) => {
         health: config.health!,
         radius: e.radius || config.radius!,
         type: e.type,
-        points: config.points!,
+        mpsReward: config.mpsReward!,
         color: config.color!,
         emoji: emoji,
         pokemonTypes: pokemonInfo.types,
@@ -127,7 +127,7 @@ export const useGameSession = (level: Level) => {
     setAvailableProjectiles(initialProjectiles);
     setSelectedProjectileType(allProjectileTypes[0]);
 
-    setScore(0);
+    setMpsEarned(0);
     setComboStreak(0);
     setSlingshotPosition(null);
     setCanPlaceProjectile(true);
@@ -232,9 +232,9 @@ export const useGameSession = (level: Level) => {
     let superEffectiveHitsThisFrame = 0;
 
     setEntities(prev => {
-        // Fix: The call to JSON.stringify was missing the object to stringify, causing a runtime error.
+        // Fix: Provide the 'prev' state to JSON.stringify to correctly deep-clone the entities.
         const newEntities: Entities = JSON.parse(JSON.stringify(prev));
-        let scoreToAdd = 0;
+        let mpsToAdd = 0;
         let newParticles: Particle[] = [];
         let newFloatingTexts: FloatingText[] = [];
 
@@ -386,7 +386,7 @@ export const useGameSession = (level: Level) => {
                 if (damageMultiplier < 1 && damageMultiplier > 0) newFloatingTexts.push(createFloatingText({x: target.position.x, y: target.position.y-25}, 'Not very effective...', '#a1a1aa'));
 
                 if(target.health <= 0){
-                    scoreToAdd += (target as Enemy).points || 50;
+                    mpsToAdd += (target as Enemy).mpsReward || 50;
                     let position: Vec2;
                     if ('radius' in target) { // Enemy
                         position = target.position;
@@ -431,7 +431,7 @@ export const useGameSession = (level: Level) => {
         newEntities.floatingTexts.push(...newFloatingTexts);
         newEntities.particles.push(...newParticles);
 
-        if (scoreToAdd > 0) setScore(s => s + scoreToAdd);
+        if (mpsToAdd > 0) setMpsEarned(s => s + mpsToAdd);
 
         return newEntities;
     });
@@ -467,7 +467,7 @@ export const useGameSession = (level: Level) => {
 
 
   return {
-    status, score, entities, availableProjectiles, selectedProjectileType, shake, parallaxOffset,
+    status, mpsEarned, entities, availableProjectiles, selectedProjectileType, shake, parallaxOffset,
     handleFire, handleSelectProjectile, handleSlingshotDrag, handleDragStateChange,
     slingshotPosition, canPlaceProjectile, handlePlaceProjectile, startGame,
   };

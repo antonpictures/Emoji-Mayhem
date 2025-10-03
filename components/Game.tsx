@@ -188,6 +188,7 @@ const Game: React.FC<GameProps> = ({
             onStartEditor={handleStartNewEditor}
             onEditLevel={handleSelectLevelForEditor}
             onDeleteLevel={onDeleteLevel}
+            onSaveLevel={onSaveLevel}
             currentUser={currentUser}
             onLogout={onLogout}
             chapter={selectedChapter}

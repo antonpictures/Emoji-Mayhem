@@ -49,7 +49,7 @@ const TitleScreen: React.FC<TitleScreenProps> = ({
         <h1 className="text-4xl md:text-6xl font-black text-yellow-400 mb-4 tracking-tighter">
           Google Maps Emojis
         </h1>
-        <p className="text-gray-300 mb-8">Select a chapter to begin your adventure!</p>
+        <p className="text-gray-300 mb-8">Select a chapter to begin your Solana adventure!</p>
 
         <div className="relative flex-grow w-full rounded-lg bg-gray-900/50 border border-gray-700">
            {/* Decorative Path */}

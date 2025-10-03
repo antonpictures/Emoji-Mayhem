@@ -4,7 +4,7 @@ export const ENEMY_CONFIG: Record<EnemyType, Partial<Enemy>> = {
   grunt: {
     health: 50,
     radius: 20,
-    points: 100,
+    mpsReward: 100,
     color: '#ff6347',
     emoji: '😠',
     pokemonTypes: [PokemonType.Normal],
@@ -12,7 +12,7 @@ export const ENEMY_CONFIG: Record<EnemyType, Partial<Enemy>> = {
   brute: {
     health: 150,
     radius: 35,
-    points: 500,
+    mpsReward: 500,
     color: '#8b0000',
     emoji: '😡',
     pokemonTypes: [PokemonType.Fighting],
@@ -20,7 +20,7 @@ export const ENEMY_CONFIG: Record<EnemyType, Partial<Enemy>> = {
   flyer: {
     health: 40,
     radius: 18,
-    points: 150,
+    mpsReward: 150,
     color: '#add8e6',
     emoji: '🕊️',
     pokemonTypes: [PokemonType.Flying],
@@ -28,7 +28,7 @@ export const ENEMY_CONFIG: Record<EnemyType, Partial<Enemy>> = {
   bomber: {
     health: 30,
     radius: 22,
-    points: 250,
+    mpsReward: 250,
     color: '#ffa500',
     emoji: '💣',
     pokemonTypes: [PokemonType.Fire],
@@ -36,7 +36,7 @@ export const ENEMY_CONFIG: Record<EnemyType, Partial<Enemy>> = {
   ghost: {
     health: 60,
     radius: 20,
-    points: 300,
+    mpsReward: 300,
     color: '#e6e6fa',
     emoji: '👻',
     pokemonTypes: [PokemonType.Ghost],
@@ -45,7 +45,7 @@ export const ENEMY_CONFIG: Record<EnemyType, Partial<Enemy>> = {
   hopper: {
     health: 50,
     radius: 20,
-    points: 200,
+    mpsReward: 200,
     color: '#32cd32',
     emoji: '🐸',
     pokemonTypes: [PokemonType.Grass],
@@ -54,7 +54,7 @@ export const ENEMY_CONFIG: Record<EnemyType, Partial<Enemy>> = {
   tank: {
     health: 300,
     radius: 40,
-    points: 1000,
+    mpsReward: 1000,
     color: '#a9a9a9',
     emoji: '🗿',
     pokemonTypes: [PokemonType.Rock, PokemonType.Steel],
@@ -62,7 +62,7 @@ export const ENEMY_CONFIG: Record<EnemyType, Partial<Enemy>> = {
   sparky: {
     health: 40,
     radius: 18,
-    points: 350,
+    mpsReward: 350,
     color: '#ffd700',
     emoji: '⚡',
     pokemonTypes: [PokemonType.Electric],

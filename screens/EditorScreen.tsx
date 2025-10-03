@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Level } from '../types';
 import { useEditorState } from '../hooks/useEditorState';
 import GameCanvas from '../components/common/GameCanvas';
@@ -42,6 +42,24 @@ const EditorScreen: React.FC<EditorScreenProps> = ({ initialLevel, onSaveAndExit
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, [handleKeyDown]);
+
+    const handleExportLevel = useCallback(() => {
+        const levelData = JSON.stringify(editingLevel, null, 2);
+        const blob = new Blob([levelData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        
+        // Create a unique filename
+        const safeName = editingLevel.name.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 30);
+        const timestamp = Date.now();
+        a.download = `emojimap-${safeName}-${timestamp}.json`;
+        
+        a.href = url;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }, [editingLevel]);
     
     const entities = {
         platforms: editingLevel.platforms || [],
@@ -64,6 +82,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({ initialLevel, onSaveAndExit
                 onTest={() => onPlaytest(editingLevel)}
                 onSave={() => onSaveAndExit(editingLevel)}
                 onExit={onExitWithoutSaving}
+                onExport={handleExportLevel}
                 onUndo={handleUndo}
                 onRedo={handleRedo}
                 canUndo={historyIndex > 0}

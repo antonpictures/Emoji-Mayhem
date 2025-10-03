@@ -74,14 +74,15 @@ export const useEditorState = (initialLevel: Level) => {
                 health: config.health!,
                 radius: e.radius || config.radius!,
                 type: e.type,
-                points: config.points!,
+                // Fix: Changed 'points' to 'mpsReward' to match the Enemy type definition and fix property access error.
+                mpsReward: config.mpsReward!,
                 color: config.color!,
                 emoji: emoji,
                 pokemonTypes: pokemonInfo.types,
                 scale: e.scale || {x: 1, y: 1},
                 isSolid: config.isSolid,
                 jumpCooldown: config.jumpCooldown,
-                zigzagDirection: config.zigzagDirection,
+                zigzagDirection: 1, // Default value
             };
         });
         

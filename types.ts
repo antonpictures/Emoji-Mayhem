@@ -93,7 +93,7 @@ export interface Enemy {
   health: number;
   radius: number;
   type: EnemyType;
-  points: number;
+  mpsReward: number;
   color: string;
   emoji: string;
   pokemonTypes: PokemonType[];

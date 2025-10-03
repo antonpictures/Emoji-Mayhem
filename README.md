@@ -21,7 +21,7 @@ A physics-based puzzle game where the player launches positive projectiles (word
 - **"Just one more level" progression** - Always show the next level
 - **Power-ups and special abilities** - Unique character abilities
 - **Combo/chain reactions** - Satisfying cascading destruction
-- **Score competition** - Leaderboards and social sharing
+- **$MPS competition** - Leaderboards and social sharing
 - **Daily challenges** - Reasons to return daily
 - **Achievement system** - Unlock rewards and bragging rights
 
@@ -111,10 +111,10 @@ Glowing outlines for special enemies
 
 5. UI/HUD Improvements
 
-Animated score counters with pop effects
+Animated $MPS counters with pop effects
 Progress bars with smooth animations
 Better typography with game-appropriate fonts
-Floating damage numbers and score popups
+Floating damage numbers and $MPS popups
 
 6. Lighting & Atmosphere
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { soundManager } from './SoundManager';
 
 interface HUDProps {
-  score: number;
+  mps: number;
   levelName: string;
   projectiles: number;
   onBackToMenu: () => void;
@@ -10,7 +10,7 @@ interface HUDProps {
   canEdit: boolean;
 }
 
-const HUD: React.FC<HUDProps> = ({ score, levelName, projectiles, onBackToMenu, onEditLevel, canEdit }) => {
+const HUD: React.FC<HUDProps> = ({ mps, levelName, projectiles, onBackToMenu, onEditLevel, canEdit }) => {
   const handleBackClick = () => {
     soundManager.initialize();
     soundManager.playClick();
@@ -26,8 +26,8 @@ const HUD: React.FC<HUDProps> = ({ score, levelName, projectiles, onBackToMenu, 
   return (
     <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start text-white z-20 pointer-events-none font-sans">
       <div className="font-black text-2xl tracking-tighter">
-        <span>SCORE: </span>
-        <span className="text-yellow-400">{score.toString().padStart(6, '0')}</span>
+        <span>$MPS: </span>
+        <span className="text-yellow-400">{mps}</span>
       </div>
       <div className="text-center">
         <div className="font-black text-2xl mb-2 tracking-tight">{levelName}</div>

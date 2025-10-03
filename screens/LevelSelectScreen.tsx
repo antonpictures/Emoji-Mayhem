@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Level, User, Chapter } from '../types';
 import { soundManager } from '../components/SoundManager';
 import UserProfile from '../components/common/UserProfile';
@@ -11,6 +11,7 @@ interface LevelSelectScreenProps {
   onStartEditor: () => void;
   onEditLevel: (level: Level) => void;
   onDeleteLevel: (levelId: number) => void;
+  onSaveLevel: (level: Level) => void;
   currentUser: User | null;
   onLogout: () => void;
   chapter: Chapter | null;
@@ -26,6 +27,7 @@ const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({
   onStartEditor,
   onEditLevel,
   onDeleteLevel,
+  onSaveLevel,
   currentUser,
   onLogout,
   chapter,
@@ -33,6 +35,7 @@ const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({
   const [activeTab, setActiveTab] = useState<ActiveTab>(
     chapter ? 'campaign' : 'my-levels',
   );
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const campaignLevels = useMemo(() => {
     const allCampaign = levels
@@ -56,6 +59,50 @@ const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({
     soundManager.playClick();
     action();
   };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const text = e.target?.result as string;
+            const importedLevel = JSON.parse(text);
+
+            // Basic validation
+            if (importedLevel && typeof importedLevel.name === 'string' && Array.isArray(importedLevel.enemies)) {
+                // Create a new level object to avoid conflicts
+                const newLevel: Level = {
+                    ...importedLevel,
+                    id: Date.now(), // Assign a new unique ID
+                    isCustom: true,
+                    // Clear any potential community properties
+                    creator: undefined,
+                    plays: undefined,
+                    likes: undefined,
+                    isCommunity: undefined,
+                };
+                onSaveLevel(newLevel);
+                alert(`Level "${newLevel.name}" imported successfully!`);
+            } else {
+                throw new Error('Invalid level file format.');
+            }
+        } catch (error) {
+            console.error("Failed to import level:", error);
+            alert("Failed to import level. The file may be corrupted or in the wrong format.");
+        }
+    };
+    reader.readAsText(file);
+    
+    // Reset file input to allow importing the same file again
+    event.target.value = '';
+};
+
 
   const TabButton: React.FC<{
     tabId: ActiveTab;
@@ -154,6 +201,20 @@ const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({
                 <span className="block text-4xl font-light">+</span>
                 <span className="block text-xs mt-1 font-semibold">NEW</span>
               </button>
+              <button
+                onClick={() => handleAction(handleImportClick)}
+                className="p-2 font-bold text-lg bg-yellow-600 hover:bg-yellow-500 text-black rounded-md transition-all duration-200 transform hover:scale-105 aspect-square flex flex-col justify-center items-center shadow-lg"
+              >
+                <span className="block text-4xl font-light">↑</span>
+                <span className="block text-xs mt-1 font-semibold">IMPORT</span>
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelected}
+                accept=".json,application/json"
+                className="hidden"
+              />
             </div>
           )}
           {activeTab === 'community' && (
