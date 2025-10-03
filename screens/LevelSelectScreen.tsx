@@ -199,7 +199,7 @@ const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({
             onClick={() => handleAction(onBackToTitle)}
             className="px-8 py-3 font-bold text-lg bg-red-600 hover:bg-red-500 text-white rounded-md transition-all duration-200 shadow-lg"
           >
-            WORLD MAP
+            Google Maps Emojis
           </button>
         </div>
       </div>

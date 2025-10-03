@@ -46,7 +46,7 @@ export const ENTITY_DATA: Record<string, { name: string; description: string; ty
     '📽️': { name: "Film Projector", description: "Shows movies on the big screen.", types: [PokemonType.Electric] },
     '🏮': { name: "Red Paper Lantern", description: "A decorative light.", types: [PokemonType.Fire] },
     '💹': { name: "Stock Chart", description: "The ups and downs of the market.", types: [PokemonType.Normal] },
-    '🗺️': { name: "World Map", description: "A guide to all the world's places.", types: [PokemonType.Normal] },
+    '🗺️': { name: "Google Maps", description: "A guide to all the world's places.", types: [PokemonType.Normal] },
     '✨': { name: "Sparkles", description: "Adds a touch of magic.", types: [PokemonType.Fairy] },
     '🍄': { name: "Mushroom", description: "A fungus found in forests.", types: [PokemonType.Grass, PokemonType.Poison] },
     '🍃': { name: "Leaf Fluttering in Wind", description: "A gentle sign of nature.", types: [PokemonType.Grass, PokemonType.Flying] },

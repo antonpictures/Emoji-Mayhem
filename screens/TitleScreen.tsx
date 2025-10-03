@@ -47,7 +47,7 @@ const TitleScreen: React.FC<TitleScreenProps> = ({
           </button>
         )}
         <h1 className="text-4xl md:text-6xl font-black text-yellow-400 mb-4 tracking-tighter">
-          WORLD MAP
+          Google Maps Emojis
         </h1>
         <p className="text-gray-300 mb-8">Select a chapter to begin your adventure!</p>
 
