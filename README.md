@@ -58,7 +58,7 @@ Here are universally available emojis Gemini can use for characters:
 
 **Theme Options:**
 - "Emoji Wars" - Battle of expressions
-- "Mood Mayhem" - Emotions vs obstacles
+- "Mood Google Maps" - Emotions vs obstacles
 - "Symbol Smash" - Abstract emoji destruction
 
 **Unique Mechanics:**

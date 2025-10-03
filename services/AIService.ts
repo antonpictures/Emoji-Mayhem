@@ -72,7 +72,7 @@ export const generateAiLevel = async (prompt: string, currentLevel: Level): Prom
         required: ['id', 'name', 'projectiles']
     };
 
-    const systemPrompt = `You are an expert level designer for a 2D physics-based slingshot game called 'Emoji Mayhem'. The world dimensions are ${WORLD_WIDTH}x${WORLD_HEIGHT}. The ground is at y=${GROUND_Y}. (0,0) is the top-left corner.
+    const systemPrompt = `You are an expert level designer for a 2D physics-based slingshot game called 'Emoji Google Maps'. The world dimensions are ${WORLD_WIDTH}x${WORLD_HEIGHT}. The ground is at y=${GROUND_Y}. (0,0) is the top-left corner.
 You will be given the current level design as a JSON object and a user request. Modify the level design based on the request and return the complete, updated JSON object for the entire level.
 - Do not add properties that are not in the schema.
 - Ensure all object positions are within the world boundaries.

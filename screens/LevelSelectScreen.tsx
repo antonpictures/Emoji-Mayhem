@@ -82,7 +82,7 @@ const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({
       <div className="relative text-center p-6 md:p-10 bg-gray-800 rounded-lg shadow-xl border-2 border-purple-500 max-w-6xl w-full h-[90vh] flex flex-col">
         {currentUser && <UserProfile user={currentUser} onLogout={onLogout} />}
         <h1 className="text-4xl md:text-6xl font-black text-yellow-400 mb-4 tracking-tighter">
-          EMOJI MAYHEM
+          EMOJI Google Maps
         </h1>
 
         <div className="flex justify-center space-x-2 border-b-2 border-purple-500 mb-4">
