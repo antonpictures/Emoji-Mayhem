@@ -1,31 +1,28 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PokemonType, Vec2 } from '../types';
-import { PLAYER_START_POS, SLINGSHOT_POWER_MULTIPLIER, MAX_SLINGSHOT_DRAG, PROJECTILE_RADIUS, WORLD_WIDTH, WORLD_HEIGHT } from '../constants';
+import { SLINGSHOT_POWER_MULTIPLIER, MAX_SLINGSHOT_DRAG, PROJECTILE_RADIUS, WORLD_WIDTH, WORLD_HEIGHT } from '../constants';
+// Fix: Corrected import path for TYPE_EMOJI_MAP.
 import { TYPE_EMOJI_MAP } from './ProjectileSelector';
 
 interface SlingshotControlsProps {
+  slingshotOrigin: Vec2;
   onFire: (velocity: Vec2) => void;
-  isVisible: boolean;
   onDrag: (offset: Vec2) => void;
   selectedProjectileType: PokemonType;
   onDragStateChange: (isDragging: boolean) => void;
 }
 
-// Gives the slingshot an initial "power 13" look to show it's ready.
-const INITIAL_PULL_DISTANCE = MAX_SLINGSHOT_DRAG * 0.13;
-
-const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible, onDrag, selectedProjectileType, onDragStateChange }) => {
+const SlingshotControls: React.FC<SlingshotControlsProps> = ({ slingshotOrigin, onFire, onDrag, selectedProjectileType, onDragStateChange }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<Vec2 | null>(null);
   const [dragEnd, setDragEnd] = useState<Vec2 | null>(null);
   const controlsRef = useRef<HTMLDivElement>(null);
 
   const getEventCoords = (e: React.MouseEvent | MouseEvent | React.TouchEvent | TouchEvent): Vec2 | null => {
-      // Fix: Add explicit type assertions to work around a TypeScript type narrowing issue with the 'in' operator on a complex event union type.
       if ('touches' in e) {
           const touchEvent = e as { touches: TouchList };
           if (touchEvent.touches.length > 0) return { x: touchEvent.touches[0].clientX, y: touchEvent.touches[0].clientY };
-      } else if ('changedTouches' in e) { // For touchend
+      } else if ('changedTouches' in e) { 
           const touchEvent = e as { changedTouches: TouchList };
           if (touchEvent.changedTouches.length > 0) return { x: touchEvent.changedTouches[0].clientX, y: touchEvent.changedTouches[0].clientY };
       } else if ('clientX' in e) {
@@ -61,14 +58,13 @@ const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible
   }, []);
 
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isVisible) return;
     e.preventDefault();
+    e.stopPropagation();
     onDrag({ x: 0, y: 0 });
     setIsDragging(true);
     onDragStateChange(true);
-    const pos = getSVGPosFromEvent(e);
-    setDragStart(pos);
-    setDragEnd(pos);
+    setDragStart(slingshotOrigin);
+    setDragEnd(slingshotOrigin);
   };
 
   const handleDragEnd = useCallback(() => {
@@ -143,25 +139,21 @@ const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible
     if (!isDragging || !dragStart || !dragEnd) return null;
     const launchVectorX = dragStart.x - dragEnd.x;
     const launchVectorY = dragStart.y - dragEnd.y;
-    return (<line x1={PLAYER_START_POS.x} y1={PLAYER_START_POS.y} x2={PLAYER_START_POS.x + launchVectorX} y2={PLAYER_START_POS.y + launchVectorY} stroke="rgba(255, 255, 255, 0.5)" strokeWidth="3" strokeDasharray="5, 5" />);
+    return (<line x1={dragStart.x} y1={dragStart.y} x2={dragStart.x + launchVectorX} y2={dragStart.y + launchVectorY} stroke="rgba(255, 255, 255, 0.5)" strokeWidth="3" strokeDasharray="5, 5" />);
   }
   
   const renderDraggingSlingshot = () => {
       if (!isDragging || !dragStart || !dragEnd) return null;
       
-      const dragDx = dragEnd.x - dragStart.x;
-      const dragDy = dragEnd.y - dragStart.y;
-      
-      const projectilePosX = PLAYER_START_POS.x + dragDx;
-      const projectilePosY = PLAYER_START_POS.y + dragDy;
+      const projectilePosX = dragEnd.x;
+      const projectilePosY = dragEnd.y;
 
-      const powerDist = Math.hypot(dragDx, dragDy);
+      const powerDist = Math.hypot(dragEnd.x - dragStart.x, dragEnd.y - dragStart.y);
       const powerLevel = Math.round((powerDist / MAX_SLINGSHOT_DRAG) * 100);
       
       return (
           <>
-            <line x1={PLAYER_START_POS.x - 30} y1={PLAYER_START_POS.y} x2={projectilePosX} y2={projectilePosY} stroke="rgba(74, 59, 43, 0.8)" strokeWidth="6" />
-            <line x1={PLAYER_START_POS.x + 30} y1={PLAYER_START_POS.y} x2={projectilePosX} y2={projectilePosY} stroke="rgba(74, 59, 43, 0.8)" strokeWidth="6" />
+            <line x1={slingshotOrigin.x} y1={slingshotOrigin.y} x2={projectilePosX} y2={projectilePosY} stroke="rgba(255, 255, 255, 0.3)" strokeWidth="8" strokeLinecap="round" />
             <text x={projectilePosX} y={projectilePosY} fontSize={PROJECTILE_RADIUS * 2.5} textAnchor="middle" dominantBaseline="central" style={{ userSelect: 'none', pointerEvents: 'none' }}>
                 {TYPE_EMOJI_MAP[selectedProjectileType]}
             </text>
@@ -172,27 +164,29 @@ const SlingshotControls: React.FC<SlingshotControlsProps> = ({ onFire, isVisible
       )
   }
 
-  const renderIdleSlingshot = () => {
-    const projectilePosX = PLAYER_START_POS.x;
-    const projectilePosY = PLAYER_START_POS.y + INITIAL_PULL_DISTANCE;
-
+  const renderPlacedProjectile = () => {
+    if (isDragging) return null;
     return (
-        <>
-            <line x1={PLAYER_START_POS.x - 30} y1={PLAYER_START_POS.y} x2={projectilePosX} y2={projectilePosY} stroke="rgba(74, 59, 43, 0.8)" strokeWidth="6" />
-            <line x1={PLAYER_START_POS.x + 30} y1={PLAYER_START_POS.y} x2={projectilePosX} y2={projectilePosY} stroke="rgba(74, 59, 43, 0.8)" strokeWidth="6" />
-            <text x={projectilePosX} y={projectilePosY} fontSize={PROJECTILE_RADIUS * 2.5} textAnchor="middle" dominantBaseline="central" style={{ userSelect: 'none', pointerEvents: 'none' }}>
+        <g 
+            onMouseDown={handleDragStart} 
+            onTouchStart={handleDragStart} 
+            style={{cursor: isDragging ? 'grabbing' : 'grab'}}
+            className="pointer-events-auto"
+        >
+             <circle cx={slingshotOrigin.x} cy={slingshotOrigin.y} r={PROJECTILE_RADIUS * 1.5} fill="rgba(255,255,255,0.1)" />
+             <text x={slingshotOrigin.x} y={slingshotOrigin.y} fontSize={PROJECTILE_RADIUS * 2.5} textAnchor="middle" dominantBaseline="central" style={{ userSelect: 'none', pointerEvents: 'none' }}>
                 {TYPE_EMOJI_MAP[selectedProjectileType]}
-            </text>
-        </>
+             </text>
+        </g>
     );
   };
 
   return (
-    <div ref={controlsRef} className="absolute inset-0 z-10" onMouseDown={handleDragStart} onTouchStart={handleDragStart} style={{ touchAction: 'none' }}>
-        <svg viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`} className="absolute inset-0 w-full h-full pointer-events-none">
-            {isVisible && isDragging && renderTrajectory()}
-            {isVisible && isDragging && renderDraggingSlingshot()}
-            {isVisible && !isDragging && renderIdleSlingshot()}
+    <div ref={controlsRef} className="absolute inset-0 z-10 pointer-events-none">
+        <svg viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`} className="absolute inset-0 w-full h-full">
+            {isDragging && renderTrajectory()}
+            {isDragging && renderDraggingSlingshot()}
+            {!isDragging && renderPlacedProjectile()}
         </svg>
     </div>
   );

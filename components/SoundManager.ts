@@ -39,48 +39,48 @@ class SoundManager {
     // --- Public methods for different game sounds ---
 
     public playFire() {
-        this.playSound('sine', 100, 0.2, 0.2);
-        this.playSound('triangle', 600, 0.2, 0.2);
+        this.playSound('sine', 100, 0.2, 0.15);
+        this.playSound('sine', 300, 0.2, 0.15);
     }
     
     public playBounce() {
-        this.playSound('sine', 300, 0.1, 0.3);
+        this.playSound('sine', 300, 0.1, 0.2);
     }
 
     public playImpact() {
-        this.playSound('square', 150, 0.15, 0.4);
+        this.playSound('sine', 120, 0.15, 0.25);
     }
     
     public playDestroy() {
-        // A little explosion sound
-        this.playSound('sawtooth', 400, 0.3, 0.5);
-        this.playSound('sawtooth', 200, 0.3, 0.5);
+        // A softer 'poof' sound
+        this.playSound('sine', 200, 0.3, 0.3);
+        this.playSound('sine', 100, 0.3, 0.3);
     }
     
     public playBlockBreak() {
-        // A crunchier sound
-        this.playSound('square', 200, 0.2, 0.4);
-        this.playSound('square', 100, 0.2, 0.4);
+        // A duller thud
+        this.playSound('sine', 150, 0.2, 0.25);
+        this.playSound('sine', 80, 0.2, 0.25);
     }
 
     public playCollision() {
-        this.playSound('sine', 120, 0.05, 0.15);
+        this.playSound('sine', 120, 0.05, 0.1);
     }
 
     public playLevelComplete() {
-        this.playSound('sine', 523.25, 0.15, 0.3); // C5
-        setTimeout(() => this.playSound('sine', 659.25, 0.15, 0.3), 150); // E5
-        setTimeout(() => this.playSound('sine', 783.99, 0.15, 0.3), 300); // G5
-        setTimeout(() => this.playSound('sine', 1046.50, 0.2, 0.3), 450); // C6
+        this.playSound('sine', 523.25, 0.15, 0.2); // C5
+        setTimeout(() => this.playSound('sine', 659.25, 0.15, 0.2), 150); // E5
+        setTimeout(() => this.playSound('sine', 783.99, 0.15, 0.2), 300); // G5
+        setTimeout(() => this.playSound('sine', 1046.50, 0.2, 0.2), 450); // C6
     }
     
     public playGameOver() {
-        this.playSound('sawtooth', 200, 0.5, 0.4);
-        setTimeout(() => this.playSound('sawtooth', 100, 0.8, 0.4), 200);
+        this.playSound('sine', 150, 0.5, 0.25);
+        setTimeout(() => this.playSound('sine', 80, 0.8, 0.25), 200);
     }
     
     public playClick() {
-        this.playSound('sine', 800, 0.08, 0.25);
+        this.playSound('sine', 600, 0.08, 0.15);
     }
 }
 

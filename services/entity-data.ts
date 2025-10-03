@@ -1,0 +1,63 @@
+import { PokemonType } from "../types";
+
+export const ENTITY_DATA: Record<string, { name: string; description: string; types: PokemonType[] }> = {
+    // New Celestial Objects
+    '🟠': { name: "Wormhole Entrance", description: "Whatever goes in one wormhole comes out the other.", types: [] },
+    '⚪': { name: "Wormhole Exit", description: "Whatever goes in one wormhole comes out the other.", types: [] },
+    '⚫': { name: "Black Hole", description: "Exerts a strong gravitational pull. Anything that enters is lost forever.", types: [] },
+
+    // Structures
+    '🧱': { name: "Brick Wall", description: "A sturdy but breakable wall.", types: [PokemonType.Rock] },
+    '🟫': { name: "Wooden Platform", description: "A simple wooden platform. Can be destroyed.", types: [PokemonType.Grass] },
+    '🏰': { name: "Castle", description: "A majestic and imposing structure.", types: [PokemonType.Rock, PokemonType.Steel] },
+    '⛩️': { name: "Torii Gate", description: "A traditional Japanese gate.", types: [PokemonType.Grass, PokemonType.Ghost] },
+    '🚢': { name: "Ship", description: "Ready to sail the seven seas.", types: [PokemonType.Steel, PokemonType.Water] },
+    '🏭': { name: "Factory", description: "An industrial building.", types: [PokemonType.Steel] },
+    '🏥': { name: "Hospital", description: "A place for healing.", types: [PokemonType.Normal] },
+    '🍍': { name: "Pineapple House", description: "Who lives in a pineapple under the sea?", types: [PokemonType.Grass, PokemonType.Water] },
+    '🗿': { name: "Moai Statue", description: "An ancient, mysterious statue from Easter Island.", types: [PokemonType.Rock] },
+    '🎬': { name: "Clapper Board", description: "Lights, camera, action!", types: [PokemonType.Normal] },
+    '📚': { name: "Bookshelf", description: "Full of stories and knowledge.", types: [PokemonType.Grass] },
+    '⚗️': { name: "Alembic", description: "Used for ancient science experiments.", types: [PokemonType.Poison, PokemonType.Steel] },
+    '🏘️': { name: "Houses", description: "A quiet residential area.", types: [PokemonType.Normal] },
+    '🍳': { name: "Frying Pan", description: "Hot and ready for cooking.", types: [PokemonType.Steel, PokemonType.Fire] },
+    '🎄': { name: "Christmas Tree", description: "A festive symbol of the holidays.", types: [PokemonType.Grass, PokemonType.Ice] },
+    '🛍️': { name: "Shopping Bags", description: "The spoils of a successful shopping trip.", types: [PokemonType.Normal] },
+    '🌈': { name: "Rainbow", description: "A beautiful meteorological phenomenon.", types: [PokemonType.Fairy] },
+    '📺': { name: "Television", description: "Broadcasting all your favorite shows.", types: [PokemonType.Electric, PokemonType.Steel] },
+
+    // Decorations
+    '🌵': { name: "Cactus", description: "A prickly plant from the desert.", types: [PokemonType.Grass] },
+    '🛤️': { name: "Train Track", description: "Keeps the train on course.", types: [PokemonType.Steel] },
+    '🌳': { name: "Deciduous Tree", description: "Provides shade in the summer.", types: [PokemonType.Grass] },
+    '🌲': { name: "Evergreen Tree", description: "Stays green all year round.", types: [PokemonType.Grass] },
+    '🌊': { name: "Wave", description: "The ocean's gentle rhythm.", types: [PokemonType.Water] },
+    '🏝️': { name: "Desert Island", description: "A secluded paradise.", types: [PokemonType.Ground, PokemonType.Grass] },
+    '🌋': { name: "Volcano", description: "A mountain that can erupt with lava.", types: [PokemonType.Fire, PokemonType.Rock] },
+    '🏔️': { name: "Snowy Mountain", description: "A majestic, cold peak.", types: [PokemonType.Ice, PokemonType.Rock] },
+    '⚓': { name: "Anchor", description: "Holds ships steady in the water.", types: [PokemonType.Steel] },
+    '⛈️': { name: "Thunder Cloud", description: "A sign of an impending storm.", types: [PokemonType.Electric, PokemonType.Water] },
+    '🎙️': { name: "Studio Microphone", description: "For recording hit songs.", types: [PokemonType.Steel] },
+    '🎼': { name: "Musical Score", description: "The language of music.", types: [PokemonType.Normal] },
+    '🥅': { name: "Goal Net", description: "The target for victory.", types: [PokemonType.Normal] },
+    '🏆': { name: "Trophy", description: "A symbol of a champion.", types: [PokemonType.Steel] },
+    '🏁': { name: "Checkered Flag", description: "The finish line of a race.", types: [PokemonType.Normal] },
+    '🎌': { name: "Crossed Flags", description: "A symbol of celebration or competition.", types: [PokemonType.Normal] },
+    '📽️': { name: "Film Projector", description: "Shows movies on the big screen.", types: [PokemonType.Electric] },
+    '🏮': { name: "Red Paper Lantern", description: "A decorative light.", types: [PokemonType.Fire] },
+    '💹': { name: "Stock Chart", description: "The ups and downs of the market.", types: [PokemonType.Normal] },
+    '🗺️': { name: "World Map", description: "A guide to all the world's places.", types: [PokemonType.Normal] },
+    '✨': { name: "Sparkles", description: "Adds a touch of magic.", types: [PokemonType.Fairy] },
+    '🍄': { name: "Mushroom", description: "A fungus found in forests.", types: [PokemonType.Grass, PokemonType.Poison] },
+    '🍃': { name: "Leaf Fluttering in Wind", description: "A gentle sign of nature.", types: [PokemonType.Grass, PokemonType.Flying] },
+    '🍂': { name: "Fallen Leaf", description: "A symbol of autumn.", types: [PokemonType.Grass] },
+    '🍁': { name: "Maple Leaf", description: "A sign of the changing seasons.", types: [PokemonType.Grass] },
+    '🔔': { name: "Bell", description: "Rings with a clear, resonant sound.", types: [PokemonType.Steel] },
+    '🌟': { name: "Glowing Star", description: "A beacon of light in the night sky.", types: [PokemonType.Fairy, PokemonType.Psychic] },
+    '🎉': { name: "Party Popper", description: "A burst of celebration.", types: [PokemonType.Normal] },
+    '🎊': { name: "Confetti Ball", description: "Explodes with colorful paper.", types: [PokemonType.Normal] },
+    '🪩': { name: "Disco Ball", description: "Reflects light for a party atmosphere.", types: [PokemonType.Fairy, PokemonType.Steel] },
+
+    // Default
+    '❓': { name: "Unknown", description: "A mysterious object.", types: [PokemonType.Normal] },
+};

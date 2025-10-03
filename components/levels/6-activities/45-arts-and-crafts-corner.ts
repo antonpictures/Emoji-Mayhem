@@ -5,28 +5,28 @@ export const level45: Level = {
     name: "Arts & Crafts Corner",
     projectiles: 18,
     enemies: [
-        // Bottom row
-        { type: 'grunt', emoji: '🧵', position: { x: 200, y: 625 } },
-        { type: 'grunt', emoji: '🧶', position: { x: 300, y: 625 } },
-        { type: 'hopper', emoji: '🎭', position: { x: 1000, y: 625 } },
-
-        // Mid-level
-        { type: 'brute', emoji: '🎨', position: { x: 400, y: 410 } },
-        { type: 'brute', emoji: '🖼️', position: { x: 900, y: 410 } },
-        
-        // High-level
-        { type: 'sparky', emoji: '🪡', position: { x: 640, y: 250 } },
-        { type: 'flyer', emoji: '🪢', position: { x: 640, y: 150 } },
+        { type: 'grunt', emoji: '🧵', position: { x: 700, y: 625 } },
+        { type: 'hopper', emoji: '🎭', position: { x: 1100, y: 625 } },
+        { type: 'brute', emoji: '🎨', position: { x: 700, y: 385 } },
+        { type: 'brute', emoji: '🖼️', position: { x: 1150, y: 385 } },
+        { type: 'sparky', emoji: '🪡', position: { x: 940, y: 250 } },
+        { type: 'flyer', emoji: '🪢', position: { x: 940, y: 150 } },
     ],
     breakableBlocks: [
-        // Easels and shelves
-        { id: 'l45p1', position: { x: 350, y: 450 }, width: 100, height: 20, health: 100 },
-        { id: 'l45p2', position: { x: 850, y: 450 }, width: 100, height: 20, health: 100 },
-        { id: 'l45p3', position: { x: 590, y: 300 }, width: 100, height: 20, health: 100 },
-        { id: 'l45b1', position: { x: 390, y: 470 }, health: 100, width: 20, height: 180 },
-        { id: 'l45b2', position: { x: 890, y: 470 }, health: 100, width: 20, height: 180 },
+        { id: 'l45p1', position: { x: 650, y: 420 }, width: 100, height: 20, health: 100 },
+        { id: 'l45p2', position: { x: 1100, y: 420 }, width: 100, height: 20, health: 100 },
+        { id: 'l45p3', position: { x: 890, y: 270 }, width: 100, height: 20, health: 100 },
+        { id: 'l45b1', position: { x: 690, y: 440 }, health: 100, width: 20, height: 210 },
+        { id: 'l45b2', position: { x: 1140, y: 440 }, health: 100, width: 20, height: 210 },
+    ],
+    wormholes: [
+        { id: 'l45-wh-a', type: 'black', position: { x: 100, y: 300 }, radius: 30, pairId: 'l45-wh-b' },
+        { id: 'l45-wh-b', type: 'white', position: { x: 1180, y: 300 }, radius: 30, pairId: 'l45-wh-a' },
+    ],
+    blackHoles: [
+        { id: 'l45-bh-1', position: { x: 640, y: 100 }, radius: 25, gravityRadius: 180, gravityForce: 130 },
     ],
     theme: {
-      sky: ['#f8f7f2', '#e9e3d5', '#d1c8b7'] // Canvas/paper tones
+      sky: ['#f8f7f2', '#e9e3d5', '#d1c8b7']
     }
 };

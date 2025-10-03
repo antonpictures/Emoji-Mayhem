@@ -5,46 +5,32 @@ export const level44: Level = {
     name: "Arcade Anarchy",
     projectiles: 20,
     enemies: [
-        // Left side: Prize Corner
-        { type: 'brute', emoji: '🧸', position: { x: 250, y: 610 } },
-        { type: 'bomber', emoji: '🪅', position: { x: 350, y: 525 } },
-        { type: 'grunt', emoji: '🪆', position: { x: 200, y: 425 } },
-
-        // Center: Arcade Cabinet
-        { type: 'tank', emoji: '🎮', position: { x: 640, y: 300 } },
-        { type: 'grunt', emoji: '🕹️', position: { x: 640, y: 525 } },
-        
-        // Right side: Card/Dice Game
-        { type: 'brute', emoji: '🎰', position: { x: 1000, y: 410 } },
-        { type: 'hopper', emoji: '🎲', position: { x: 950, y: 625 } },
+        { type: 'bomber', emoji: '🪅', position: { x: 750, y: 525 } },
+        { type: 'tank', emoji: '🎮', position: { x: 940, y: 270 } },
+        { type: 'grunt', emoji: '🕹️', position: { x: 940, y: 500 } },
+        { type: 'brute', emoji: '🎰', position: { x: 1150, y: 385 } },
         { type: 'hopper', emoji: '🎲', position: { x: 1050, y: 625 } },
-        { type: 'grunt', emoji: '🃏', position: { x: 1100, y: 525 } },
-
-        // Flyers and targets
-        { type: 'flyer', emoji: '🪁', position: { x: 400, y: 150 } },
-        { type: 'sparky', emoji: '🪄', position: { x: 800, y: 200 } },
-        { type: 'grunt', emoji: '🎯', position: { x: 100, y: 250 } },
+        { type: 'flyer', emoji: '🪁', position: { x: 600, y: 150 } },
+        { type: 'sparky', emoji: '🪄', position: { x: 1100, y: 200 } },
     ],
     breakableBlocks: [
-        // Prize Corner counter
-        { id: 'l44p1', position: { x: 150, y: 550 }, width: 250, height: 20, health: 100 },
-        { id: 'l44p2', position: { x: 150, y: 450 }, width: 100, height: 20, health: 100 },
-
-        // Arcade Cabinet structure
-        { id: 'l44b1', position: { x: 590, y: 350 }, health: 150, width: 20, height: 200 },
-        { id: 'l44b2', position: { x: 690, y: 350 }, health: 150, width: 20, height: 200 },
-        { id: 'l44p3', position: { x: 590, y: 350 }, width: 120, height: 20, health: 100 },
-
-        // Card table
-        { id: 'l44p4', position: { x: 900, y: 550 }, width: 250, height: 20, health: 100 },
-        { id: 'l44p5', position: { x: 950, y: 450 }, width: 150, height: 20, health: 100 },
+        { id: 'l44b1', position: { x: 890, y: 320 }, health: 150, width: 20, height: 330 },
+        { id: 'l44b2', position: { x: 990, y: 320 }, health: 150, width: 20, height: 330 },
+        { id: 'l44p3', position: { x: 890, y: 300 }, width: 120, height: 20, health: 100 },
+        { id: 'l44p4', position: { x: 1000, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l44p5', position: { x: 1050, y: 420 }, width: 150, height: 20, health: 100 },
     ],
     emojiStructures: [
-        { id: 'l44s1', position: { x: 640, y: 100 }, emoji: '🪩', fontSize: 150 },
-        { id: 'l44s2', position: { x: 900, y: 300 }, emoji: '♠️', fontSize: 80 },
-        { id: 'l44s3', position: { x: 1100, y: 300 }, emoji: '♥️', fontSize: 80 },
+        { id: 'l44s1', position: { x: 940, y: 100 }, emoji: '🪩', fontSize: 150, health: 100 },
+    ],
+    wormholes: [
+        { id: 'l44-wh-a', type: 'black', position: { x: 100, y: 100 }, radius: 30, pairId: 'l44-wh-b' },
+        { id: 'l44-wh-b', type: 'white', position: { x: 1180, y: 600 }, radius: 30, pairId: 'l44-wh-a' },
+    ],
+    blackHoles: [
+        { id: 'l44-bh-1', position: { x: 640, y: 300 }, radius: 25, gravityRadius: 180, gravityForce: 130 },
     ],
     theme: {
-      sky: ['#1d0f2b', '#4c1d59', '#ff00a0'] // Arcade neon theme
+      sky: ['#1d0f2b', '#4c1d59', '#ff00a0']
     }
 };

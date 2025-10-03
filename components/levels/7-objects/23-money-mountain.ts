@@ -5,34 +5,30 @@ export const level23: Level = {
     name: 'Money Mountain',
     projectiles: 16,
     enemies: [
-        // Left side coins
-        { type: 'hopper', emoji: '🪙', position: { x: 200, y: 525 } },
-        { type: 'hopper', emoji: '🪙', position: { x: 300, y: 425 } },
-
-        // Center
-        { type: 'brute', emoji: '💰', position: { x: 640, y: 610 } },
-        { type: 'flyer', emoji: '💸', position: { x: 640, y: 150 } },
-
-        // Right side vault
-        { type: 'grunt', emoji: '💵', position: { x: 1000, y: 625 } },
-        { type: 'grunt', emoji: '💶', position: { x: 1080, y: 625 } },
-        { type: 'tank', emoji: '💳', position: { x: 1040, y: 500 } },
-        { type: 'grunt', emoji: '🧾', position: { x: 1040, y: 425 } },
+        { type: 'hopper', emoji: '🪙', position: { x: 700, y: 500 } },
+        { type: 'brute', emoji: '💰', position: { x: 940, y: 610 } },
+        { type: 'flyer', emoji: '💸', position: { x: 940, y: 150 } },
+        { type: 'grunt', emoji: '💵', position: { x: 1100, y: 625 } },
+        { type: 'tank', emoji: '💳', position: { x: 1140, y: 485 } },
     ],
     platforms: [],
     breakableBlocks: [
-        // Vault door
-        { id: 'l23b1', position: { x: 950, y: 570 }, health: 150, width: 20, height: 80 },
-        { id: 'l23b2', position: { x: 1130, y: 570 }, health: 150, width: 20, height: 80 },
-        { id: 'l23p1', position: { x: 150, y: 550 }, width: 100, height: 20, health: 100 },
-        { id: 'l23p2', position: { x: 250, y: 450 }, width: 100, height: 20, health: 100 },
-        { id: 'l23p3', position: { x: 950, y: 550 }, width: 200, height: 20, health: 100 }, // ceiling for notes
-        { id: 'l23p4', position: { x: 950, y: 450 }, width: 200, height: 20, health: 100 }, // ceiling for receipt
+        { id: 'l23b1', position: { x: 900, y: 540 }, health: 150, width: 20, height: 110 },
+        { id: 'l23b2', position: { x: 1180, y: 540 }, health: 150, width: 20, height: 110 },
+        { id: 'l23p1', position: { x: 650, y: 520 }, width: 100, height: 20, health: 100 },
+        { id: 'l23p3', position: { x: 900, y: 520 }, width: 300, height: 20, health: 100 },
     ],
     emojiStructures: [
-        { id: 'l23s1', position: { x: 800, y: 300 }, emoji: '💹', fontSize: 250 },
+        { id: 'l23s1', position: { x: 900, y: 300 }, emoji: '💹', fontSize: 250, health: 100 },
+    ],
+    wormholes: [
+        { id: 'l23-wh-a', type: 'black', position: { x: 100, y: 600 }, radius: 30, pairId: 'l23-wh-b' },
+        { id: 'l23-wh-b', type: 'white', position: { x: 1180, y: 100 }, radius: 30, pairId: 'l23-wh-a' },
+    ],
+    blackHoles: [
+        { id: 'l23-bh-1', position: { x: 640, y: 200 }, radius: 25, gravityRadius: 180, gravityForce: 130 },
     ],
     theme: {
-        sky: ['#386641', '#6a994e', '#a7c957'] // Money green tones
+        sky: ['#386641', '#6a994e', '#a7c957']
     }
 };

@@ -5,30 +5,26 @@ export const level3: Level = {
     name: "Food Fight Frenzy",
     projectiles: 15,
     enemies: [
-        // Left structure
-        { type: 'grunt', position: { x: 200, y: 625 }, emoji: '🍕' },
-        { type: 'grunt', position: { x: 300, y: 625 }, emoji: '🍔' },
-        { type: 'grunt', position: { x: 250, y: 550 }, emoji: '🍺' },
-        
-        // Right structure
-        { type: 'brute', position: { x: 1000, y: 610 }, emoji: '🍰' },
-        { type: 'grunt', position: { x: 1100, y: 625 }, emoji: '🍣' },
-        { type: 'grunt', position: { x: 1050, y: 525 }, emoji: '🍷' },
-
-        // Center Tower
-        { type: 'grunt', position: { x: 640, y: 625 }, emoji: '🍩' },
-        { type: 'grunt', position: { x: 640, y: 550 }, emoji: '🍭' },
-        { type: 'brute', position: { x: 640, y: 450 }, emoji: '🎂' },
-
-        // Flyers
-        { type: 'flyer', position: { x: 500, y: 150 }, emoji: '☕' },
-        { type: 'flyer', position: { x: 800, y: 150 }, emoji: '🍏' },
+        { type: 'brute', position: { x: 940, y: 385 }, emoji: '🎂' },
+        { type: 'grunt', position: { x: 1150, y: 530 }, emoji: '🍔' },
+        { type: 'grunt', position: { x: 700, y: 530 }, emoji: '🍕' },
+        { type: 'flyer', position: { x: 750, y: 150 }, emoji: '☕' },
+        { type: 'flyer', position: { x: 1150, y: 150 }, emoji: '🍏' },
     ],
-    platforms: [],
     breakableBlocks: [
-        { id: 'l3b1', position: { x: 950, y: 500 }, health: 100, width: 200, height: 20 },
-        { id: 'l3b2', position: { x: 150, y: 500 }, health: 100, width: 200, height: 20 },
-        { id: 'l3p1', position: { x: 600, y: 500 }, width: 80, height: 20, health: 100 },
+        { id: 'l3p1', position: { x: 800, y: 580 }, width: 300, height: 20, health: 100 },
+        { id: 'l3p2', position: { x: 900, y: 420 }, width: 100, height: 20, health: 100 },
+        { id: 'l3b1', position: { x: 890, y: 440 }, health: 100, width: 20, height: 140 },
+        { id: 'l3b2', position: { x: 990, y: 440 }, health: 100, width: 20, height: 140 },
+        { id: 'l3p3', position: { x: 650, y: 550 }, width: 100, height: 20, health: 100 },
+        { id: 'l3p4', position: { x: 1100, y: 550 }, width: 100, height: 20, health: 100 },
+    ],
+    wormholes: [
+        { id: 'l3-wh-a', type: 'black', position: { x: 1200, y: 600 }, radius: 30, pairId: 'l3-wh-b' },
+        { id: 'l3-wh-b', type: 'white', position: { x: 100, y: 300 }, radius: 30, pairId: 'l3-wh-a' },
+    ],
+    blackHoles: [
+        { id: 'l3-bh-1', position: { x: 950, y: 100 }, radius: 25, gravityRadius: 220, gravityForce: 160 },
     ],
     theme: {
         sky: ['#ffecd2', '#fcb69f', '#ffc3a0']

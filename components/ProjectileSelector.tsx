@@ -1,91 +1,155 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PokemonType } from '../types';
 import { soundManager } from './SoundManager';
 
 interface ProjectileSelectorProps {
-    availableProjectiles: Record<PokemonType, number>;
-    selectedType: PokemonType;
-    onSelectType: (type: PokemonType) => void;
+  availableProjectiles: Record<PokemonType, number>;
+  selectedType: PokemonType;
+  onSelectType: (type: PokemonType) => void;
 }
 
 export const TYPE_EMOJI_MAP: Record<PokemonType, string> = {
+    [PokemonType.Normal]: '⚪',
     [PokemonType.Fire]: '🔥',
     [PokemonType.Water]: '💧',
     [PokemonType.Grass]: '🍃',
     [PokemonType.Electric]: '⚡',
     [PokemonType.Ice]: '❄️',
-    [PokemonType.Normal]: '⭐',
-    // Add other types as they become available
     [PokemonType.Fighting]: '🥊',
-    [PokemonType.Flying]: '🕊️',
     [PokemonType.Poison]: '☠️',
-    [PokemonType.Ground]: '🏜️',
-    [PokemonType.Rock]: '🪨',
+    [PokemonType.Ground]: '⛰️',
+    [PokemonType.Flying]: '🕊️',
+    [PokemonType.Psychic]: '🔮',
     [PokemonType.Bug]: '🐛',
+    [PokemonType.Rock]: '🪨',
     [PokemonType.Ghost]: '👻',
-    [PokemonType.Steel]: '🛡️',
-    [PokemonType.Psychic]: '🌀',
     [PokemonType.Dragon]: '🐉',
     [PokemonType.Dark]: '🌑',
+    [PokemonType.Steel]: '⚙️',
     [PokemonType.Fairy]: '✨',
 };
 
 export const TYPE_COLOR_MAP: Record<PokemonType, string> = {
-    [PokemonType.Fire]: 'bg-red-600 border-red-800 hover:bg-red-500',
-    [PokemonType.Water]: 'bg-blue-600 border-blue-800 hover:bg-blue-500',
-    [PokemonType.Grass]: 'bg-green-600 border-green-800 hover:bg-green-500',
-    [PokemonType.Electric]: 'bg-yellow-500 border-yellow-700 hover:bg-yellow-400',
-    [PokemonType.Ice]: 'bg-cyan-500 border-cyan-700 hover:bg-cyan-400',
-    [PokemonType.Normal]: 'bg-gray-500 border-gray-700 hover:bg-gray-400',
-    // Add other type colors
-    [PokemonType.Fighting]: 'bg-orange-700 border-orange-900 hover:bg-orange-600',
-    [PokemonType.Flying]: 'bg-sky-400 border-sky-600 hover:bg-sky-300',
-    [PokemonType.Poison]: 'bg-purple-600 border-purple-800 hover:bg-purple-500',
-    [PokemonType.Ground]: 'bg-amber-600 border-amber-800 hover:bg-amber-500',
-    [PokemonType.Rock]: 'bg-stone-500 border-stone-700 hover:bg-stone-400',
-    [PokemonType.Bug]: 'bg-lime-600 border-lime-800 hover:bg-lime-500',
-    [PokemonType.Ghost]: 'bg-indigo-700 border-indigo-900 hover:bg-indigo-600',
-    [PokemonType.Steel]: 'bg-slate-500 border-slate-700 hover:bg-slate-400',
-    [PokemonType.Psychic]: 'bg-pink-500 border-pink-700 hover:bg-pink-400',
-    [PokemonType.Dragon]: 'bg-violet-600 border-violet-800 hover:bg-violet-500',
-    [PokemonType.Dark]: 'bg-zinc-800 border-zinc-900 hover:bg-zinc-700',
-    [PokemonType.Fairy]: 'bg-fuchsia-400 border-fuchsia-600 hover:bg-fuchsia-300',
+    [PokemonType.Normal]: 'bg-gray-400',
+    [PokemonType.Fire]: 'bg-red-500',
+    [PokemonType.Water]: 'bg-blue-500',
+    [PokemonType.Grass]: 'bg-green-500',
+    [PokemonType.Electric]: 'bg-yellow-400',
+    [PokemonType.Ice]: 'bg-cyan-300',
+    [PokemonType.Fighting]: 'bg-orange-700',
+    [PokemonType.Poison]: 'bg-purple-600',
+    [PokemonType.Ground]: 'bg-yellow-600',
+    [PokemonType.Flying]: 'bg-indigo-400',
+    [PokemonType.Psychic]: 'bg-pink-500',
+    [PokemonType.Bug]: 'bg-lime-500',
+    [PokemonType.Rock]: 'bg-yellow-800',
+    [PokemonType.Ghost]: 'bg-indigo-800',
+    [PokemonType.Dragon]: 'bg-indigo-600',
+    [PokemonType.Dark]: 'bg-gray-800',
+    [PokemonType.Steel]: 'bg-gray-500',
+    [PokemonType.Fairy]: 'bg-pink-300',
 };
 
+// This list defines the subset of projectiles available to the player.
+export const PLAYER_PROJECTILE_TYPES = [
+    PokemonType.Normal, PokemonType.Fire, PokemonType.Water, PokemonType.Grass,
+    PokemonType.Electric, PokemonType.Fighting, PokemonType.Rock
+];
+
 const ProjectileSelector: React.FC<ProjectileSelectorProps> = ({ availableProjectiles, selectedType, onSelectType }) => {
-    
-    const handleSelect = (type: PokemonType) => {
-        if (availableProjectiles[type] > 0) {
-            soundManager.playClick();
-            onSelectType(type);
-        }
+  const [isExpanded, setIsExpanded] = useState(false);
+  const selectorRef = useRef<HTMLDivElement>(null);
+
+  const handleSelect = (type: PokemonType) => {
+    if (availableProjectiles[type] > 0) {
+      soundManager.playClick();
+      onSelectType(type);
+      setIsExpanded(false); // Collapse after selection
     }
+  };
+
+  const handleToggleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Important! Prevent canvas click.
+    if (Object.values(availableProjectiles).some(count => count > 0)) {
+        soundManager.playClick();
+        setIsExpanded(prev => !prev);
+    }
+  };
+
+  // Close when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (selectorRef.current && !selectorRef.current.contains(event.target as Node)) {
+        setIsExpanded(false);
+      }
+    };
+    if (isExpanded) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isExpanded]);
+
+  const renderCollapsedButton = () => {
+    const count = availableProjectiles[selectedType] || 0;
+    if (count === 0 && !Object.values(availableProjectiles).some(c => c > 0)) return null;
 
     return (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-gray-900/50 p-2 rounded-lg z-20 flex space-x-2">
-            {Object.entries(availableProjectiles).map(([type, count]) => {
-                if (count <= 0) return null; // Don't render buttons for 0 projectiles
-                return (
-                    <button
-                        key={type}
-                        onClick={() => handleSelect(type as PokemonType)}
-                        // FIX: Explicitly cast count to a number to prevent type errors in the comparison.
-                        disabled={Number(count) <= 0}
-                        className={`relative w-16 h-16 rounded-md border-2 transition-all duration-200 transform hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed ${
-                            TYPE_COLOR_MAP[type as PokemonType]
-                        } ${
-                            selectedType === type ? 'scale-110 ring-4 ring-yellow-400' : ''
-                        }`}
-                    >
-                        <span className="text-3xl">{TYPE_EMOJI_MAP[type as PokemonType]}</span>
-                        <span className="absolute -bottom-1 -right-1 bg-gray-800 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm border-2 border-white">
-                            {count}
-                        </span>
-                    </button>
-                )
-            })}
+      <button
+        onClick={handleToggleExpand}
+        className="relative w-20 h-20 rounded-lg transition-all duration-200 transform hover:scale-110"
+        title="Change Projectile"
+      >
+        <div className={`absolute inset-0 rounded-lg ${TYPE_COLOR_MAP[selectedType]} ${isExpanded ? 'ring-4 ring-white' : 'ring-4 ring-yellow-400'}`}></div>
+        <div className="relative w-full h-full flex flex-col items-center justify-center">
+          <span className="text-5xl" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
+            {TYPE_EMOJI_MAP[selectedType]}
+          </span>
         </div>
+        <div className="absolute -top-1 -right-1 bg-gray-800 w-7 h-7 rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white">
+          {count}
+        </div>
+      </button>
     );
+  };
+  
+  const renderExpandedGrid = () => {
+    if (!isExpanded) return null;
+    
+    const typesWithAmmo = (Object.keys(PokemonType) as Array<keyof typeof PokemonType>)
+        .map(key => PokemonType[key])
+        .filter(type => availableProjectiles[type] > 0);
+    
+    return (
+      <div className="absolute bottom-full mb-4 bg-gray-900/80 p-3 rounded-xl grid grid-cols-6 gap-2 w-[380px]">
+         {typesWithAmmo.map((pokemonType) => {
+            const count = availableProjectiles[pokemonType] || 0;
+            return (
+              <button
+                key={pokemonType}
+                onClick={(e) => { e.stopPropagation(); handleSelect(pokemonType); }}
+                className="relative w-12 h-12 rounded-lg transition-all duration-200 transform hover:scale-110"
+                title={`${pokemonType} (${count} left)`}
+              >
+                <div className={`absolute inset-0 rounded-lg ${TYPE_COLOR_MAP[pokemonType]} ring-2 ring-black/30`}></div>
+                <div className="relative w-full h-full flex flex-col items-center justify-center">
+                  <span className="text-3xl" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
+                    {TYPE_EMOJI_MAP[pokemonType]}
+                  </span>
+                </div>
+                <div className="absolute -top-1 -right-1 bg-gray-800 w-5 h-5 rounded-full flex items-center justify-center text-white font-bold text-[10px] border border-white">
+                    {count}
+                </div>
+              </button>
+            );
+          })}
+      </div>
+    );
+  };
+
+  return (
+    <div ref={selectorRef} className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center z-20 pointer-events-auto">
+      {renderExpandedGrid()}
+      {renderCollapsedButton()}
+    </div>
+  );
 };
 
 export default ProjectileSelector;

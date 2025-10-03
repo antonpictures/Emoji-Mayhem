@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ENEMY_CONFIG } from './Game';
+// Fix: Corrected the import path for ENEMY_CONFIG.
+import { ENEMY_CONFIG } from '../services/GameEngine';
 import { soundManager } from './SoundManager';
 import { EMOJI_CATEGORIES } from './emoji-data';
 
@@ -40,7 +41,8 @@ const LevelEditorUI: React.FC<LevelEditorUIProps> = ({
         action();
     };
     
-    const enemyTools = Object.entries(ENEMY_CONFIG).map(([key, config]) => ({ id: key, label: config.emoji }));
+    // Fix: Add type assertion to resolve property access error on 'config'.
+    const enemyTools = Object.entries(ENEMY_CONFIG).map(([key, config]) => ({ id: key, label: (config as any).emoji }));
     const blockTools = [
         { id: 'platform', label: '🟫' },
         { id: 'breakable', label: '🧱' }
@@ -58,7 +60,7 @@ const LevelEditorUI: React.FC<LevelEditorUIProps> = ({
     };
 
     return (
-        <div className="absolute top-0 left-0 h-full w-48 bg-gray-900/80 text-white p-2 z-40 flex flex-col space-y-3 overflow-y-auto font-sans">
+        <div className="flex-shrink-0 h-full w-48 bg-gray-900/80 text-white p-2 flex flex-col space-y-3 overflow-y-auto font-sans">
             {/* Main Actions */}
             <div className="flex-shrink-0">
                 <button onClick={() => handleActionClick(onTest)} className="w-full mb-1 p-2 bg-green-600 hover:bg-green-500 rounded font-bold text-xs">TEST</button>

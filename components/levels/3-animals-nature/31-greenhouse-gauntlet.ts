@@ -5,36 +5,33 @@ export const level31: Level = {
     name: 'Greenhouse Gauntlet',
     projectiles: 20,
     enemies: [
-        // Left side
-        { type: 'grunt', emoji: '🌸', position: { x: 200, y: 525 } },
-        { type: 'grunt', emoji: '🌹', position: { x: 300, y: 425 } },
-        { type: 'hopper', emoji: '🌱', position: { x: 150, y: 625 } },
-
-        // Center
-        { type: 'brute', emoji: '🥬', position: { x: 640, y: 310 } },
-        { type: 'flyer', emoji: '🍁', position: { x: 500, y: 150 } },
-        { type: 'flyer', emoji: '🍂', position: { x: 780, y: 150 } },
-
-        // Right side
-        { type: 'tank', emoji: '🌵', position: { x: 1050, y: 600 } },
-        { type: 'grunt', emoji: '🌻', position: { x: 950, y: 525 } },
-        { type: 'grunt', emoji: '🌷', position: { x: 1000, y: 425 } },
+        { type: 'grunt', emoji: '🌸', position: { x: 650, y: 530 } },
+        { type: 'grunt', emoji: '🌹', position: { x: 850, y: 400 } },
+        { type: 'hopper', emoji: '🌱', position: { x: 750, y: 625 } },
+        { type: 'brute', emoji: '🥬', position: { x: 940, y: 285 } },
+        { type: 'flyer', emoji: '🍁', position: { x: 800, y: 150 } },
+        { type: 'tank', emoji: '🌵', position: { x: 1150, y: 600 } },
     ],
     platforms: [],
     breakableBlocks: [
-        { id: 'l31b1', position: { x: 900, y: 620 }, health: 100, width: 80, height: 30 },
-        { id: 'l31p1', position: { x: 150, y: 550 }, width: 150, height: 20, health: 100 },
-        { id: 'l31p2', position: { x: 250, y: 450 }, width: 100, height: 20, health: 100 },
-        { id: 'l31p3', position: { x: 900, y: 550 }, width: 150, height: 20, health: 100 },
-        { id: 'l31p4', position: { x: 950, y: 450 }, width: 100, height: 20, health: 100 },
-        { id: 'l31p5', position: { x: 590, y: 350 }, width: 100, height: 20, health: 100 },
+        { id: 'l31p1', position: { x: 600, y: 550 }, width: 150, height: 20, health: 100 },
+        { id: 'l31p2', position: { x: 800, y: 420 }, width: 100, height: 20, health: 100 },
+        { id: 'l31p3', position: { x: 1000, y: 550 }, width: 200, height: 20, health: 100 },
+        { id: 'l31p4', position: { x: 1050, y: 450 }, width: 100, height: 20, health: 100 },
+        { id: 'l31p5', position: { x: 890, y: 320 }, width: 100, height: 20, health: 100 },
     ],
     emojiStructures: [
-        { id: 'l31s1', position: { x: 150, y: 300 }, emoji: '🌳', fontSize: 200 },
-        { id: 'l31s2', position: { x: 1130, y: 300 }, emoji: '🌴', fontSize: 200 },
-        { id: 'l31s3', position: { x: 640, y: 500 }, emoji: '🌲', fontSize: 250 },
+        { id: 'l31s3', position: { x: 940, y: 500 }, emoji: '🌲', fontSize: 250, health: 200 },
+        { id: 'l31s4', position: { x: 450, y: 610 }, emoji: '🪴', fontSize: 80 },
+    ],
+    wormholes: [
+        { id: 'l31-wh-a', type: 'black', position: { x: 100, y: 100 }, radius: 30, pairId: 'l31-wh-b' },
+        { id: 'l31-wh-b', type: 'white', position: { x: 1180, y: 100 }, radius: 30, pairId: 'l31-wh-a' },
+    ],
+    blackHoles: [
+        { id: 'l31-bh-1', position: { x: 640, y: 250 }, radius: 25, gravityRadius: 180, gravityForce: 130 },
     ],
     theme: {
-        sky: ['#588157', '#a3b18a', '#dad7cd'] // Earthy green tones
+        sky: ['#588157', '#a3b18a', '#dad7cd']
     }
 };

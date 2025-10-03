@@ -1,21 +1,28 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { soundManager } from './SoundManager';
 
 interface LevelCompleteScreenProps {
   score: number;
-  onNext: () => void;
+  onNext: () => void; // This will now be the single callback
   isTestingEditorLevel: boolean;
   onReturnToEditor: () => void;
 }
 
 const LevelCompleteScreen: React.FC<LevelCompleteScreenProps> = ({ score, onNext, isTestingEditorLevel, onReturnToEditor }) => {
+
+  const handleAction = isTestingEditorLevel ? onReturnToEditor : onNext;
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+        handleAction();
+    }, 2000); // Wait 2 seconds before automatically proceeding
+
+    return () => clearTimeout(timer); // Cleanup timer on unmount
+  }, [handleAction]);
+
   const handleClick = () => {
     soundManager.playClick();
-    if (isTestingEditorLevel) {
-      onReturnToEditor();
-    } else {
-      onNext();
-    }
+    handleAction();
   };
   
   return (
