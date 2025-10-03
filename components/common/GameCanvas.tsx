@@ -191,7 +191,7 @@ const GameCanvas = forwardRef<SVGSVGElement, GameCanvasProps>(({
 
             {entities.projectiles.map(p => <text key={p.id} x={p.position.x} y={p.position.y} fontSize={p.radius * 2.5} textAnchor="middle" dominantBaseline="central">{TYPE_EMOJI_MAP[p.projectileType]}</text>)}
             {entities.particles.map(p => <circle key={p.id} cx={p.position.x} cy={p.position.y} r={p.radius} fill={p.color} style={{ opacity: p.lifespan / 60 }} />)}
-            {entities.floatingTexts.map(t => <text key={t.id} x={t.id} y={t.position.y} fill={t.color} fontSize="24" fontWeight="bold" textAnchor="middle" style={{ opacity: t.lifespan / 60, pointerEvents: 'none', textShadow: '1px 1px 2px black' }}>{t.text}</text>)}
+            {entities.floatingTexts.map(t => <text key={t.id} x={t.position.x} y={t.position.y} fill={t.color} fontSize="24" fontWeight="bold" textAnchor="middle" style={{ opacity: t.lifespan / 60, pointerEvents: 'none', textShadow: '1px 1px 2px black' }}>{t.text}</text>)}
 
             {renderSelectionBox()}
         </svg>

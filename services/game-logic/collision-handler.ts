@@ -1,5 +1,5 @@
 import { Entities, PROJECTILE_MAX_BOUNCES } from '../../constants';
-import { PokemonType, Projectile, Enemy, BreakableBlock, Platform } from '../../types';
+import { PokemonType, Projectile, Enemy, BreakableBlock, Platform, FloatingText } from '../../types';
 import { POKEMON_DATA } from '../../components/pokemon-data';
 import { TYPE_CHART } from '../../components/pokemon-type-chart';
 import { soundManager } from '../../components/SoundManager';
@@ -48,6 +48,20 @@ export const handleCollisions = (currentEntities: Entities, callbacks: any) => {
                 enemy.health -= damage.amount;
                 enemy.velocity.x += proj.velocity.x * 0.2;
                 enemy.velocity.y += proj.velocity.y * 0.2;
+
+                let damageColor = '#ffffff'; // white for normal
+                if (damage.effectiveness > 1) damageColor = '#4ade80'; // green for super effective
+                if (damage.effectiveness < 1 && damage.effectiveness > 0) damageColor = '#f87171'; // red for not very effective
+                if (damage.effectiveness === 0) damageColor = '#94a3b8'; // gray for no effect
+
+                newEntities.floatingTexts.push({
+                    id: `ft-dmg-${Date.now()}-${Math.random()}`,
+                    position: { x: enemy.position.x, y: enemy.position.y - enemy.radius },
+                    text: `${Math.round(damage.amount)}`,
+                    color: damageColor,
+                    lifespan: 60,
+                    velocity: { x: 0, y: -0.5 }
+                });
                 
                 applyProjectileAbility(proj, enemy, newEntities, callbacks);
                 
@@ -108,7 +122,16 @@ export const handleCollisions = (currentEntities: Entities, callbacks: any) => {
             soundManager.playDestroy();
             callbacks.applyShake(4, 10);
             totalMpsEarned += e.mpsReward;
-            // TODO: Add floating text for MPS
+            
+            newEntities.floatingTexts.push({
+                id: `ft-mps-${Date.now()}-${Math.random()}`,
+                position: { x: e.position.x, y: e.position.y - e.radius },
+                text: `+${e.mpsReward}`,
+                color: '#facc15', // yellow-400
+                lifespan: 60,
+                velocity: { x: 0, y: -1 }
+            });
+            
             return false;
         }
         return true;

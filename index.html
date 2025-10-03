@@ -23,13 +23,53 @@
     }
   </style>
   <script>
-    // Configure Tailwind to recognize custom fonts
+    // Configure Tailwind to recognize custom fonts and poker theme
     tailwind.config = {
         theme: {
             extend: {
+                colors: {
+                  'brand-dark-bg': '#000000',
+                  'brand-panel-bg': '#1F2937',
+                  'brand-panel-light': '#374151',
+                  'brand-yellow': '#FACC15',
+                  'brand-green': '#10B981',
+                  'brand-red': '#EF4444',
+                  'brand-blue': '#4285F4',
+                },
                 fontFamily: {
                     sans: ['"Nunito"', 'sans-serif'],
+                    mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
                 },
+                boxShadow: {
+                    'card': '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)',
+                    'card-held': '0 0 15px 3px rgba(250, 204, 21, 0.6)',
+                    'card-win-glow': '0 0 20px 5px rgba(16, 185, 129, 0.7)',
+                },
+                keyframes: {
+                    'deal-in': {
+                        '0%': { opacity: '0', transform: 'translateY(20px) scale(0.95)' },
+                        '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+                    },
+                    'pop-in': {
+                        '0%': { opacity: '0', transform: 'scale(0.9)' },
+                        '100%': { opacity: '1', transform: 'scale(1)' },
+                    },
+                    'win-pulse': {
+                        '0%, 100%': { transform: 'scale(1)' },
+                        '50%': { transform: 'scale(1.03)' },
+                    },
+                    'flash-deal': {
+                        '0%': { 'box-shadow': '0 0 0 0px rgba(66, 133, 244, 0.7)' },
+                        '70%': { 'box-shadow': '0 0 0 7px rgba(66, 133, 244, 0)' },
+                        '100%': { 'box-shadow': '0 0 0 0px rgba(66, 133, 244, 0)' },
+                    }
+                },
+                animation: {
+                    'deal-in': 'deal-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+                    'pop-in': 'pop-in 0.3s ease-out forwards',
+                    'win-pulse': 'win-pulse 1.5s ease-in-out infinite',
+                    'flash-deal': 'flash-deal 1.5s infinite',
+                }
             }
         }
     }
@@ -37,16 +77,18 @@
   
   <!-- Import Map -->
   <script type="importmap">
-  {
-    "imports": {
-      "react": "https://aistudiocdn.com/react@^19.1.1",
-      "react-dom/client": "https://aistudiocdn.com/react-dom@^19.1.1/client",
-      "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-      "react/": "https://aistudiocdn.com/react@^19.1.1/",
-      "@google/genai": "https://aistudiocdn.com/@google/genai@^1.20.0"
-    }
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.1.1/client",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.20.0",
+    "vite": "https://aistudiocdn.com/vite@^7.1.9",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.4"
   }
-  </script>
+}
+</script>
 </head>
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>

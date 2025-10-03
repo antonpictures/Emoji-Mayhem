@@ -130,7 +130,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ level, onBackToMenu, onNextLeve
   };
 
   return (
-    <div id="game-container" className="relative bg-gray-800 overflow-hidden" style={{ width: WORLD_WIDTH, height: WORLD_HEIGHT }}>
+    <div id="game-container" className="relative bg-gray-800 w-full h-full max-w-[100vw] max-h-[56.25vw] sm:max-h-[100vh] sm:max-w-[177.77vh] aspect-[16/9]">
       {phase === 'start' && <LevelStartScreen level={level} onStart={handleStart} />}
       {phase === 'complete' && <LevelCompleteScreen mpsEarned={mpsEarned} onNext={onNextLevel} isTestingEditorLevel={isTestingEditorLevel} onReturnToEditor={onReturnToEditor} />}
       {phase === 'over' && <GameOverScreen onRestart={handleRestart} onBackToMenu={onBackToMenu} isTestingEditorLevel={isTestingEditorLevel} onReturnToEditor={onReturnToEditor} />}

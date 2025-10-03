@@ -1,54 +1,58 @@
 import React, { useState, useCallback } from 'react';
-import { Level, User, Chapter } from '../types';
+import { Level, User } from '../types';
 import TitleScreen from '../screens/TitleScreen';
 import LevelSelectScreen from '../screens/LevelSelectScreen';
 import GameScreen from '../screens/GameScreen';
 import EditorScreen from '../screens/EditorScreen';
-import { CHAPTERS } from './chapter-data';
 import { soundManager } from './SoundManager';
+import VideoPokerScreen from '../screens/VideoPokerScreen';
 
 interface GameProps {
   levels: Level[];
-  communityLevels: Level[];
   onSaveLevel: (level: Level) => void;
   onDeleteLevel: (levelId: number) => void;
+  onIncrementPlayCount: (levelId: number) => void;
   currentUser: User | null;
   onLogin: () => void;
   onLogout: () => void;
   onActiveLevelChange: (level: Level | null) => void;
+  onGameStateChange: (state: GameState) => void;
 }
 
-type GameState = 'title' | 'level_select' | 'gameplay' | 'editor' | 'test_level';
+type GameState = 'title' | 'level_select' | 'gameplay' | 'editor' | 'test_level' | 'video_poker';
 type EditorMode = 'new' | 'edit';
 
 const Game: React.FC<GameProps> = (props) => {
   const [gameState, setGameState] = useState<GameState>('title');
-  const [activeChapter, setActiveChapter] = useState<Chapter | null>(null);
   const [activeLevel, setActiveLevel] = useState<Level | null>(null);
   const [editorMode, setEditorMode] = useState<EditorMode>('new');
   const [levelBeforeTest, setLevelBeforeTest] = useState<Level | null>(null);
 
-  const handleSelectChapter = useCallback((chapter: Chapter) => {
-    setActiveChapter(chapter);
-    setGameState('level_select');
-  }, []);
+  const setGameStateAndNotify = useCallback((state: GameState) => {
+    setGameState(state);
+    props.onGameStateChange(state);
+  }, [props]);
+
+  const handleStartAdventure = useCallback(() => {
+    setGameStateAndNotify('level_select');
+  }, [setGameStateAndNotify]);
 
   const handleLevelSelect = useCallback((level: Level) => {
+    props.onIncrementPlayCount(level.id);
     setActiveLevel(level);
     props.onActiveLevelChange(level);
-    setGameState('gameplay');
-  }, [props]);
+    setGameStateAndNotify('gameplay');
+  }, [props, setGameStateAndNotify]);
   
   const handleBackToTitle = useCallback(() => {
-    setActiveChapter(null);
-    setGameState('title');
-  }, []);
+    setGameStateAndNotify('title');
+  }, [setGameStateAndNotify]);
 
   const handleBackToLevelSelect = useCallback(() => {
     setActiveLevel(null);
     props.onActiveLevelChange(null);
-    setGameState('level_select');
-  }, [props]);
+    setGameStateAndNotify('level_select');
+  }, [props, setGameStateAndNotify]);
 
   const handleStartEditor = useCallback(() => {
     soundManager.playClick();
@@ -62,42 +66,47 @@ const Game: React.FC<GameProps> = (props) => {
     };
     setActiveLevel(newLevel);
     setEditorMode('new');
-    setGameState('editor');
-  }, []);
+    setGameStateAndNotify('editor');
+  }, [setGameStateAndNotify]);
 
   const handleEditLevel = useCallback((level: Level) => {
     soundManager.playClick();
     setActiveLevel(level);
     setEditorMode('edit');
-    setGameState('editor');
-  }, []);
+    setGameStateAndNotify('editor');
+  }, [setGameStateAndNotify]);
+  
+  const handleStartVideoPoker = useCallback(() => {
+    soundManager.playClick();
+    setGameStateAndNotify('video_poker');
+  }, [setGameStateAndNotify]);
 
   const handleSaveAndExitEditor = useCallback((level: Level) => {
     props.onSaveLevel(level);
-    setGameState('level_select');
+    setGameStateAndNotify('level_select');
     setActiveLevel(null);
-  }, [props]);
+  }, [props, setGameStateAndNotify]);
 
   const handleExitEditor = useCallback(() => {
     if (confirm('Exit without saving?')) {
-        setGameState('level_select');
+        setGameStateAndNotify('level_select');
         setActiveLevel(null);
     }
-  }, []);
+  }, [setGameStateAndNotify]);
   
   const handlePlaytest = useCallback((level: Level) => {
     setLevelBeforeTest(level);
     setActiveLevel(level);
     props.onActiveLevelChange(level);
-    setGameState('test_level');
-  }, [props]);
+    setGameStateAndNotify('test_level');
+  }, [props, setGameStateAndNotify]);
 
   const handleReturnToEditor = useCallback(() => {
     setActiveLevel(levelBeforeTest);
     props.onActiveLevelChange(levelBeforeTest);
     setLevelBeforeTest(null);
-    setGameState('editor');
-  }, [levelBeforeTest, props]);
+    setGameStateAndNotify('editor');
+  }, [levelBeforeTest, props, setGameStateAndNotify]);
 
   const findNextLevel = (currentLevelId: number): Level | null => {
     const sortedLevels = props.levels.filter(l => !l.isCustom && !l.isCommunity).sort((a,b) => a.id - b.id);
@@ -122,15 +131,17 @@ const Game: React.FC<GameProps> = (props) => {
 
   switch (gameState) {
     case 'title':
-        return <TitleScreen onSelectChapter={handleSelectChapter} onLogin={props.onLogin} currentUser={props.currentUser} onLogout={props.onLogout} />;
+        return <TitleScreen onStartAdventure={handleStartAdventure} onStartVideoPoker={handleStartVideoPoker} onLogin={props.onLogin} currentUser={props.currentUser} onLogout={props.onLogout} />;
     case 'level_select':
-        return <LevelSelectScreen levels={props.levels} communityLevels={props.communityLevels} onLevelSelect={handleLevelSelect} onBackToTitle={handleBackToTitle} chapter={activeChapter} onStartEditor={handleStartEditor} onEditLevel={handleEditLevel} onDeleteLevel={props.onDeleteLevel} onSaveLevel={props.onSaveLevel} currentUser={props.currentUser} onLogout={props.onLogout} />;
+        return <LevelSelectScreen levels={props.levels} onLevelSelect={handleLevelSelect} onBackToTitle={handleBackToTitle} onStartEditor={handleStartEditor} onEditLevel={handleEditLevel} onDeleteLevel={props.onDeleteLevel} onSaveLevel={props.onSaveLevel} currentUser={props.currentUser} onLogout={props.onLogout} />;
     case 'gameplay':
         return activeLevel ? <GameScreen key={activeLevel.id} level={activeLevel} onBackToMenu={handleBackToLevelSelect} onNextLevel={handleNextLevel} onEditLevel={() => handleEditLevel(activeLevel)} canEdit={!!activeLevel.isCustom} isTestingEditorLevel={false} onReturnToEditor={() => {}} /> : null;
     case 'editor':
         return activeLevel ? <EditorScreen initialLevel={activeLevel} onSaveAndExit={handleSaveAndExitEditor} onExitWithoutSaving={handleExitEditor} onPlaytest={handlePlaytest} /> : null;
     case 'test_level':
         return activeLevel ? <GameScreen key={`test-${activeLevel.id}`} level={activeLevel} onBackToMenu={handleReturnToEditor} onNextLevel={() => {}} onEditLevel={() => {}} canEdit={false} isTestingEditorLevel={true} onReturnToEditor={handleReturnToEditor} /> : null;
+    case 'video_poker':
+        return <VideoPokerScreen onBackToTitle={handleBackToTitle} />;
     default:
         return null;
   }

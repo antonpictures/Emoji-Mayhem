@@ -25,13 +25,13 @@ const HUD: React.FC<HUDProps> = ({ mps, levelName, projectiles, onBackToMenu, on
   };
 
   return (
-    <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start text-white z-20 pointer-events-none font-sans">
-      <div className="font-black text-2xl tracking-tighter">
+    <div className="absolute top-0 left-0 right-0 p-2 sm:p-4 flex justify-between items-start text-white z-20 pointer-events-none font-sans">
+      <div className="font-black text-base sm:text-2xl tracking-tighter">
         <span>$MPS: </span>
         <span className="text-yellow-400">{mps}</span>
       </div>
       <div className="text-center">
-        <div className="font-black text-2xl mb-2 tracking-tight">{levelName}</div>
+        <div className="font-black text-lg sm:text-2xl mb-2 tracking-tight">{levelName}</div>
         <div className="flex space-x-2">
             <button
             onClick={handleBackClick}
@@ -55,7 +55,7 @@ const HUD: React.FC<HUDProps> = ({ mps, levelName, projectiles, onBackToMenu, on
             </div>
         </div>
       </div>
-      <div className="font-black text-2xl tracking-tighter flex items-center">
+      <div className="font-black text-base sm:text-2xl tracking-tighter flex items-center">
         <span>LEFT: </span>
         <span className="text-yellow-300 ml-2">{projectiles}</span>
       </div>

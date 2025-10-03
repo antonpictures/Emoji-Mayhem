@@ -6,10 +6,11 @@ import { useAuth } from './hooks/useAuth';
 import { Level } from './types';
 
 const App: React.FC = () => {
-  const { levels, communityLevels, handleSaveLevel, handleDeleteLevel } =
+  const { levels, handleSaveLevel, handleDeleteLevel, incrementPlayCount } =
     useLevels();
   const { currentUser, login, logout } = useAuth();
   const [activeLevel, setActiveLevel] = useState<Level | null>(null);
+  const [currentGameState, setCurrentGameState] = useState<string>('title');
 
   const defaultSky: [string, string, string] = [
     '#2d3748',
@@ -18,9 +19,12 @@ const App: React.FC = () => {
   ];
   const sky = activeLevel?.theme?.sky || defaultSky;
   const [start, mid, end] = sky;
-  const backgroundStyle = {
-    background: `linear-gradient(to bottom, ${end}, ${mid}, ${start})`,
-  };
+  const backgroundStyle =
+    currentGameState === 'video_poker'
+      ? { backgroundColor: '#000000' }
+      : {
+          background: `linear-gradient(to bottom, ${end}, ${mid}, ${start})`,
+        };
 
   return (
     <div
@@ -29,13 +33,14 @@ const App: React.FC = () => {
     >
       <Game
         levels={levels}
-        communityLevels={communityLevels}
         onSaveLevel={handleSaveLevel}
         onDeleteLevel={handleDeleteLevel}
+        onIncrementPlayCount={incrementPlayCount}
         currentUser={currentUser}
         onLogin={login}
         onLogout={logout}
         onActiveLevelChange={setActiveLevel}
+        onGameStateChange={setCurrentGameState}
       />
     </div>
   );

@@ -7,6 +7,29 @@ A physics-based puzzle game where the player launches positive projectiles (word
 
 ---
 
+## Future Vision: The Emoji Machine
+
+Building upon the core slingshot mechanic, the game will evolve to incorporate complex, Rube Goldberg-style puzzles. Firing a projectile will be the catalyst that sets off an "Emoji Machine," a chain reaction of interacting objects designed to perform a simple task in a needlessly complex fashion.
+
+**Concept:**
+Each level becomes a unique puzzle where the goal is not just destruction, but triggering a specific outcome, such as "put the ⚽ into a 📦" or "start a mixer and turn on a 💨".
+
+**Emoji-Based Physics Interactions:**
+The world will be filled with a rich collection of emoji objects with unique physical properties and behaviors:
+- **Simple Machines:** ⛓️ (ropes), ⚙️ (gears), and pulleys.
+- **Physics Objects:** 🎳 (bowling balls), 🪨 (rocks), and other items with varying mass and momentum.
+- **Interactive Pairs:** A 🐭 will run towards nearby 🧀, and a 🔦 placed next to a 🔍 will ignite a 💣 wick.
+- **Living Emojis:** 🐈, 🐁, and 🧍 will have specific reactions to other objects and each other, creating dynamic and unpredictable chains.
+
+**Gameplay & Level Design:**
+- **Puzzle Solving:** Levels will feature a set of fixed objects. The player must solve the puzzle by strategically placing a limited set of movable objects to complete the chain reaction.
+- **Level Editor & Freeform Mode:** A robust "freeform" sandbox mode will allow players to experiment with all available objects. This will also power a user-friendly level editor, enabling players to create their own Emoji Machine puzzles and share them with the community.
+
+**Deterministic Physics Engine:**
+Notably, the game's physics engine will simulate not only direct physical interactions but also ambient effects like varying air pressure and gravity. The engine will not use a random number generator, ensuring that the results for any given machine are deterministic and repeatable, which is crucial for fair and solvable puzzles.
+
+---
+
 ## Core Gameplay Mechanics to Copy:
 - **Simple one-touch/swipe controls** - Easy to learn, hard to master
 - **Physics-based gameplay** - Satisfying destruction and trajectory mechanics

@@ -74,6 +74,13 @@ export const updateAllEntities = (currentEntities: Entities): Entities => {
             e.position.y = GROUND_Y - e.radius;
             e.velocity.y = 0;
         }
+        
+        // Horizontal screen wrapping
+        if (e.position.x > WORLD_WIDTH + e.radius) {
+            e.position.x = -e.radius;
+        } else if (e.position.x < -e.radius) {
+            e.position.x = WORLD_WIDTH + e.radius;
+        }
     });
 
     // Update Projectiles
@@ -107,18 +114,19 @@ export const updateAllEntities = (currentEntities: Entities): Entities => {
         p.position.x += p.velocity.x;
         p.position.y += p.velocity.y;
 
-        // World bounds
+        // Vertical world bounds (bounce)
         if (p.position.y + p.radius > GROUND_Y || p.position.y - p.radius < 0) {
             p.velocity.y *= -PROJECTILE_BOUNCE_DAMPENING;
             p.position.y = Math.min(p.position.y, GROUND_Y - p.radius);
             p.position.y = Math.max(p.position.y, p.radius);
             p.bounces++;
         }
-        if (p.position.x + p.radius > WORLD_WIDTH || p.position.x - p.radius < 0) {
-            p.velocity.x *= -PROJECTILE_BOUNCE_DAMPENING;
-            p.position.x = Math.min(p.position.x, WORLD_WIDTH - p.radius);
-            p.position.x = Math.max(p.position.x, p.radius);
-            p.bounces++;
+        
+        // Horizontal world bounds (wrap around)
+        if (p.position.x > WORLD_WIDTH + p.radius) {
+            p.position.x = -p.radius;
+        } else if (p.position.x < -p.radius) {
+            p.position.x = WORLD_WIDTH + p.radius;
         }
     });
     

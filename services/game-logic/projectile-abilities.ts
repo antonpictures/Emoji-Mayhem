@@ -1,5 +1,5 @@
 // Fix: Import Entities type from constants file where it is defined.
-import { Projectile, Enemy, BreakableBlock, Platform } from '../../types';
+import { Projectile, Enemy, BreakableBlock, Platform, PokemonType } from '../../types';
 import { Entities } from '../../constants';
 import { soundManager } from '../../components/SoundManager';
 
@@ -89,7 +89,9 @@ export const applyProjectileAbility = (
             for (let i = 0; i < 5; i++) {
                 const angle = (i / 5) * Math.PI * 2;
                 allEntities.projectiles.push({
-                    ...proj, id: `${proj.id}-shard-${i}`, projectileType: 'Ice',
+                    ...proj, id: `${proj.id}-shard-${i}`, 
+                    // Fix: Used PokemonType enum member instead of string literal for type safety.
+                    projectileType: PokemonType.Ice,
                     velocity: { x: Math.cos(angle) * 8, y: Math.sin(angle) * 8 },
                     radius: proj.radius * 0.5, isSubProjectile: true, bounces: 2
                 });
