@@ -6,6 +6,7 @@ import GameScreen from '../screens/GameScreen';
 import EditorScreen from '../screens/EditorScreen';
 import { soundManager } from './SoundManager';
 import VideoPokerScreen from '../screens/VideoPokerScreen';
+import EmpireRTSScreen from '../screens/EmpireRTSScreen';
 
 interface GameProps {
   levels: Level[];
@@ -19,7 +20,7 @@ interface GameProps {
   onGameStateChange: (state: GameState) => void;
 }
 
-type GameState = 'title' | 'level_select' | 'gameplay' | 'editor' | 'test_level' | 'video_poker';
+type GameState = 'title' | 'level_select' | 'gameplay' | 'editor' | 'test_level' | 'video_poker' | 'empire_rts';
 type EditorMode = 'new' | 'edit';
 
 const Game: React.FC<GameProps> = (props) => {
@@ -81,6 +82,11 @@ const Game: React.FC<GameProps> = (props) => {
     setGameStateAndNotify('video_poker');
   }, [setGameStateAndNotify]);
 
+  const handleStartEmpireRTS = useCallback(() => {
+    soundManager.playClick();
+    setGameStateAndNotify('empire_rts');
+  }, [setGameStateAndNotify]);
+
   const handleSaveAndExitEditor = useCallback((level: Level) => {
     props.onSaveLevel(level);
     setGameStateAndNotify('level_select');
@@ -131,7 +137,7 @@ const Game: React.FC<GameProps> = (props) => {
 
   switch (gameState) {
     case 'title':
-        return <TitleScreen onStartAdventure={handleStartAdventure} onStartVideoPoker={handleStartVideoPoker} onLogin={props.onLogin} currentUser={props.currentUser} onLogout={props.onLogout} />;
+        return <TitleScreen onStartAdventure={handleStartAdventure} onStartVideoPoker={handleStartVideoPoker} onStartEmpireRTS={handleStartEmpireRTS} onLogin={props.onLogin} currentUser={props.currentUser} onLogout={props.onLogout} />;
     case 'level_select':
         return <LevelSelectScreen levels={props.levels} onLevelSelect={handleLevelSelect} onBackToTitle={handleBackToTitle} onStartEditor={handleStartEditor} onEditLevel={handleEditLevel} onDeleteLevel={props.onDeleteLevel} onSaveLevel={props.onSaveLevel} currentUser={props.currentUser} onLogout={props.onLogout} />;
     case 'gameplay':
@@ -142,6 +148,8 @@ const Game: React.FC<GameProps> = (props) => {
         return activeLevel ? <GameScreen key={`test-${activeLevel.id}`} level={activeLevel} onBackToMenu={handleReturnToEditor} onNextLevel={() => {}} onEditLevel={() => {}} canEdit={false} isTestingEditorLevel={true} onReturnToEditor={handleReturnToEditor} /> : null;
     case 'video_poker':
         return <VideoPokerScreen onBackToTitle={handleBackToTitle} />;
+    case 'empire_rts':
+        return <EmpireRTSScreen onBackToTitle={handleBackToTitle} />;
     default:
         return null;
   }

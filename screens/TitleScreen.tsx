@@ -9,6 +9,7 @@ interface TitleScreenProps {
   currentUser: User | null;
   onLogout: () => void;
   onStartVideoPoker: () => void;
+  onStartEmpireRTS: () => void;
 }
 
 const TitleScreen: React.FC<TitleScreenProps> = ({
@@ -17,6 +18,7 @@ const TitleScreen: React.FC<TitleScreenProps> = ({
   currentUser,
   onLogout,
   onStartVideoPoker,
+  onStartEmpireRTS,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
@@ -96,13 +98,22 @@ const TitleScreen: React.FC<TitleScreenProps> = ({
             
             <div>
                  <h2 className="text-lg sm:text-xl font-bold text-gray-300 mb-3 tracking-wide">Bonus Games</h2>
-                 <button
-                    onClick={() => handleAction(onStartVideoPoker)}
-                    className="px-6 py-3 sm:px-10 sm:py-4 font-bold text-base sm:text-xl bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center mx-auto"
-                >
-                    <span className="text-2xl sm:text-3xl mr-3">🃏</span>
-                    Play $MPS Video Poker
-                </button>
+                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button
+                        onClick={() => handleAction(onStartVideoPoker)}
+                        className="px-6 py-3 sm:px-10 sm:py-4 font-bold text-base sm:text-xl bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center mx-auto"
+                    >
+                        <span className="text-2xl sm:text-3xl mr-3">🃏</span>
+                        Play $MPS Video Poker
+                    </button>
+                    <button
+                        onClick={() => handleAction(onStartEmpireRTS)}
+                        className="px-6 py-3 sm:px-10 sm:py-4 font-bold text-base sm:text-xl bg-orange-600 hover:bg-orange-500 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center mx-auto"
+                    >
+                        <span className="text-2xl sm:text-3xl mr-3">🏰</span>
+                        Play Empire MPS
+                    </button>
+                 </div>
             </div>
         </div>
       </div>

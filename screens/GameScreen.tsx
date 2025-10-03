@@ -9,7 +9,6 @@ import ProjectileSelector from '../components/ProjectileSelector';
 import { PLAYER_PROJECTILE_TYPES } from '../components/projectile-data';
 import LevelCompleteScreen from '../components/LevelCompleteScreen';
 import GameOverScreen from '../components/GameOverScreen';
-import LevelStartScreen from '../components/LevelStartScreen';
 import GameCanvas from '../components/common/GameCanvas';
 import StatsCard from '../components/StatsCard';
 import { soundManager } from '../components/SoundManager';
@@ -25,10 +24,10 @@ interface GameScreenProps {
   onReturnToEditor: () => void;
 }
 
-type GamePhase = 'start' | 'playing' | 'paused' | 'complete' | 'over';
+type GamePhase = 'playing' | 'paused' | 'complete' | 'over';
 
 const GameScreen: React.FC<GameScreenProps> = ({ level, onBackToMenu, onNextLevel, onEditLevel, canEdit, isTestingEditorLevel, onReturnToEditor }) => {
-  const [phase, setPhase] = useState<GamePhase>('start');
+  const [phase, setPhase] = useState<GamePhase>('playing');
   const [selectedProjectile, setSelectedProjectile] = useState<PokemonType>(PokemonType.Normal);
   const [slingshotDragOffset, setSlingshotDragOffset] = useState<Vec2>({ x: 0, y: 0 });
   const [isSlingshotDragging, setIsSlingshotDragging] = useState(false);
@@ -48,6 +47,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ level, onBackToMenu, onNextLeve
     restartLevel,
     loadNewLevel,
   } = useGameSession(level, phase === 'playing');
+
+  useEffect(() => {
+    soundManager.initialize();
+  }, []);
 
   useEffect(() => {
     if (gameStatus === 'won') {
@@ -91,14 +94,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ level, onBackToMenu, onNextLeve
     setPhase('playing');
   }, [restartLevel]);
   
-  const handleStart = useCallback(() => {
-    soundManager.initialize();
-    restartLevel(); // Ensure level is fresh on start
-    const firstAvailable = PLAYER_PROJECTILE_TYPES.find(t => (ammo[t] || 0) > 0) || PokemonType.Normal;
-    setSelectedProjectile(firstAvailable);
-    setPhase('playing');
-  }, [restartLevel, ammo]);
-
   const handleEntityHover = (entity: HoverableEntity, e: React.MouseEvent) => {
     setHoveredEntity(entity);
     const rect = (e.currentTarget as SVGGElement).getBoundingClientRect();
@@ -149,7 +144,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ level, onBackToMenu, onNextLeve
 
   return (
     <div id="game-container" className="relative bg-gray-800 w-full h-full max-w-[100vw] max-h-[56.25vw] sm:max-h-[100vh] sm:max-w-[177.77vh] aspect-[16/9]">
-      {phase === 'start' && <LevelStartScreen level={level} onStart={handleStart} />}
       {phase === 'complete' && <LevelCompleteScreen mpsEarned={mpsEarned} onNext={onNextLevel} isTestingEditorLevel={isTestingEditorLevel} onReturnToEditor={onReturnToEditor} />}
       {phase === 'over' && <GameOverScreen onRestart={handleRestart} onBackToMenu={onBackToMenu} isTestingEditorLevel={isTestingEditorLevel} onReturnToEditor={onReturnToEditor} />}
       {isAiFixing && (

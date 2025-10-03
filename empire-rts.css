@@ -1,0 +1,448 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+*/
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #000;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    justify-content: center;
+    align-items: center;
+}
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: #d1c4a8;
+    border-bottom: 4px solid #a4916c;
+    color: #2b2b2b;
+    font-weight: bold;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.scoreboard-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.resources-display {
+    display: flex;
+    gap: 24px;
+    font-size: 1.1em;
+}
+
+.resources-display span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.main-view {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
+    overflow: hidden;
+    width: 100%;
+}
+
+.bottom-panel {
+    display: grid;
+    grid-template-columns: 1fr 220px; /* main controls + minimap */
+    height: 240px;
+    background-color: #d1c4a8;
+    border-top: 4px solid #a4916c;
+    color: #2b2b2b;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.left-and-middle-panel {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    border-right: 2px solid #a4916c;
+    padding: 10px;
+    gap: 10px;
+}
+
+.selection-and-ad-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.selection-panel {
+    display: flex;
+    gap: 10px;
+}
+
+.selection-portrait {
+    width: 80px;
+    height: 80px;
+    background-color: #bfae8d;
+    border: 3px solid #a4916c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 50px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.selection-info {
+    min-width: 0; /* Prevents flexbox from overflowing */
+}
+
+.selection-info h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.2em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hp-bar {
+    width: 100%;
+    height: 20px;
+    -webkit-appearance: none;
+    appearance: none;
+    border: 2px solid #8a7a5f;
+}
+.hp-bar::-webkit-progress-bar {
+    background-color: #8a7a5f;
+}
+.hp-bar::-webkit-progress-value {
+    background-color: #2cde2c;
+}
+
+.selection-stats {
+    margin-top: 5px;
+    font-size: 0.9em;
+}
+
+.training-progress {
+    margin-top: 4px;
+}
+
+.training-progress progress {
+    width: 100%;
+    height: 10px;
+}
+.training-progress span {
+    font-size: 0.9em;
+}
+
+.action-panel-container {
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px;
+    justify-content: space-between;
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 60px);
+    grid-template-rows: repeat(2, 60px);
+    gap: 8px;
+}
+
+.action-button-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+}
+
+.action-button-wrapper .action-button {
+    width: 100%;
+    height: 100%;
+}
+
+.action-button {
+    width: 60px;
+    height: 60px;
+    background-color: #bfae8d;
+    border: 3px solid #a4916c;
+    font-size: 32px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+.action-button:hover {
+    background-color: #cfbe9d;
+    border-color: #b4a17c;
+}
+.action-button:disabled {
+    cursor: not-allowed;
+    filter: grayscale(80%) brightness(0.8);
+    border-color: #8a7a5f;
+}
+.action-button-wrapper:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0,0,0,0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: pre-wrap;
+    z-index: 10;
+    margin-bottom: 5px;
+    text-align: center;
+    pointer-events: none;
+}
+
+.formation-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.formation-button {
+    width: 60px;
+    height: 60px;
+    font-size: 38px;
+    line-height: 1;
+    font-family: 'Times New Roman', serif;
+}
+
+.formation-button.active {
+    border-color: #fff;
+    background-color: #b4a17c;
+}
+
+
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+}
+
+.minimap-container {
+    margin-bottom: 5px;
+}
+
+.pre-game-overlay, .winner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 100;
+    color: #FFF;
+}
+.pre-game-overlay h1, .winner-overlay h1 {
+    font-size: 3em;
+    color: #d1c4a8;
+    margin-bottom: 20px;
+}
+.pre-game-overlay p {
+    max-width: 500px;
+    margin-bottom: 30px;
+    font-size: 1.1em;
+    line-height: 1.5;
+}
+.pre-game-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.start-button, .winner-overlay button {
+    padding: 15px 30px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #2b2b2b;
+    background-color: #d1c4a8;
+    border: 4px solid #a4916c;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+.start-button:hover, .winner-overlay button:hover {
+    background-color: #e1d4b8;
+}
+
+.pre-game-ad {
+    margin-top: 40px;
+    font-size: 1em;
+    color: #d1c4a8;
+}
+
+.pre-game-ad a {
+    color: #ffc107;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.pre-game-ad a:hover {
+    text-decoration: underline;
+}
+
+.selection-ad-banner {
+    margin-top: 10px;
+    background-color: #bfae8d;
+    border: 3px solid #a4916c;
+    padding: 5px;
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.selection-ad-banner a {
+    color: #2b2b2b;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.selection-ad-banner a:hover {
+    text-decoration: underline;
+}
+
+
+.screen-messages-container {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+}
+
+.screen-message {
+    background-color: rgba(0,0,0,0.7);
+    color: #ffc107;
+    padding: 5px 15px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 1.1em;
+    animation: fadeOut 3s forwards;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; transform: translateY(0); }
+    80% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
+}
+
+/* Styles for EmojiUnitDesigner */
+
+.emoji-designer-container {
+    min-height: 100vh;
+    background-image: linear-gradient(to bottom right, #1e1b4b, #4c1d95, #831843);
+    color: white;
+    padding: 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.emoji-designer-container .max-w-7xl {
+    max-width: 1280px;
+    margin: auto;
+}
+
+.emoji-designer-container .text-center { text-align: center; }
+.emoji-designer-container .mb-4 { margin-bottom: 1rem; }
+.emoji-designer-container .text-4xl { font-size: 2.25rem; }
+.emoji-designer-container .font-bold { font-weight: 700; }
+.emoji-designer-container .mb-2 { margin-bottom: 0.5rem; }
+.emoji-designer-container .bg-clip-text { -webkit-background-clip: text; background-clip: text; }
+.emoji-designer-container .text-transparent { color: transparent; }
+.emoji-designer-container .text-gray-400 { color: #9ca3af; }
+.emoji-designer-container .grid { display: grid; }
+.emoji-designer-container .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.emoji-designer-container .gap-4 { gap: 1rem; }
+.emoji-designer-container .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+.emoji-designer-container .bg-gray-900 { background-color: #111827; }
+.emoji-designer-container .rounded-xl { border-radius: 0.75rem; }
+.emoji-designer-container .p-4 { padding: 1rem; }
+.emoji-designer-container .border { border-width: 1px; }
+.emoji-designer-container .border-purple-500\/30 { border-color: rgba(168, 85, 247, 0.3); }
+.emoji-designer-container .mb-3 { margin-bottom: 0.75rem; }
+.emoji-designer-container .text-cyan-400 { color: #22d3ee; }
+.emoji-designer-container .flex { display: flex; }
+.emoji-designer-container .items-center { align-items: center; }
+.emoji-designer-container .gap-2 { gap: 0.5rem; }
+.emoji-designer-container .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+.emoji-designer-container .w-full { width: 100%; }
+.emoji-designer-container .bg-purple-900\/50 { background-color: rgba(88, 28, 135, 0.5); }
+.emoji-designer-container .hover\:bg-purple-800\/50:hover { background-color: rgba(107, 33, 168, 0.5); }
+.emoji-designer-container .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.emoji-designer-container .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.emoji-designer-container .rounded-lg { border-radius: 0.5rem; }
+.emoji-designer-container .text-sm { font-size: 0.875rem; }
+.emoji-designer-container .transition-colors { transition-property: background-color, border-color, color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+.emoji-designer-container .border-purple-500\/20 { border-color: rgba(168, 85, 247, 0.2); }
+.emoji-designer-container .max-h-80 { max-height: 20rem; }
+.emoji-designer-container .overflow-y-auto { overflow-y: auto; }
+.emoji-designer-container .justify-between { justify-content: space-between; }
+.emoji-designer-container .bg-green-600 { background-color: #16a34a; }
+.emoji-designer-container .hover\:bg-green-700:hover { background-color: #15803d; }
+.emoji-designer-container .p-2 { padding: 0.5rem; }
+.emoji-designer-container .cursor-pointer { cursor: pointer; }
+.emoji-designer-container .bg-purple-600 { background-color: #9333ea; }
+.emoji-designer-container .border-cyan-400 { border-color: #22d3ee; }
+.emoji-designer-container .bg-gray-800 { background-color: #1f2937; }
+.emoji-designer-container .hover\:bg-gray-700:hover { background-color: #374151; }
+.emoji-designer-container .border-transparent { border-color: transparent; }
+.emoji-designer-container .flex-1 { flex: 1 1 0%; }
+.emoji-designer-container .text-xs { font-size: 0.75rem; }
+.emoji-designer-container .font-semibold { font-weight: 600; }
+.emoji-designer-container .text-red-400 { color: #f87171; }
+.emoji-designer-container .hover\:text-red-300:hover { color: #fca5a5; }
+.emoji-designer-container .p-1 { padding: 0.25rem; }
+.emoji-designer-container .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
+.emoji-designer-container .rounded { border-radius: 0.25rem; }
+.emoji-designer-container .lg\:col-span-2 { grid-column: span 2 / span 2; }
+.emoji-designer-container .bg-gray-800 { background-color: #1f2937; }
+.emoji-designer-container .px-4 { padding-left: 1rem; padding-right: 1rem; }
+.emoji-designer-container .text-lg { font-size: 1.125rem; }
+.emoji-designer-container .focus\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
+.emoji-designer-container .focus\:ring-2:focus { --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color); --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000); }
+.emoji-designer-container .focus\:ring-purple-500:focus { --tw-ring-color: #a855f7; }
+.emoji-designer-container .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
+.emoji-designer-container .from-cyan-600 { --tw-gradient-from: #0891b2; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(8, 145, 178, 0)); }
+.emoji-designer-container .to-purple-600 { --tw-gradient-to: #9333ea; }
+.emoji-designer-container .hover\:from-cyan-700:hover { --tw-gradient-from: #0e7490; }
+.emoji-designer-container .hover\:to-purple-700:hover { --tw-gradient-to: #7e22ce; }
+.emoji-designer-container .border-2 { border-width: 2px; }
+.emoji-designer-container .cursor-move { cursor: move; }
+.emoji-designer-container .mt-3 { margin-top: 0.75rem; }
+.emoji-designer-container .mt-1 { margin-top: 0.25rem; }
+.emoji-designer-container .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.emoji-designer-container .max-h-96 { max-height: 24rem; }
+.emoji-designer-container .grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.emoji-designer-container .ring-2 { --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color); --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000); }
+.emoji-designer-container .bg-gradient-header { background-image: linear-gradient(to right, #22d3ee, #a855f7, #ec4899); }
+.emoji-designer-container .absolute { position: absolute; }
+.emoji-designer-container .top-4 { top: 1rem; }
+.emoji-designer-container .left-4 { left: 1rem; }
+
+@media (min-width: 1024px) {
+    .emoji-designer-container .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .emoji-designer-container .lg\:col-span-1 { grid-column: span 1 / span 1; }
+    .emoji-designer-container .lg\:col-span-2 { grid-column: span 2 / span 2; }
+}

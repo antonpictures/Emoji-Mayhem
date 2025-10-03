@@ -20,7 +20,7 @@ const App: React.FC = () => {
   const sky = activeLevel?.theme?.sky || defaultSky;
   const [start, mid, end] = sky;
   const backgroundStyle =
-    currentGameState === 'video_poker'
+    currentGameState === 'video_poker' || currentGameState === 'empire_rts'
       ? { backgroundColor: '#000000' }
       : {
           background: `linear-gradient(to bottom, ${end}, ${mid}, ${start})`,
