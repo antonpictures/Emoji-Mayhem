@@ -64,16 +64,16 @@ export const useEditorState = (initialLevel: Level) => {
         // Fix: Explicitly construct the Enemy object to ensure it matches the required type,
         // instead of spreading a Partial<Enemy> which caused type errors.
         const fullEnemies: Enemy[] = (editingLevel.enemies || []).map(e => {
-            const config = ENEMY_CONFIG[e.type];
+            const config = ENEMY_CONFIG[e.type!];
             const emoji = e.emoji || config.emoji!;
             const pokemonInfo = POKEMON_DATA[emoji] || { name: 'Unknown', types: [PokemonType.Normal]};
             return {
                 id: e.id || `e-editor-${Math.random()}`,
-                position: { ...e.position },
+                position: { ...e.position } as Vec2,
                 velocity: { x: 0, y: 0 },
                 health: config.health!,
                 radius: e.radius || config.radius!,
-                type: e.type,
+                type: e.type!,
                 // Fix: Changed 'points' to 'mpsReward' to match the Enemy type definition and fix property access error.
                 mpsReward: config.mpsReward!,
                 color: config.color!,
@@ -87,11 +87,12 @@ export const useEditorState = (initialLevel: Level) => {
         });
         
         fullEnemies.forEach(e => allObjects.push({ ...e, objectType: 'enemy' }));
-        editingLevel.platforms?.forEach(p => allObjects.push({ ...p, objectType: 'platform' }));
-        editingLevel.breakableBlocks?.forEach(b => allObjects.push({ ...b, objectType: 'breakableBlock' }));
-        editingLevel.emojiStructures?.forEach(s => allObjects.push({ ...s, objectType: 'emojiStructure' }));
-        editingLevel.wormholes?.forEach(w => allObjects.push({ ...w, objectType: 'wormhole' }));
-        editingLevel.blackHoles?.forEach(b => allObjects.push({ ...b, objectType: 'blackHole' }));
+        // Fix: Cast partial objects to their full types to satisfy the EditorObject type.
+        (editingLevel.platforms || []).forEach(p => allObjects.push({ ...(p as Platform), objectType: 'platform' }));
+        (editingLevel.breakableBlocks || []).forEach(b => allObjects.push({ ...(b as BreakableBlock), objectType: 'breakableBlock' }));
+        (editingLevel.emojiStructures || []).forEach(s => allObjects.push({ ...(s as EmojiStructure), objectType: 'emojiStructure' }));
+        (editingLevel.wormholes || []).forEach(w => allObjects.push({ ...(w as Wormhole), objectType: 'wormhole' }));
+        (editingLevel.blackHoles || []).forEach(b => allObjects.push({ ...(b as BlackHole), objectType: 'blackHole' }));
         return allObjects;
       }, [editingLevel]);
 

@@ -1,3 +1,4 @@
+// Fix: Corrected import path for PokemonType.
 import { PokemonType } from "../types";
 
 export const POKEMON_DATA: Record<string, { name: string; types: PokemonType[] }> = {

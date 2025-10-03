@@ -1,8 +1,8 @@
 import React, { useMemo, forwardRef } from 'react';
-import { Vec2, Projectile, Enemy, Particle, Platform, BreakableBlock, EmojiStructure, FloatingText, Level, HoverableEntity, EnemyType, Wormhole, BlackHole } from '../../types';
+import { Vec2, Projectile, Enemy, Particle, Platform, BreakableBlock, EmojiStructure, FloatingText, Level, HoverableEntity, EnemyType, Wormhole, BlackHole, PoisonCloud } from '../../types';
 import { WORLD_WIDTH, WORLD_HEIGHT, GROUND_Y } from '../../constants';
 import { ENEMY_CONFIG } from '../../services/GameEngine';
-import { TYPE_EMOJI_MAP } from '../ProjectileSelector';
+import { TYPE_EMOJI_MAP } from '../projectile-data';
 
 type Entities = {
     platforms: Partial<Platform>[];
@@ -14,6 +14,7 @@ type Entities = {
     floatingTexts: FloatingText[];
     wormholes: Wormhole[];
     blackHoles: BlackHole[];
+    poisonClouds: PoisonCloud[];
 }
 
 interface GameCanvasProps {
@@ -163,6 +164,8 @@ const GameCanvas = forwardRef<SVGSVGElement, GameCanvasProps>(({
             {entities.wormholes?.map(w => w && <text key={w.id} x={w.position.x} y={w.position.y} fontSize={w.radius * 2} textAnchor="middle" dominantBaseline="central" onMouseEnter={(e) => onEntityHover && onEntityHover(w, e)} onMouseLeave={onEntityLeave}>{w.type === 'black' ? '🟠' : '⚪'}</text>)}
             {entities.blackHoles?.map(b => b && <g key={b.id}><circle cx={b.position.x} cy={b.position.y} r={b.gravityRadius} fill="rgba(100,100,100,0.05)" style={{pointerEvents: 'none'}} /><text x={b.position.x} y={b.position.y} fontSize={b.radius * 2} textAnchor="middle" dominantBaseline="central" onMouseEnter={(e) => onEntityHover && onEntityHover(b, e)} onMouseLeave={onEntityLeave}>⚫</text></g>)}
 
+            {entities.poisonClouds?.map(c => <circle key={c.id} cx={c.position.x} cy={c.position.y} r={c.radius} fill="rgba(138, 43, 226, 0.3)" style={{ opacity: c.lifespan / 300 }} />)}
+
             {entities.enemies.map(enemy => {
                 if (!enemy || !enemy.type || !enemy.position) return null;
                 const maxHealth = ENEMY_CONFIG[enemy.type].health;
@@ -170,10 +173,12 @@ const GameCanvas = forwardRef<SVGSVGElement, GameCanvasProps>(({
                 const radius = enemy.radius || ENEMY_CONFIG[enemy.type].radius;
                 const barWidth = radius! * 1.5;
                 const healthColor = healthPercentage > 0.5 ? '#4ade80' : healthPercentage > 0.2 ? '#facc15' : '#ef4444';
+                const isStunned = (enemy as Enemy).stunTimer && (enemy as Enemy).stunTimer! > 0;
 
                 return (
                   <g key={enemy.id} onMouseEnter={(e) => onEntityHover && onEntityHover(enemy as Enemy, e)} onMouseLeave={onEntityLeave} transform={getTransform(enemy)}>
                       <text x={enemy.position.x} y={enemy.position.y} fontSize={radius! * 2} textAnchor="middle" dominantBaseline="central" style={{ opacity: (enemy.type === 'ghost' && !(enemy as Enemy).isSolid) ? 0.5 : 1, transition: 'opacity 0.1s' }}>{enemy.emoji}</text>
+                      {isStunned && <text x={enemy.position.x} y={enemy.position.y - radius!} fontSize={radius!} textAnchor="middle" dominantBaseline="central">😵</text>}
                       {!isEditing && (
                         <g transform={`translate(${enemy.position.x - barWidth / 2}, ${enemy.position.y + radius! + 5})`}>
                             <rect width={barWidth} height={8} fill="#3f3f46" rx="4" ry="4" stroke="#18181b" strokeWidth="1" />
@@ -186,7 +191,7 @@ const GameCanvas = forwardRef<SVGSVGElement, GameCanvasProps>(({
 
             {entities.projectiles.map(p => <text key={p.id} x={p.position.x} y={p.position.y} fontSize={p.radius * 2.5} textAnchor="middle" dominantBaseline="central">{TYPE_EMOJI_MAP[p.projectileType]}</text>)}
             {entities.particles.map(p => <circle key={p.id} cx={p.position.x} cy={p.position.y} r={p.radius} fill={p.color} style={{ opacity: p.lifespan / 60 }} />)}
-            {entities.floatingTexts.map(t => <text key={t.id} x={t.position.x} y={t.position.y} fill={t.color} fontSize="24" fontWeight="bold" textAnchor="middle" style={{ opacity: t.lifespan / 60, pointerEvents: 'none', textShadow: '1px 1px 2px black' }}>{t.text}</text>)}
+            {entities.floatingTexts.map(t => <text key={t.id} x={t.id} y={t.position.y} fill={t.color} fontSize="24" fontWeight="bold" textAnchor="middle" style={{ opacity: t.lifespan / 60, pointerEvents: 'none', textShadow: '1px 1px 2px black' }}>{t.text}</text>)}
 
             {renderSelectionBox()}
         </svg>

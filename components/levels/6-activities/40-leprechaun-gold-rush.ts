@@ -1,4 +1,28 @@
-import { Level } from '../../types';
+// Fix: Corrected import path for Level type.
+import { Level } from '../../../types';
+
+const rainbowHealth = 20;
+const rainbowEmojis = [];
+const center = { x: 900, y: 600 };
+const size = 25;
+const colors = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪'];
+
+for (let i = 0; i < colors.length; i++) {
+    const radius = 250 - i * size;
+    for (let angle = 200; angle < 340; angle += 10) {
+        const rad = angle * (Math.PI / 180);
+        rainbowEmojis.push({
+            id: `l40-r-${i}-${angle}`,
+            position: {
+                x: center.x + Math.cos(rad) * radius,
+                y: center.y + Math.sin(rad) * radius
+            },
+            emoji: colors[i],
+            fontSize: size,
+            health: rainbowHealth
+        });
+    }
+}
 
 export const level40: Level = {
     id: 40,
@@ -19,7 +43,7 @@ export const level40: Level = {
         { id: 'l40p4', position: { x: 900, y: 520 }, width: 300, height: 20, health: 100 },
     ],
     emojiStructures: [
-        { id: 'l40s1', position: { x: 940, y: 400 }, emoji: '🌈', fontSize: 400, health: 200 },
+        ...rainbowEmojis,
     ],
     wormholes: [
         { id: 'l40-wh-a', type: 'black', position: { x: 100, y: 100 }, radius: 30, pairId: 'l40-wh-b' },

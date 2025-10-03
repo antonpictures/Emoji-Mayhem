@@ -18,6 +18,7 @@ const HUD: React.FC<HUDProps> = ({ mps, levelName, projectiles, onBackToMenu, on
   };
 
   const handleEditClick = () => {
+    if (!canEdit) return;
     soundManager.initialize();
     soundManager.playClick();
     onEditLevel();
@@ -38,14 +39,20 @@ const HUD: React.FC<HUDProps> = ({ mps, levelName, projectiles, onBackToMenu, on
             >
                 CHANGE LEVEL
             </button>
-            {canEdit && (
+            <div className="relative group">
                 <button
-                onClick={handleEditClick}
-                className="px-4 py-2 font-bold text-xs bg-green-600 hover:bg-green-500 text-white rounded-md transition-all duration-200 pointer-events-auto shadow-lg border-2 border-green-800"
+                    onClick={handleEditClick}
+                    disabled={!canEdit}
+                    className="px-4 py-2 font-bold text-xs bg-green-600 hover:bg-green-500 text-white rounded-md transition-all duration-200 pointer-events-auto shadow-lg border-2 border-green-800 disabled:bg-gray-500 disabled:border-gray-700 disabled:cursor-not-allowed"
                 >
                     EDIT LEVEL
                 </button>
-            )}
+                {!canEdit && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        Only custom levels can be edited.
+                    </div>
+                )}
+            </div>
         </div>
       </div>
       <div className="font-black text-2xl tracking-tighter flex items-center">

@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
-import { Level } from '../types';
+// Fix: Import Wormhole and BlackHole to be used in type casting.
+import { Level, Wormhole, BlackHole } from '../types';
 import { useEditorState } from '../hooks/useEditorState';
 import GameCanvas from '../components/common/GameCanvas';
 import LevelEditorUI from '../components/LevelEditorUI';
@@ -69,9 +70,10 @@ const EditorScreen: React.FC<EditorScreenProps> = ({ initialLevel, onSaveAndExit
         projectiles: [],
         particles: [],
         floatingTexts: [],
-        // Fix: Add wormholes and blackHoles to satisfy the Entities type.
-        wormholes: editingLevel.wormholes || [],
-        blackHoles: editingLevel.blackHoles || [],
+        poisonClouds: [],
+        // Fix: Cast wormholes and blackHoles to satisfy the Entities type required by GameCanvas.
+        wormholes: (editingLevel.wormholes || []) as Wormhole[],
+        blackHoles: (editingLevel.blackHoles || []) as BlackHole[],
     };
 
     return (

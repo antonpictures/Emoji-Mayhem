@@ -3,7 +3,8 @@ import { Vec2, PokemonType, HoverableEntity, Enemy } from '../types';
 import { POKEMON_DATA } from './pokemon-data';
 import { ENTITY_DATA } from '../services/entity-data';
 import { ENEMY_CONFIG } from '../services/GameEngine';
-import { TYPE_COLOR_MAP } from './ProjectileSelector';
+// Fix: Corrected import path for TYPE_COLOR_MAP.
+import { TYPE_COLOR_MAP } from './projectile-data';
 
 interface StatsCardProps {
     hoveredEntity: HoverableEntity | null;

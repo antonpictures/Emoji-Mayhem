@@ -1,3 +1,4 @@
+// Fix: Corrected import path for Level type.
 import { Level } from '../types';
 
 export const COMMUNITY_LEVELS_DATA: Level[] = [

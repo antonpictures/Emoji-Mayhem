@@ -1,4 +1,30 @@
-import { Level } from '../../types';
+// Fix: Corrected import path for Level type.
+import { Level } from '../../../types';
+
+const volcanoHealth = 30;
+const volcanoEmojis = [];
+const baseX = 820;
+const baseY = 630;
+const size = 30;
+
+// Build the volcano cone
+for (let row = 0; row < 8; row++) {
+    const numCols = 10 - row;
+    for (let col = 0; col < numCols; col++) {
+        volcanoEmojis.push({
+            id: `l10s-v-${row}-${col}`,
+            position: { x: baseX + row * (size/2) + col * size, y: baseY - row * size },
+            emoji: '🟫',
+            fontSize: size,
+            health: volcanoHealth
+        });
+    }
+}
+// Add lava
+volcanoEmojis.push({ id: `l10s-lava1`, position: { x: 930, y: baseY - 8 * size }, emoji: '🟥', fontSize: size * 2, health: volcanoHealth });
+volcanoEmojis.push({ id: `l10s-lava2`, position: { x: 960, y: baseY - 7 * size - 10 }, emoji: '🟧', fontSize: size, health: volcanoHealth });
+volcanoEmojis.push({ id: `l10s-lava3`, position: { x: 900, y: baseY - 7 * size - 10 }, emoji: '🟧', fontSize: size, health: volcanoHealth });
+
 
 export const level10: Level = {
     id: 10,
@@ -16,7 +42,7 @@ export const level10: Level = {
         {id: 'l10p1', position: {x: 900, y: 320}, width: 80, height: 20, health: 100}
     ],
     emojiStructures: [
-        {id: 'l10s1', position: {x: 940, y: 550}, emoji: '🌋', fontSize: 250, health: 300},
+        ...volcanoEmojis,
         {id: 'l10s2', position: {x: 450, y: 600}, emoji: '🌴', fontSize: 120},
         {id: 'l10s3', position: {x: 1200, y: 600}, emoji: '🌴', fontSize: 120},
     ],

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Game from './components/Game';
 import { useLevels } from './hooks/useLevels';
 import { useAuth } from './hooks/useAuth';
+// Fix: Corrected import path for Level type.
 import { Level } from './types';
 
 const App: React.FC = () => {

@@ -1,182 +1,166 @@
-import React, { useState } from 'react';
-import { Level, Vec2, HoverableEntity } from '../types';
-// Fix: Corrected import path for useGameSession hook.
+import React, { useState, useCallback, useEffect } from 'react';
+import { Level, Vec2, PokemonType, HoverableEntity } from '../types';
 import { useGameSession } from '../hooks/useGameSession';
-import GameCanvas from '../components/common/GameCanvas';
+import { WORLD_WIDTH, WORLD_HEIGHT } from '../constants';
 import HUD from '../components/HUD';
-// Fix: Corrected import path for ProjectileSelector component.
+import SlingshotControls from '../components/SlingshotControls';
+// Fix: Corrected import path for PLAYER_PROJECTILE_TYPES.
 import ProjectileSelector from '../components/ProjectileSelector';
+import { PLAYER_PROJECTILE_TYPES } from '../components/projectile-data';
 import LevelCompleteScreen from '../components/LevelCompleteScreen';
 import GameOverScreen from '../components/GameOverScreen';
-import StatsCard from '../components/StatsCard';
-import { WORLD_WIDTH, WORLD_HEIGHT } from '../constants';
 import LevelStartScreen from '../components/LevelStartScreen';
-// Fix: Import the SlingshotControls component.
-import SlingshotControls from '../components/SlingshotControls';
+import GameCanvas from '../components/common/GameCanvas';
+import StatsCard from '../components/StatsCard';
+import { soundManager } from '../components/SoundManager';
 
 interface GameScreenProps {
   level: Level;
-  isPlaytesting: boolean;
-  onLevelComplete: () => void;
-  onRestart: () => void;
   onBackToMenu: () => void;
-  onEditLevel: (level: Level) => void;
+  onNextLevel: () => void;
+  onEditLevel: () => void;
+  canEdit: boolean;
+  isTestingEditorLevel: boolean;
+  onReturnToEditor: () => void;
 }
 
-const GameScreen: React.FC<GameScreenProps> = ({
-  level,
-  isPlaytesting,
-  onLevelComplete,
-  onRestart,
-  onBackToMenu,
-  onEditLevel,
-}) => {
+type GamePhase = 'start' | 'playing' | 'paused' | 'complete' | 'over';
+
+const GameScreen: React.FC<GameScreenProps> = ({ level, onBackToMenu, onNextLevel, onEditLevel, canEdit, isTestingEditorLevel, onReturnToEditor }) => {
+  const [phase, setPhase] = useState<GamePhase>('start');
+  const [selectedProjectile, setSelectedProjectile] = useState<PokemonType>(PokemonType.Normal);
+  const [slingshotDragOffset, setSlingshotDragOffset] = useState<Vec2>({ x: 0, y: 0 });
+  const [isSlingshotDragging, setIsSlingshotDragging] = useState(false);
+  const [hoveredEntity, setHoveredEntity] = useState<HoverableEntity | null>(null);
+  const [cardPosition, setCardPosition] = useState<Vec2 | null>(null);
+
   const {
-    status,
-    mpsEarned,
     entities,
-    availableProjectiles,
-    selectedProjectileType,
+    ammo,
+    projectilesLeft,
+    mpsEarned,
+    gameStatus,
     shake,
     parallaxOffset,
-    handleFire,
-    handleSelectProjectile,
-    handleSlingshotDrag,
-    handleDragStateChange,
-    slingshotPosition,
-    canPlaceProjectile,
-    handlePlaceProjectile,
-    startGame,
-  } = useGameSession(level);
+    fireProjectile,
+    restartLevel
+  } = useGameSession(level, phase === 'playing');
 
-  const [hoveredEntity, setHoveredEntity] = useState<HoverableEntity | null>(
-    null,
-  );
-  const [cardPosition, setCardPosition] = useState<Vec2 | null>(null);
+  useEffect(() => {
+    if (gameStatus === 'won') {
+      soundManager.playLevelComplete();
+      setPhase('complete');
+    } else if (gameStatus === 'lost') {
+      soundManager.playGameOver();
+      setPhase('over');
+    }
+  }, [gameStatus]);
+
+  // Auto-select next available projectile
+  useEffect(() => {
+    if (phase !== 'playing') return;
+  
+    const currentAmmo = ammo[selectedProjectile] || 0;
+  
+    if (projectilesLeft > 0 && currentAmmo === 0) {
+      const currentIndex = PLAYER_PROJECTILE_TYPES.indexOf(selectedProjectile);
+      
+      for (let i = 1; i <= PLAYER_PROJECTILE_TYPES.length; i++) {
+        const nextIndex = (currentIndex + i) % PLAYER_PROJECTILE_TYPES.length;
+        const nextType = PLAYER_PROJECTILE_TYPES[nextIndex];
+        if ((ammo[nextType] || 0) > 0) {
+          setSelectedProjectile(nextType);
+          return; 
+        }
+      }
+    }
+  }, [ammo, selectedProjectile, projectilesLeft, phase]);
+  
+  const handleFire = useCallback((velocity: Vec2) => {
+    const firedProjectileType = selectedProjectile;
+    if ((ammo[firedProjectileType] || 0) > 0) {
+      fireProjectile(velocity, firedProjectileType);
+    }
+  }, [fireProjectile, selectedProjectile, ammo]);
+  
+  const handleRestart = useCallback(() => {
+    restartLevel();
+    setPhase('playing');
+  }, [restartLevel]);
+  
+  const handleStart = useCallback(() => {
+    soundManager.initialize();
+    restartLevel(); // Ensure level is fresh on start
+    const firstAvailable = PLAYER_PROJECTILE_TYPES.find(t => (ammo[t] || 0) > 0) || PokemonType.Normal;
+    setSelectedProjectile(firstAvailable);
+    setPhase('playing');
+  }, [restartLevel, ammo]);
 
   const handleEntityHover = (entity: HoverableEntity, e: React.MouseEvent) => {
     setHoveredEntity(entity);
-    const rect = (e.target as SVGElement).getBoundingClientRect();
-    const x = e.clientX;
-    // Position card to the right, but flip to the left if it would go off-screen
-    const cardX = x + 280 > window.innerWidth ? x - 280 : x;
-    setCardPosition({ x: cardX, y: rect.top });
+    const rect = (e.currentTarget as SVGGElement).getBoundingClientRect();
+    const gameContainer = document.getElementById('game-container');
+    if (gameContainer) {
+        const gameRect = gameContainer.getBoundingClientRect();
+        setCardPosition({ x: rect.right - gameRect.left + 10, y: rect.top - gameRect.top });
+    }
   };
 
   const handleEntityLeave = () => {
     setHoveredEntity(null);
-    setCardPosition(null);
   };
 
-  const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (canPlaceProjectile && status === 'playing') {
-      const rect = e.currentTarget.getBoundingClientRect();
+  const slingshotOrigin = { x: 150, y: WORLD_HEIGHT - 150 };
 
-      const clientX = e.clientX;
-      const clientY = e.clientY;
-
-      const svgAspectRatio = WORLD_WIDTH / WORLD_HEIGHT;
-      const rectAspectRatio = rect.width / rect.height;
-
-      let scale: number, offsetX: number, offsetY: number;
-
-      if (svgAspectRatio > rectAspectRatio) {
-        scale = rect.width / WORLD_WIDTH;
-        offsetX = 0;
-        offsetY = (rect.height - WORLD_HEIGHT * scale) / 2;
-      } else {
-        scale = rect.height / WORLD_HEIGHT;
-        offsetX = (rect.width - WORLD_WIDTH * scale) / 2;
-        offsetY = 0;
-      }
-
-      const svgX = (clientX - rect.left - offsetX) / scale;
-      const svgY = (clientY - rect.top - offsetY) / scale;
-
-      handlePlaceProjectile({ x: svgX, y: svgY });
-    }
+  const projectileAtSlingshot = {
+    position: {
+        x: slingshotOrigin.x + slingshotDragOffset.x,
+        y: slingshotOrigin.y + slingshotDragOffset.y,
+    },
+    radius: 15,
+    projectileType: selectedProjectile,
+    id: 'slingshot-proj',
+    velocity: {x: 0, y: 0},
+    bounces: 0
   };
-
-  // Fix: Corrected type errors by implementing useGameSession hook, ensuring availableProjectiles is a Record<string, number>.
-  const totalProjectilesLeft = Object.values(availableProjectiles).reduce(
-    (sum, count) => sum + count,
-    0,
-  );
+  
+  const displayEntities = {
+      ...entities,
+      projectiles: (isSlingshotDragging || (ammo[selectedProjectile] || 0) === 0) ? entities.projectiles : [...entities.projectiles, projectileAtSlingshot]
+  };
 
   return (
-    <div className="relative w-full h-full bg-black flex items-center justify-center">
-      <div
-        className="relative"
-        style={{
-          width: `${WORLD_WIDTH}px`,
-          aspectRatio: `${WORLD_WIDTH} / ${WORLD_HEIGHT}`,
-          cursor: canPlaceProjectile && status === 'playing' ? 'crosshair' : 'default',
-        }}
-        onClick={handleCanvasClick}
-      >
-        <GameCanvas
-          levelTheme={level.theme}
-          shake={shake}
-          parallaxOffset={parallaxOffset}
-          entities={entities}
-          isEditing={false}
-          onEntityHover={handleEntityHover}
-          onEntityLeave={handleEntityLeave}
-        />
-        <HUD
-          mps={mpsEarned}
-          levelName={level.name}
-          projectiles={totalProjectilesLeft}
-          onBackToMenu={onBackToMenu}
-          onEditLevel={() => onEditLevel(level)}
-          canEdit={true}
-        />
-        {status === 'briefing' && (
-          <LevelStartScreen level={level} onStart={startGame} />
-        )}
-        {status === 'playing' && canPlaceProjectile && totalProjectilesLeft > 0 && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-            <p className="text-white text-2xl font-bold bg-black/50 p-4 rounded-lg animate-pulse">
-              Click anywhere to place your projectile!
-            </p>
-          </div>
-        )}
-        {status === 'playing' && (
-          <>
-            {slingshotPosition && (
-              <SlingshotControls
-                slingshotOrigin={slingshotPosition}
-                onFire={handleFire}
-                onDrag={handleSlingshotDrag}
-                selectedProjectileType={selectedProjectileType}
-                onDragStateChange={handleDragStateChange}
-              />
-            )}
-            <ProjectileSelector
-              availableProjectiles={availableProjectiles}
-              selectedType={selectedProjectileType}
-              onSelectType={handleSelectProjectile}
-            />
-          </>
-        )}
-        {status === 'won' && (
-          <LevelCompleteScreen
-            mpsEarned={mpsEarned}
-            onNext={onLevelComplete}
-            isTestingEditorLevel={isPlaytesting}
-            onReturnToEditor={() => onEditLevel(level)}
+    <div id="game-container" className="relative bg-gray-800 overflow-hidden" style={{ width: WORLD_WIDTH, height: WORLD_HEIGHT }}>
+      {phase === 'start' && <LevelStartScreen level={level} onStart={handleStart} />}
+      {phase === 'complete' && <LevelCompleteScreen mpsEarned={mpsEarned} onNext={onNextLevel} isTestingEditorLevel={isTestingEditorLevel} onReturnToEditor={onReturnToEditor} />}
+      {phase === 'over' && <GameOverScreen onRestart={handleRestart} onBackToMenu={onBackToMenu} isTestingEditorLevel={isTestingEditorLevel} onReturnToEditor={onReturnToEditor} />}
+      
+      <HUD mps={mpsEarned} levelName={level.name} projectiles={projectilesLeft} onBackToMenu={onBackToMenu} onEditLevel={onEditLevel} canEdit={canEdit} />
+      
+      <GameCanvas
+        levelTheme={level.theme}
+        shake={shake}
+        parallaxOffset={parallaxOffset}
+        entities={displayEntities}
+        isEditing={false}
+        onEntityHover={handleEntityHover}
+        onEntityLeave={handleEntityLeave}
+      />
+      
+      <StatsCard hoveredEntity={hoveredEntity} cardPosition={cardPosition} />
+
+      {phase === 'playing' && (
+        <>
+          <ProjectileSelector onSelect={setSelectedProjectile} selectedType={selectedProjectile} ammo={ammo} />
+          <SlingshotControls 
+            slingshotOrigin={slingshotOrigin} 
+            onFire={handleFire} 
+            onDrag={setSlingshotDragOffset}
+            selectedProjectileType={selectedProjectile}
+            onDragStateChange={setIsSlingshotDragging}
           />
-        )}
-        {status === 'lost' && (
-          <GameOverScreen
-            onRestart={onRestart}
-            onBackToMenu={onBackToMenu}
-            isTestingEditorLevel={isPlaytesting}
-            onReturnToEditor={() => onEditLevel(level)}
-          />
-        )}
-        <StatsCard hoveredEntity={hoveredEntity} cardPosition={cardPosition} />
-      </div>
+        </>
+      )}
     </div>
   );
 };

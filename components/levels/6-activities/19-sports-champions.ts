@@ -1,4 +1,5 @@
-import { Level } from '../../types';
+// Fix: Corrected import path for Level type.
+import { Level } from '../../../types';
 
 export const level19: Level = {
     id: 19,

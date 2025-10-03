@@ -1,3 +1,4 @@
+// Fix: Corrected import path for PokemonType.
 import { PokemonType } from '../types';
 
 // The classic type chart defining weaknesses, resistances, and immunities.

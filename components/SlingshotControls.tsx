@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+// Fix: Corrected import path for types.
 import { PokemonType, Vec2 } from '../types';
 import { SLINGSHOT_POWER_MULTIPLIER, MAX_SLINGSHOT_DRAG, PROJECTILE_RADIUS, WORLD_WIDTH, WORLD_HEIGHT } from '../constants';
 // Fix: Corrected import path for TYPE_EMOJI_MAP.
-import { TYPE_EMOJI_MAP } from './ProjectileSelector';
+import { TYPE_EMOJI_MAP } from './projectile-data';
 
 interface SlingshotControlsProps {
   slingshotOrigin: Vec2;

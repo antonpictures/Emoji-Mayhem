@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+// Fix: Corrected import path for Level type.
 import { Level } from '../types';
 import { LEVELS_DATA as initialLevels } from '../components/level-data';
 import { COMMUNITY_LEVELS_DATA as communityLevelsData } from '../components/community-levels-data';

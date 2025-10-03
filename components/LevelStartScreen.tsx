@@ -5,7 +5,7 @@ import { ENEMY_CONFIG } from '../services/GameEngine';
 import { POKEMON_DATA } from './pokemon-data';
 import { TYPE_CHART } from './pokemon-type-chart';
 // Fix: Corrected import path for TYPE_EMOJI_MAP.
-import { TYPE_EMOJI_MAP, PLAYER_PROJECTILE_TYPES } from './ProjectileSelector';
+import { TYPE_EMOJI_MAP, PLAYER_PROJECTILE_TYPES } from './projectile-data';
 
 interface LevelStartScreenProps {
   level: Level;
@@ -23,7 +23,7 @@ const LevelStartScreen: React.FC<LevelStartScreenProps> = ({ level, onStart }) =
 
     const enemyTypesInLevel = new Set<PokemonType>();
     level.enemies.forEach(enemyDef => {
-        const config = ENEMY_CONFIG[enemyDef.type];
+        const config = ENEMY_CONFIG[enemyDef.type!];
         const emoji = enemyDef.emoji || config.emoji;
         const pokemonInfo = POKEMON_DATA[emoji!] || { types: [PokemonType.Normal] };
         pokemonInfo.types.forEach(type => enemyTypesInLevel.add(type));

@@ -1,4 +1,34 @@
-import { Level } from '../../types';
+// Fix: Corrected import path for Level type.
+import { Level } from '../../../types';
+
+const castleHealth = 20;
+const castleEmojis = [];
+const baseX = 850;
+const baseY = 550;
+const size = 25;
+
+// Base
+for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 3; j++) {
+        castleEmojis.push({ id: `l2s-base-${i}-${j}`, position: { x: baseX + i * size, y: baseY - j * size }, emoji: '⬛', fontSize: size, health: castleHealth });
+    }
+}
+// Left Tower
+for (let i = 0; i < 6; i++) {
+    castleEmojis.push({ id: `l2s-ltower-${i}`, position: { x: baseX, y: (baseY - 3 * size) - i * size }, emoji: '⬛', fontSize: size, health: castleHealth });
+}
+// Right Tower
+for (let i = 0; i < 6; i++) {
+    castleEmojis.push({ id: `l2s-rtower-${i}`, position: { x: baseX + 8 * size, y: (baseY - 3 * size) - i * size }, emoji: '⬛', fontSize: size, health: castleHealth });
+}
+// Top crenellations
+for (let i = 0; i < 5; i++) {
+    castleEmojis.push({ id: `l2s-ltop-${i}`, position: { x: baseX - size + i * size, y: (baseY - 9 * size) }, emoji: '⬛', fontSize: size, health: castleHealth });
+    castleEmojis.push({ id: `l2s-rtop-${i}`, position: { x: baseX + 5 * size + i * size, y: (baseY - 9 * size) }, emoji: '⬛', fontSize: size, health: castleHealth });
+}
+// Window
+castleEmojis.push({ id: `l2s-window`, position: { x: baseX + 4 * size, y: baseY - 5 * size }, emoji: '🟪', fontSize: size * 2, health: castleHealth });
+
 
 export const level2: Level = {
     id: 2,
@@ -19,7 +49,7 @@ export const level2: Level = {
         { id: 'l2p2', position: { x: 900, y: 350 }, width: 140, height: 20, health: 100 },
     ],
     emojiStructures: [
-        {id: 'l2s1', position: { x: 950, y: 450 }, emoji: '🏰', fontSize: 250, health: 400 },
+        ...castleEmojis,
         {id: 'l2s2', position: { x: 500, y: 600 }, emoji: '⚰️', fontSize: 80 },
     ],
     wormholes: [

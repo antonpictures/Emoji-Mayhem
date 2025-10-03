@@ -1,3 +1,4 @@
+// Fix: Corrected import path for Level type.
 import { Level } from '../types';
 
 // Chapter 2: People & Body
