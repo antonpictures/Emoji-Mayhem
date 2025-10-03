@@ -8,9 +8,11 @@ interface HUDProps {
   onBackToMenu: () => void;
   onEditLevel: () => void;
   canEdit: boolean;
+  onAiFixLevel: () => void;
+  isAiFixing: boolean;
 }
 
-const HUD: React.FC<HUDProps> = ({ mps, levelName, projectiles, onBackToMenu, onEditLevel, canEdit }) => {
+const HUD: React.FC<HUDProps> = ({ mps, levelName, projectiles, onBackToMenu, onEditLevel, canEdit, onAiFixLevel, isAiFixing }) => {
   const handleBackClick = () => {
     soundManager.initialize();
     soundManager.playClick();
@@ -23,6 +25,12 @@ const HUD: React.FC<HUDProps> = ({ mps, levelName, projectiles, onBackToMenu, on
     soundManager.playClick();
     onEditLevel();
   };
+
+  const handleAiFixClick = () => {
+    soundManager.initialize();
+    soundManager.playClick();
+    onAiFixLevel();
+  }
 
   return (
     <div className="absolute top-0 left-0 right-0 p-2 sm:p-4 flex justify-between items-start text-white z-20 pointer-events-none font-sans">
@@ -38,6 +46,13 @@ const HUD: React.FC<HUDProps> = ({ mps, levelName, projectiles, onBackToMenu, on
             className="px-4 py-2 font-bold text-xs bg-red-600 hover:bg-red-500 text-white rounded-md transition-all duration-200 pointer-events-auto shadow-lg border-2 border-red-800"
             >
                 CHANGE LEVEL
+            </button>
+            <button
+                onClick={handleAiFixClick}
+                disabled={isAiFixing}
+                className="px-4 py-2 font-bold text-xs bg-purple-600 hover:bg-purple-500 text-white rounded-md transition-all duration-200 pointer-events-auto shadow-lg border-2 border-purple-800 disabled:bg-gray-500 disabled:border-gray-700 disabled:cursor-wait"
+            >
+                {isAiFixing ? 'GENERATING...' : 'AI FIX LEVEL'}
             </button>
             <div className="relative group">
                 <button

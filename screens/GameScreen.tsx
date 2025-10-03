@@ -13,6 +13,7 @@ import LevelStartScreen from '../components/LevelStartScreen';
 import GameCanvas from '../components/common/GameCanvas';
 import StatsCard from '../components/StatsCard';
 import { soundManager } from '../components/SoundManager';
+import { generateAiLevel } from '../services/AIService';
 
 interface GameScreenProps {
   level: Level;
@@ -33,6 +34,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ level, onBackToMenu, onNextLeve
   const [isSlingshotDragging, setIsSlingshotDragging] = useState(false);
   const [hoveredEntity, setHoveredEntity] = useState<HoverableEntity | null>(null);
   const [cardPosition, setCardPosition] = useState<Vec2 | null>(null);
+  const [isAiFixing, setIsAiFixing] = useState(false);
 
   const {
     entities,
@@ -43,7 +45,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ level, onBackToMenu, onNextLeve
     shake,
     parallaxOffset,
     fireProjectile,
-    restartLevel
+    restartLevel,
+    loadNewLevel,
   } = useGameSession(level, phase === 'playing');
 
   useEffect(() => {
@@ -110,6 +113,21 @@ const GameScreen: React.FC<GameScreenProps> = ({ level, onBackToMenu, onNextLeve
     setHoveredEntity(null);
   };
 
+  const handleAiFixLevel = useCallback(async () => {
+    setIsAiFixing(true);
+    try {
+        const prompt = "Rearrange all the items on the screen to make sense and make it playable. The player shoots from the left. Ensure the level is fun and provides a reasonable challenge.";
+        const newLevelData = await generateAiLevel(prompt, level);
+        loadNewLevel(newLevelData);
+    } catch (error) {
+        console.error("AI level fix failed:", error);
+        alert("Sorry, the AI couldn't fix the level right now. Please try again.");
+    } finally {
+        setIsAiFixing(false);
+    }
+  }, [level, loadNewLevel]);
+
+
   const slingshotOrigin = { x: 150, y: WORLD_HEIGHT - 150 };
 
   const projectileAtSlingshot = {
@@ -134,8 +152,14 @@ const GameScreen: React.FC<GameScreenProps> = ({ level, onBackToMenu, onNextLeve
       {phase === 'start' && <LevelStartScreen level={level} onStart={handleStart} />}
       {phase === 'complete' && <LevelCompleteScreen mpsEarned={mpsEarned} onNext={onNextLevel} isTestingEditorLevel={isTestingEditorLevel} onReturnToEditor={onReturnToEditor} />}
       {phase === 'over' && <GameOverScreen onRestart={handleRestart} onBackToMenu={onBackToMenu} isTestingEditorLevel={isTestingEditorLevel} onReturnToEditor={onReturnToEditor} />}
+      {isAiFixing && (
+        <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-50 font-sans">
+            <div className="text-5xl mb-4">🤖</div>
+            <div className="text-white text-xl font-bold animate-pulse">AI is redesigning the level...</div>
+        </div>
+      )}
       
-      <HUD mps={mpsEarned} levelName={level.name} projectiles={projectilesLeft} onBackToMenu={onBackToMenu} onEditLevel={onEditLevel} canEdit={canEdit} />
+      <HUD mps={mpsEarned} levelName={level.name} projectiles={projectilesLeft} onBackToMenu={onBackToMenu} onEditLevel={onEditLevel} canEdit={canEdit} onAiFixLevel={handleAiFixLevel} isAiFixing={isAiFixing} />
       
       <GameCanvas
         levelTheme={level.theme}

@@ -10,7 +10,8 @@ import { PROJECTILE_RADIUS } from '../constants';
 
 type GameStatus = 'playing' | 'won' | 'lost';
 
-export const useGameSession = (level: Level, isRunning: boolean) => {
+export const useGameSession = (initialLevel: Level, isRunning: boolean) => {
+    const [level, setLevel] = useState(initialLevel);
     const [entities, setEntities] = useState<Entities>(() => initializeEntities(level));
     const [ammo, setAmmo] = useState<Record<PokemonType, number>>(() => initializeAmmo(level));
     const [mpsEarned, setMpsEarned] = useState(0);
@@ -108,5 +109,22 @@ export const useGameSession = (level: Level, isRunning: boolean) => {
         setGameStatus('playing');
     }, [level]);
 
-    return { entities, ammo, projectilesLeft, mpsEarned, gameStatus, shake, parallaxOffset, fireProjectile, restartLevel };
+    const loadNewLevel = useCallback((newLevelData: Level) => {
+        const preservedProps = {
+            id: level.id,
+            name: level.name,
+            projectiles: level.projectiles,
+            creator: level.creator,
+            isCustom: level.isCustom,
+            isCommunity: level.isCommunity,
+        };
+        const sanitizedLevel = { ...newLevelData, ...preservedProps };
+        setLevel(sanitizedLevel);
+        setEntities(initializeEntities(sanitizedLevel));
+        setAmmo(initializeAmmo(sanitizedLevel));
+        setMpsEarned(0);
+        setGameStatus('playing');
+    }, [level]);
+
+    return { entities, ammo, projectilesLeft, mpsEarned, gameStatus, shake, parallaxOffset, fireProjectile, restartLevel, loadNewLevel };
 };
