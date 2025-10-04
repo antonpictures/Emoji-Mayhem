@@ -10,6 +10,7 @@ interface TitleScreenProps {
   onLogout: () => void;
   onStartVideoPoker: () => void;
   onStartEmpireRTS: () => void;
+  onStartVideoEditor: () => void;
 }
 
 const TitleScreen: React.FC<TitleScreenProps> = ({
@@ -19,6 +20,7 @@ const TitleScreen: React.FC<TitleScreenProps> = ({
   onLogout,
   onStartVideoPoker,
   onStartEmpireRTS,
+  onStartVideoEditor,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
@@ -112,6 +114,13 @@ const TitleScreen: React.FC<TitleScreenProps> = ({
                     >
                         <span className="text-2xl sm:text-3xl mr-3">🏰</span>
                         Play Empire MPS
+                    </button>
+                    <button
+                        onClick={() => handleAction(onStartVideoEditor)}
+                        className="px-6 py-3 sm:px-10 sm:py-4 font-bold text-base sm:text-xl bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center mx-auto"
+                    >
+                        <span className="text-2xl sm:text-3xl mr-3">🎥</span>
+                        $MPS Video Editor
                     </button>
                  </div>
             </div>

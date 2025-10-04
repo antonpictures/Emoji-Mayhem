@@ -2,7 +2,6 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
 */
-// Empire MPS
 
 import React from 'react';
 import { useGameState } from './useGameState-empirerts';
@@ -10,30 +9,41 @@ import { useGameLoop } from './useGameLoop-empirerts';
 import { useGameEngine } from './useGameEngine-empirerts';
 import { useEnemyAI } from './useEnemyAI-empirerts';
 import UI from './UI-empirerts';
-// FIX: Corrected import path for BuildingType.
-import { BuildingType } from './types-empirerts';
+import { GameStatus } from './types-empirerts';
 
-const RTSGame = () => {
+interface RTSGameProps {
+    onBackToTitle: () => void;
+}
+
+const RTSGame: React.FC<RTSGameProps> = ({ onBackToTitle }) => {
     const { gameState, dispatch } = useGameState();
-    const [placementMode, setPlacementMode] = React.useState<BuildingType | null>(null);
-
-    const { tick: engineTick } = useGameEngine({ gameState, dispatch });
-    const { tick: enemyAITick } = useEnemyAI({ gameState, dispatch, isEnabled: true });
+    const gameEngine = useGameEngine({ gameState, dispatch });
+    const enemyAI = useEnemyAI({ gameState, dispatch, isEnabled: true });
 
     useGameLoop(() => {
-        engineTick();
-        enemyAITick();
+        gameEngine.tick();
+        enemyAI.tick();
     });
 
+    const handleRestart = () => {
+        dispatch({ type: 'START_GAME' });
+    };
+
+    const renderOverlay = (title: string, buttonText: string) => (
+         <div className="winner-overlay">
+            <h1>{title}</h1>
+            <div>
+                <button onClick={handleRestart} style={{ marginRight: '10px' }}>{buttonText}</button>
+                <button onClick={onBackToTitle}>Main Menu</button>
+            </div>
+        </div>
+    );
+
     return (
-        <div className="game-container">
-            <UI
-                gameState={gameState}
-                dispatch={dispatch}
-                placementMode={placementMode}
-                setPlacementMode={setPlacementMode}
-                setView={() => {}} // setView is no longer used
-            />
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+            {gameState.gameStatus === 'player-won' && renderOverlay('VICTORY!', 'Play Again')}
+            {gameState.gameStatus === 'enemy-won' && renderOverlay('DEFEAT', 'Try Again')}
+            <UI gameState={gameState} dispatch={dispatch} onBackToTitle={onBackToTitle} />
         </div>
     );
 };

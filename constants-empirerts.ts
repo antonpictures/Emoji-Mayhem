@@ -11,8 +11,8 @@ export const TICK_RATE = 1000 / 60; // 60 ticks per second
 // --- World & Viewport ---
 export const WORLD_WIDTH = 3000;
 export const WORLD_HEIGHT = 3000;
-export const VIEWPORT_WIDTH = 1200;
-export const VIEWPORT_HEIGHT = 760; // Adjusted to not overlap with bottom panel
+export const VIEWPORT_WIDTH = 800;
+export const VIEWPORT_HEIGHT = 500;
 
 // --- Object Sizes ---
 export const UNIT_RADIUS = 15;

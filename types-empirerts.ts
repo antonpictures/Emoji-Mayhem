@@ -1,3 +1,5 @@
+import { GoogleGenAI } from '@google/genai';
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -44,6 +46,7 @@ export interface Unit extends BaseObject {
     carryingAmount?: number;
     attackCooldown?: number;
     stuckCounter?: number;
+    stance: 'aggressive' | 'stand_ground';
 }
 
 export interface Building extends BaseObject {
@@ -92,6 +95,7 @@ export interface PlayerState {
     resources: Resources;
     currentAge: Age;
     activeFormation: FormationType;
+    name: string;
 }
 
 export interface GameState {
@@ -119,7 +123,8 @@ export type GameAction =
     | { type: 'SET_IMPACT_MESSAGE', payload: ImpactMessage | null }
     | { type: 'ADVANCE_AGE', payload: { owner: Owner } }
     | { type: 'SET_FORMATION', payload: { owner: Owner, formation: FormationType } }
-    | { type: 'SELECT_IDLE_VILLAGER' };
+    | { type: 'SELECT_IDLE_VILLAGER' }
+    | { type: 'SET_UNIT_STANCE', payload: { unitIds: string[], stance: 'aggressive' | 'stand_ground' } };
 
 export interface MapData {
     meta: {
@@ -128,7 +133,7 @@ export interface MapData {
         height: number;
     };
     terrain: Omit<Terrain, 'id' | 'owner'>[];
-    units: Omit<Unit, 'id' | 'hp' | 'maxHp' | 'speed' | 'attack' | 'attackRange' | 'action' | 'target'>[];
+    units: Omit<Unit, 'id' | 'hp' | 'maxHp' | 'speed' | 'attack' | 'attackRange' | 'action' | 'target' | 'stance'>[];
     buildings: Omit<Building, 'id' | 'hp' | 'maxHp' | 'buildProgress'>[];
     resources: Omit<ResourceNode, 'id' | 'owner'>[];
 }

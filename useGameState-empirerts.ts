@@ -114,6 +114,7 @@ export const getInitialState = (): GameState => {
             attackRange: stats.attackRange,
             action: 'idle',
             target: null,
+            stance: 'aggressive',
         }
     });
 
@@ -147,9 +148,9 @@ export const getInitialState = (): GameState => {
         resourceNodes,
         terrain,
         players: {
-            PLAYER: { resources: { ...INITIAL_RESOURCES }, currentAge: 'Stone Age', activeFormation: 'loose' },
-            ENEMY: { resources: { ...INITIAL_RESOURCES }, currentAge: 'Stone Age', activeFormation: 'loose' },
-            NEUTRAL: { resources: { Wood: 0, Food: 0, Gold: 0 }, currentAge: 'Stone Age', activeFormation: 'loose' }
+            PLAYER: { name: 'Player', resources: { ...INITIAL_RESOURCES }, currentAge: 'Stone Age', activeFormation: 'loose' },
+            ENEMY: { name: 'The Crimson Empire', resources: { ...INITIAL_RESOURCES }, currentAge: 'Stone Age', activeFormation: 'loose' },
+            NEUTRAL: { name: 'Gaia', resources: { Wood: 0, Food: 0, Gold: 0 }, currentAge: 'Stone Age', activeFormation: 'loose' }
         },
         selectedObjectIds: [],
         camera: { x: 0, y: 0 },
@@ -330,6 +331,15 @@ const gameReducer = produce((draft: GameState, action: GameAction) => {
             if (draft.players[owner]) {
                 draft.players[owner].activeFormation = formation;
             }
+            break;
+        }
+        case 'SET_UNIT_STANCE': {
+            const { unitIds, stance } = action.payload;
+            draft.units.forEach(unit => {
+                if (unitIds.includes(unit.id)) {
+                    unit.stance = stance;
+                }
+            });
             break;
         }
         case 'SELECT_IDLE_VILLAGER': {

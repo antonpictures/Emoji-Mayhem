@@ -19,7 +19,8 @@ export const useGameSession = (initialLevel: Level, isRunning: boolean) => {
     const [shake, setShake] = useState({ intensity: 0, duration: 0 });
     const [parallaxOffset, setParallaxOffset] = useState({ x: 0, y: 0 });
 
-    const projectilesLeft = useMemo(() => Object.values(ammo).reduce((sum, count) => sum + count, 0), [ammo]);
+    // Fix: Explicitly typed the parameters for the reduce function to fix a type inference issue.
+    const projectilesLeft = useMemo(() => Object.values(ammo).reduce((sum: number, count: number) => sum + count, 0), [ammo]);
 
     const requestRef = useRef<number | null>(null);
     const lastTimeRef = useRef<number | undefined>(undefined);

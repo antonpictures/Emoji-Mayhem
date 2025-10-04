@@ -2,5 +2,7 @@
   "name": "Google Maps Games",
   "description": "This gaming experience is proudly brought to you by $MPS on Solana.\nBUY $MPS to support our games!\nhttps://pump.fun/coin/6PHhkb9GNDTp6tsfr9EsZvJjyssxn8yi4HpPnqNvpump",
   "version": "1.0.0",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "camera"
+  ]
 }
